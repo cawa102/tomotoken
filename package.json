@@ -1,0 +1,55 @@
+{
+  "name": "tomotoken",
+  "version": "0.1.0",
+  "description": "Visualize your Claude Code usage as a growing pet character",
+  "type": "module",
+  "bin": {
+    "tomotoken": "./dist/bin/tomotoken.js"
+  },
+  "main": "./dist/src/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/bin/tomotoken.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ bin/ --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "pet",
+    "ascii-art",
+    "cli",
+    "tui",
+    "token-usage"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "ink": "^5.1.0",
+    "react": "^18.3.1",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/react": "^18.3.18",
+    "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^3.0.5",
+    "eslint": "^9.20.0",
+    "ink-testing-library": "^4.0.0",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
