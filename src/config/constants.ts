@@ -5,6 +5,7 @@ export const TOMOTOKEN_DIR = join(homedir(), ".tomotoken");
 export const CONFIG_PATH = join(TOMOTOKEN_DIR, "config.json");
 export const STATE_PATH = join(TOMOTOKEN_DIR, "state.json");
 export const COLLECTION_PATH = join(TOMOTOKEN_DIR, "collection.json");
+export const LOCK_PATH = join(TOMOTOKEN_DIR, "tomotoken.lock");
 
 export const CLAUDE_PROJECTS_DIR = join(homedir(), ".claude", "projects");
 

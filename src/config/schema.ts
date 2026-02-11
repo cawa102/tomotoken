@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { homedir } from "node:os";
+import { resolve } from "node:path";
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -10,7 +12,14 @@ import {
 } from "./constants.js";
 
 export const ConfigSchema = z.object({
-  logPath: z.string().optional(),
+  logPath: z.string().optional().refine(
+    (p) => {
+      if (!p) return true;
+      const resolved = p.startsWith("~/") ? resolve(homedir(), p.slice(2)) : resolve(p);
+      return resolved.startsWith(homedir());
+    },
+    "logPath must be within home directory",
+  ),
   canvas: z
     .object({
       width: z.number().int().min(16).max(80).default(CANVAS_WIDTH),

@@ -20,13 +20,13 @@ export function loadConfig(path: string = CONFIG_PATH): Config {
 export function saveConfig(config: Config, path: string = CONFIG_PATH): void {
   const dir = dirname(path);
   if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
+    mkdirSync(dir, { recursive: true, mode: 0o700 });
   }
-  writeFileSync(path, JSON.stringify(config, null, 2), "utf-8");
+  writeFileSync(path, JSON.stringify(config, null, 2), { encoding: "utf-8", mode: 0o600 });
 }
 
 export function ensureDataDir(): void {
   if (!existsSync(TOMOTOKEN_DIR)) {
-    mkdirSync(TOMOTOKEN_DIR, { recursive: true });
+    mkdirSync(TOMOTOKEN_DIR, { recursive: true, mode: 0o700 });
   }
 }

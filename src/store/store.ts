@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   renameSync,
+  unlinkSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -12,8 +13,43 @@ import {
   STATE_PATH,
   COLLECTION_PATH,
   TOMOTOKEN_DIR,
+  LOCK_PATH,
 } from "../config/constants.js";
 import type { AppState, Collection, PetRecord, CompletedPet } from "./types.js";
+
+const LOCK_STALE_MS = 5 * 60 * 1000; // 5 minutes
+
+export function acquireLock(lockPath: string = LOCK_PATH): boolean {
+  ensureDir(lockPath);
+  if (existsSync(lockPath)) {
+    try {
+      const raw = readFileSync(lockPath, "utf-8");
+      const { pid, timestamp } = JSON.parse(raw) as { pid: number; timestamp: number };
+      const age = Date.now() - timestamp;
+      // Check if lock is stale (process dead or too old)
+      try {
+        process.kill(pid, 0); // Test if process exists
+        if (age < LOCK_STALE_MS) return false; // Process alive and lock is fresh
+      } catch {
+        // Process doesn't exist — stale lock, take over
+      }
+    } catch {
+      // Corrupted lock file — take over
+    }
+  }
+  writeFileSync(lockPath, JSON.stringify({ pid: process.pid, timestamp: Date.now() }), { encoding: "utf-8", mode: 0o600 });
+  return true;
+}
+
+export function releaseLock(lockPath: string = LOCK_PATH): void {
+  try {
+    if (existsSync(lockPath)) {
+      unlinkSync(lockPath);
+    }
+  } catch {
+    // Best-effort cleanup
+  }
+}
 
 function ensureDir(filePath: string): void {
   const dir = dirname(filePath);
