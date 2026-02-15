@@ -1,4 +1,13 @@
-import type { CreatureParams } from "./types.js";
+import type { CreatureParams, LimbStage } from "./types.js";
+
+function computeLimbStage(progress: number): LimbStage {
+  if (progress < 0.1) return 0;
+  if (progress < 0.3) return 1;
+  if (progress < 0.5) return 2;
+  if (progress < 0.7) return 3;
+  if (progress >= 1.0) return 5;
+  return 4;
+}
 
 /**
  * Applies progress-based gating to creature features.
@@ -8,10 +17,12 @@ export function adjustParamsForProgress(
   params: CreatureParams,
   progress: number,
 ): CreatureParams {
+  const limbStage = computeLimbStage(progress);
+
   if (progress < 0.1) {
     return {
       ...params,
-      limbStage: 0,
+      limbStage,
       hasEars: false,
       hasTail: false,
       hasHorns: false,
@@ -23,7 +34,7 @@ export function adjustParamsForProgress(
   if (progress < 0.3) {
     return {
       ...params,
-      limbStage: 1,
+      limbStage,
       hasEars: false,
       hasTail: false,
       hasHorns: false,
@@ -35,6 +46,7 @@ export function adjustParamsForProgress(
   if (progress < 0.5) {
     return {
       ...params,
+      limbStage,
       hasHorns: false,
       hasWings: false,
       patternDensity: params.patternDensity * progress,
@@ -44,6 +56,7 @@ export function adjustParamsForProgress(
   if (progress < 0.7) {
     return {
       ...params,
+      limbStage,
       hasWings: false,
       patternDensity: params.patternDensity * progress,
     };
@@ -51,6 +64,7 @@ export function adjustParamsForProgress(
 
   return {
     ...params,
+    limbStage,
     patternDensity: params.patternDensity * progress,
   };
 }

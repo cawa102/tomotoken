@@ -206,6 +206,38 @@ describe("adjustParamsForProgress", () => {
     expect(p.hasWings).toBe(baseParams.hasWings);
   });
 
+  describe("limbStage progression", () => {
+    const base = deriveCreatureParams(TRAITS, DEPTH, STYLE, createPrng(SEED));
+
+    it("limbStage=0 when progress < 0.1", () => {
+      expect(adjustParamsForProgress(base, 0.05).limbStage).toBe(0);
+    });
+
+    it("limbStage=1 when progress in [0.1, 0.3)", () => {
+      expect(adjustParamsForProgress(base, 0.1).limbStage).toBe(1);
+      expect(adjustParamsForProgress(base, 0.29).limbStage).toBe(1);
+    });
+
+    it("limbStage=2 when progress in [0.3, 0.5)", () => {
+      expect(adjustParamsForProgress(base, 0.3).limbStage).toBe(2);
+      expect(adjustParamsForProgress(base, 0.49).limbStage).toBe(2);
+    });
+
+    it("limbStage=3 when progress in [0.5, 0.7)", () => {
+      expect(adjustParamsForProgress(base, 0.5).limbStage).toBe(3);
+      expect(adjustParamsForProgress(base, 0.69).limbStage).toBe(3);
+    });
+
+    it("limbStage=4 when progress in [0.7, 1.0)", () => {
+      expect(adjustParamsForProgress(base, 0.7).limbStage).toBe(4);
+      expect(adjustParamsForProgress(base, 0.99).limbStage).toBe(4);
+    });
+
+    it("limbStage=5 when progress >= 1.0", () => {
+      expect(adjustParamsForProgress(base, 1.0).limbStage).toBe(5);
+    });
+  });
+
   it("immutable: input params not modified", () => {
     const before = { ...baseParams };
     adjustParamsForProgress(baseParams, 0.05);
