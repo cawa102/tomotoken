@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import { resolve } from "node:path";
 import React from "react";
 import { render } from "ink";
 import { App } from "../src/ui/app.js";
@@ -9,6 +10,7 @@ import { runFull, runCalibration, runIngestion, runProgression, runPersonality }
 import { loadState, saveState, saveCollection, createInitialState, addCompletedPet, acquireLock, releaseLock } from "../src/store/index.js";
 import { loadConfig, ensureDataDir } from "../src/config/index.js";
 import { loadCollection } from "../src/store/index.js";
+import { spawnWindow } from "../src/window/index.js";
 
 const program = new Command();
 
@@ -173,6 +175,22 @@ program
         },
       }),
     );
+  });
+
+program
+  .command("window")
+  .description("Open pet in a new terminal window (live watch mode)")
+  .option("--no-animate", "Disable animation in the new window")
+  .action((opts: { animate: boolean }) => {
+    const extraArgs = opts.animate === false ? ["--no-animate"] : [];
+    const binPath = resolve(process.argv[1]);
+    const result = spawnWindow(binPath, extraArgs);
+    if (!result.success) {
+      console.error(`Failed to open window: ${result.error}`);
+      console.error('Tip: run "tomotoken watch" manually in another terminal.');
+      process.exit(1);
+    }
+    console.log(`Opened tomotoken in ${result.terminalUsed}`);
   });
 
 program.parse();
