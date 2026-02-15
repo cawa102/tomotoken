@@ -625,3 +625,123 @@ describe("generateParametricBody", () => {
     expect(result.palette.colors).toHaveLength(10);
   });
 });
+
+// ---------------------------------------------------------------------------
+// limb stages integration
+// ---------------------------------------------------------------------------
+describe("limb stages integration", () => {
+  const canvasW = 32;
+  const canvasH = 16;
+
+  it("progress 0.05 → no limb pixels outside body", () => {
+    const result = generateParametricBody(
+      createPrng(SEED),
+      0.05,
+      TRAITS,
+      DEPTH,
+      STYLE,
+      canvasW,
+      canvasH,
+    );
+    const flat = result.pixelCanvas.flat();
+    expect(flat.filter((v) => v !== 0).length).toBeGreaterThan(0);
+  });
+
+  it("progress 0.15 → has 1px stick limbs", () => {
+    const result = generateParametricBody(
+      createPrng(SEED),
+      0.15,
+      TRAITS,
+      DEPTH,
+      STYLE,
+      canvasW,
+      canvasH,
+    );
+    const flat = result.pixelCanvas.flat();
+    expect(flat.filter((v) => v !== 0).length).toBeGreaterThan(10);
+  });
+
+  it("progress 0.5 → has joint highlights (palette 3) in limb area", () => {
+    const result = generateParametricBody(
+      createPrng(SEED),
+      0.5,
+      TRAITS,
+      DEPTH,
+      STYLE,
+      canvasW,
+      canvasH,
+    );
+    const flat = result.pixelCanvas.flat();
+    expect(flat.includes(3)).toBe(true);
+  });
+
+  it("progress 1.0 → has all detail including outlines", () => {
+    const result = generateParametricBody(
+      createPrng(SEED),
+      1.0,
+      TRAITS,
+      DEPTH,
+      STYLE,
+      canvasW,
+      canvasH,
+    );
+    const flat = result.pixelCanvas.flat();
+    const nonZero = flat.filter((v) => v !== 0).length;
+    const tinyResult = generateParametricBody(
+      createPrng(SEED),
+      0.05,
+      TRAITS,
+      DEPTH,
+      STYLE,
+      canvasW,
+      canvasH,
+    );
+    const tinyNonZero = tinyResult.pixelCanvas
+      .flat()
+      .filter((v) => v !== 0).length;
+    expect(nonZero).toBeGreaterThan(tinyNonZero * 2);
+  });
+
+  it("limb pixel count increases with stage progression", () => {
+    const progresses = [0.15, 0.35, 0.55, 0.75, 1.0];
+    const pixelCounts = progresses.map((p) => {
+      const r = generateParametricBody(
+        createPrng(SEED),
+        p,
+        TRAITS,
+        DEPTH,
+        STYLE,
+        canvasW,
+        canvasH,
+      );
+      return r.pixelCanvas.flat().filter((v) => v !== 0).length;
+    });
+    for (let i = 1; i < pixelCounts.length; i++) {
+      expect(pixelCounts[i]).toBeGreaterThanOrEqual(pixelCounts[i - 1]);
+    }
+  });
+
+  it("determinism: same seed → identical canvas at each stage", () => {
+    for (const progress of [0.15, 0.35, 0.55, 0.75, 1.0]) {
+      const a = generateParametricBody(
+        createPrng(SEED),
+        progress,
+        TRAITS,
+        DEPTH,
+        STYLE,
+        canvasW,
+        canvasH,
+      );
+      const b = generateParametricBody(
+        createPrng(SEED),
+        progress,
+        TRAITS,
+        DEPTH,
+        STYLE,
+        canvasW,
+        canvasH,
+      );
+      expect(a.pixelCanvas).toEqual(b.pixelCanvas);
+    }
+  });
+});
