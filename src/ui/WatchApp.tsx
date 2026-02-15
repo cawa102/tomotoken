@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Text, useInput } from "ink";
 import { useWatcher } from "./hooks/useWatcher.js";
+import { useEncouragement } from "./hooks/useEncouragement.js";
 import { PetView } from "./components/PetView.js";
 import type { AppState, Collection } from "../store/types.js";
 import type { Config } from "../config/schema.js";
@@ -14,6 +15,7 @@ interface Props {
 
 export function WatchApp({ config, initialState, initialCollection, onExit }: Props) {
   const { state, collection, newlyCompleted, updateCount } = useWatcher(config, initialState, initialCollection);
+  const encouragement = useEncouragement(config, state, updateCount);
 
   useInput((_input, key) => {
     if (key.escape || (key.ctrl && _input === "c")) {
@@ -30,6 +32,11 @@ export function WatchApp({ config, initialState, initialCollection, onExit }: Pr
       <Text> </Text>
       <PetView state={state} config={config} />
       <Text> </Text>
+      {encouragement.visible && encouragement.message && (
+        <Box borderStyle="round" borderColor="yellow" paddingX={1}>
+          <Text color="yellow">{encouragement.message}</Text>
+        </Box>
+      )}
       {latestCompleted && (
         <Box flexDirection="column">
           <Text bold color="green">Pet completed!</Text>
