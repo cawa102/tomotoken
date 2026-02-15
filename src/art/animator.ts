@@ -1,71 +1,65 @@
 import type { AnimationHints, MutablePixelCanvas, PixelCanvas } from "./pixel/types.js";
+import type { LimbStage } from "./parametric/types.js";
+import {
+  applyBlink, applyArmSway, applyFootTap, applyGesture, applyShimmer,
+} from "./animation-actions.js";
 
+type ActionName = "blink" | "arm_sway" | "foot_tap" | "gesture" | "shimmer" | "orb_float";
 type Prng = () => number;
+
+const ACTION_TRIGGER_PROBABILITY = 0.3;
 
 function deepCopyPixels(canvas: PixelCanvas): MutablePixelCanvas {
   return canvas.map((row) => [...row]);
 }
 
-/**
- * Blink frame: set eye pixels to 0 (transparent) to simulate closed eyes.
- */
-function blink(base: PixelCanvas, hints: AnimationHints): PixelCanvas {
-  const frame = deepCopyPixels(base);
-  for (const [row, col] of hints.eyePositions) {
-    if (row >= 0 && row < frame.length && col >= 0 && col < frame[row].length) {
-      // Set eye-white (5) and pupil (6) pixels to outline color (1) for "closed" look
-      const val = frame[row][col];
-      if (val === 5 || val === 6) {
-        frame[row][col] = 1;
-      }
-    }
+export function generateBaseFrame(base: PixelCanvas): PixelCanvas {
+  return base.map((row) => [...row]);
+}
+
+export function getActionPool(limbStage: LimbStage): ActionName[] {
+  const pool: ActionName[] = ["blink", "gesture", "shimmer"];
+  if (limbStage >= 2) pool.push("arm_sway");
+  if (limbStage >= 3) pool.push("foot_tap");
+  if (limbStage >= 5) pool.push("orb_float");
+  return pool;
+}
+
+function applyAction(
+  base: PixelCanvas,
+  hints: AnimationHints,
+  action: ActionName,
+  prng: Prng,
+): PixelCanvas {
+  switch (action) {
+    case "blink": return applyBlink(base, hints);
+    case "arm_sway": return applyArmSway(base, hints, prng);
+    case "foot_tap": return applyFootTap(base, hints, prng);
+    case "gesture": return applyGesture(base, hints, prng);
+    case "shimmer": return applyShimmer(base, hints, prng);
+    case "orb_float": return applyArmSway(base, hints, prng); // reuse vertical shift
+    default: return generateBaseFrame(base);
   }
-  return frame;
+}
+
+export function generateRandomFrame(
+  base: PixelCanvas,
+  hints: AnimationHints,
+  limbStage: LimbStage,
+  prng: Prng,
+): PixelCanvas {
+  if (prng() > ACTION_TRIGGER_PROBABILITY) {
+    return generateBaseFrame(base);
+  }
+
+  const pool = getActionPool(limbStage);
+  const action = pool[Math.floor(prng() * pool.length)];
+  return applyAction(base, hints, action, prng);
 }
 
 /**
- * Gesture frame: shift a few edge pixels left or right by 1.
- */
-function gesture(base: PixelCanvas, hints: AnimationHints, prng: Prng): PixelCanvas {
-  const frame = deepCopyPixels(base);
-  const candidates = hints.gesturePixels;
-  if (candidates.length === 0) return frame;
-
-  const count = Math.min(3, Math.floor(prng() * 3) + 1);
-  for (let i = 0; i < count; i++) {
-    const [row, col] = candidates[Math.floor(prng() * candidates.length)];
-    if (row < 0 || row >= frame.length) continue;
-    const dir = prng() > 0.5 ? 1 : -1;
-    const newCol = col + dir;
-    if (newCol >= 0 && newCol < frame[row].length && frame[row][newCol] === 0) {
-      frame[row][newCol] = frame[row][col];
-      frame[row][col] = 0;
-    }
-  }
-  return frame;
-}
-
-/**
- * Shimmer frame: randomly swap a few body pixels to highlight color (4).
- */
-function shimmer(base: PixelCanvas, hints: AnimationHints, prng: Prng): PixelCanvas {
-  const frame = deepCopyPixels(base);
-  const candidates = hints.shimmerPixels;
-  if (candidates.length === 0) return frame;
-
-  const count = Math.min(3, Math.floor(prng() * 3) + 1);
-  for (let i = 0; i < count; i++) {
-    const [row, col] = candidates[Math.floor(prng() * candidates.length)];
-    if (row >= 0 && row < frame.length && col >= 0 && col < frame[row].length) {
-      frame[row][col] = 4; // highlight color
-    }
-  }
-  return frame;
-}
-
-/**
- * Generate 4 animation frames from a PixelCanvas:
- * [base, blink, gesture, shimmer]
+ * Legacy API: still generates 4 frames for compatibility.
+ * The renderer may switch to generateRandomFrame() for live display.
  */
 export function generateFrames(
   base: PixelCanvas,
@@ -74,8 +68,8 @@ export function generateFrames(
 ): PixelCanvas[] {
   return [
     deepCopyPixels(base),
-    blink(base, hints),
-    gesture(base, hints, prng),
-    shimmer(base, hints, prng),
+    applyBlink(base, hints),
+    applyGesture(base, hints, prng),
+    applyShimmer(base, hints, prng),
   ];
 }
