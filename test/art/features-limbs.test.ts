@@ -213,4 +213,67 @@ describe("placeFeatures limb stages", () => {
     }
     expect(kneePixels).toBeGreaterThan(0);
   });
+
+  it("limbStage=3: arms end with 3px wide fist", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 3, armLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    // Find the lowest arm pixel row on left side, check 3px width at that level
+    let lowestArmRow = 0;
+    for (let r = H - 1; r >= 0; r--) {
+      for (let c = 0; c < bodyBounds.left; c++) {
+        if (result[r][c] !== 0) {
+          lowestArmRow = r;
+          break;
+        }
+      }
+      if (lowestArmRow > 0) break;
+    }
+    // Count non-zero pixels in fist rows (last row of arm on left side)
+    let fistWidth = 0;
+    for (let c = 0; c < bodyBounds.left; c++) {
+      if (result[lowestArmRow][c] !== 0) fistWidth++;
+    }
+    expect(fistWidth).toBeGreaterThanOrEqual(3);
+  });
+
+  it("limbStage=3: legs end with 4px wide shoe sole", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 3, legLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    // Find lowest leg pixel row
+    let lowestLegRow = 0;
+    for (let r = H - 1; r >= 0; r--) {
+      let found = false;
+      for (let c = 0; c < W; c++) {
+        if (result[r][c] !== 0) {
+          lowestLegRow = r;
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+    // Count non-zero pixels in shoe row for one leg
+    const centerX = Math.round((bodyBounds.left + bodyBounds.right) / 2);
+    let leftShoeWidth = 0;
+    for (let c = 0; c < centerX; c++) {
+      if (result[lowestLegRow][c] !== 0) leftShoeWidth++;
+    }
+    expect(leftShoeWidth).toBeGreaterThanOrEqual(4);
+  });
 });

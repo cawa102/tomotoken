@@ -203,6 +203,17 @@ export function placeFeatures(
         setPixel(result, elbowRow + i, lCol - elbowOffset + 1, 2);
         gesturePixels.push([elbowRow + i, lCol - elbowOffset]);
       }
+      // Left fist: 3px wide x 2px high at forearm end
+      if (params.limbStage >= 3) {
+        const fistRow = elbowRow + halfLen + 1;
+        const fistCol = lCol - elbowOffset - 1;
+        for (let fr = 0; fr < 2; fr++) {
+          for (let fc = 0; fc < 3; fc++) {
+            setPixel(result, fistRow + fr, fistCol + fc, 2);
+          }
+        }
+        gesturePixels.push([fistRow, fistCol], [fistRow + 1, fistCol + 2]);
+      }
 
       // -- Right arm (mirrored) --
       const rCol = bodyBounds.right + 1;
@@ -218,6 +229,17 @@ export function placeFeatures(
         setPixel(result, elbowRow + i, rCol + elbowOffset - 1, 2);
         setPixel(result, elbowRow + i, rCol + elbowOffset, 2);
         gesturePixels.push([elbowRow + i, rCol + elbowOffset]);
+      }
+      // Right fist: 3px wide x 2px high at forearm end
+      if (params.limbStage >= 3) {
+        const fistRow = elbowRow + halfLen + 1;
+        const fistCol = rCol + elbowOffset - 1;
+        for (let fr = 0; fr < 2; fr++) {
+          for (let fc = 0; fc < 3; fc++) {
+            setPixel(result, fistRow + fr, fistCol + fc, 2);
+          }
+        }
+        gesturePixels.push([fistRow, fistCol], [fistRow + 1, fistCol + 2]);
       }
     }
   }
@@ -256,6 +278,17 @@ export function placeFeatures(
         setPixel(result, kneeRow + i, leftLegCol - 1, 2);
         gesturePixels.push([kneeRow + i, leftLegCol]);
       }
+      // Left shoe sole: 4px wide x 2px high
+      if (params.limbStage >= 3) {
+        const shoeRow = kneeRow + halfLen + 1;
+        const shoeCol = leftLegCol - 2;
+        for (let fr = 0; fr < 2; fr++) {
+          for (let fc = 0; fc < 4; fc++) {
+            setPixel(result, shoeRow + fr, shoeCol + fc, 2);
+          }
+        }
+        gesturePixels.push([shoeRow, shoeCol], [shoeRow + 1, shoeCol + 3]);
+      }
 
       // -- Right leg (mirrored) --
       for (let i = 1; i <= halfLen; i++) {
@@ -270,6 +303,17 @@ export function placeFeatures(
         setPixel(result, kneeRow + i, rightLegCol, 2);
         setPixel(result, kneeRow + i, rightLegCol + 1, 2);
         gesturePixels.push([kneeRow + i, rightLegCol + 1]);
+      }
+      // Right shoe sole: 4px wide x 2px high
+      if (params.limbStage >= 3) {
+        const shoeRow = kneeRow + halfLen + 1;
+        const shoeCol = rightLegCol - 1;
+        for (let fr = 0; fr < 2; fr++) {
+          for (let fc = 0; fc < 4; fc++) {
+            setPixel(result, shoeRow + fr, shoeCol + fc, 2);
+          }
+        }
+        gesturePixels.push([shoeRow, shoeCol], [shoeRow + 1, shoeCol + 3]);
       }
     }
   }
