@@ -49,12 +49,14 @@ export function useTabNavigation(totalPets: number, onExit: () => void): TabNavi
   const [state, setState] = useState<TabNavigationState>({ activeTab: 0, galleryIndex: 0 });
 
   useInput((input, key) => {
-    const result = tabNavigationReducer(state, { input, key }, totalPets);
-    if (result === "exit") {
-      onExit();
-    } else {
-      setState(result);
-    }
+    setState((prev) => {
+      const result = tabNavigationReducer(prev, { input, key }, totalPets);
+      if (result === "exit") {
+        onExit();
+        return prev;
+      }
+      return result;
+    });
   });
 
   return state;

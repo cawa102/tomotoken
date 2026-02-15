@@ -4,7 +4,7 @@ import { getTopTrait } from "../utils/collectionStats.js";
 import type { Collection } from "../../store/types.js";
 
 interface Props {
-  collection: Collection;
+  readonly collection: Collection;
 }
 
 export function CollectionList({ collection }: Props) {
