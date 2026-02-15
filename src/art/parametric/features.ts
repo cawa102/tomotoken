@@ -213,6 +213,22 @@ export function placeFeatures(
           }
         }
         gesturePixels.push([fistRow, fistCol], [fistRow + 1, fistCol + 2]);
+        // Stage 4+: outline around fist
+        if (params.limbStage >= 4) {
+          // Top edge
+          for (let fc = -1; fc <= 3; fc++) {
+            setPixel(result, fistRow - 1, fistCol + fc, 1);
+          }
+          // Bottom edge
+          for (let fc = -1; fc <= 3; fc++) {
+            setPixel(result, fistRow + 2, fistCol + fc, 1);
+          }
+          // Left/right edges
+          for (let fr = 0; fr < 2; fr++) {
+            setPixel(result, fistRow + fr, fistCol - 1, 1);
+            setPixel(result, fistRow + fr, fistCol + 3, 1);
+          }
+        }
       }
 
       // -- Right arm (mirrored) --
@@ -282,10 +298,11 @@ export function placeFeatures(
       if (params.limbStage >= 3) {
         const shoeRow = kneeRow + halfLen + 1;
         const shoeCol = leftLegCol - 2;
-        for (let fr = 0; fr < 2; fr++) {
-          for (let fc = 0; fc < 4; fc++) {
-            setPixel(result, shoeRow + fr, shoeCol + fc, 2);
-          }
+        for (let fc = 0; fc < 4; fc++) {
+          // Stage 4+: top row lighter (palette 3), bottom row darker (palette 2)
+          const topVal = params.limbStage >= 4 ? 3 : 2;
+          setPixel(result, shoeRow, shoeCol + fc, topVal);
+          setPixel(result, shoeRow + 1, shoeCol + fc, 2);
         }
         gesturePixels.push([shoeRow, shoeCol], [shoeRow + 1, shoeCol + 3]);
       }
@@ -308,10 +325,10 @@ export function placeFeatures(
       if (params.limbStage >= 3) {
         const shoeRow = kneeRow + halfLen + 1;
         const shoeCol = rightLegCol - 1;
-        for (let fr = 0; fr < 2; fr++) {
-          for (let fc = 0; fc < 4; fc++) {
-            setPixel(result, shoeRow + fr, shoeCol + fc, 2);
-          }
+        for (let fc = 0; fc < 4; fc++) {
+          const topVal = params.limbStage >= 4 ? 3 : 2;
+          setPixel(result, shoeRow, shoeCol + fc, topVal);
+          setPixel(result, shoeRow + 1, shoeCol + fc, 2);
         }
         gesturePixels.push([shoeRow, shoeCol], [shoeRow + 1, shoeCol + 3]);
       }

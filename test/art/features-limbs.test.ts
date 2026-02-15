@@ -276,4 +276,48 @@ describe("placeFeatures limb stages", () => {
     }
     expect(leftShoeWidth).toBeGreaterThanOrEqual(4);
   });
+
+  it("limbStage=4: fist has outline pixels (palette 1)", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 4, armLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    let outlinePixels = 0;
+    for (let r = bodyBounds.top; r < H; r++) {
+      for (let c = 0; c < bodyBounds.left; c++) {
+        if (result[r][c] === 1) outlinePixels++;
+      }
+    }
+    expect(outlinePixels).toBeGreaterThan(0);
+  });
+
+  it("limbStage=4: shoe sole has light/dark shading (palette 2 and 3)", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 4, legLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    // Check shoe area has both palette 2 (body) and 3 (lighter) pixels
+    let hasBody = false;
+    let hasLight = false;
+    for (let r = bodyBounds.bottom + 1; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        if (result[r][c] === 2) hasBody = true;
+        if (result[r][c] === 3) hasLight = true;
+      }
+    }
+    expect(hasBody).toBe(true);
+    expect(hasLight).toBe(true);
+  });
 });
