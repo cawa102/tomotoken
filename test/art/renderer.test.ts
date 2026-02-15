@@ -79,6 +79,21 @@ describe("renderArt", () => {
     expect(output.frames).toHaveLength(4);
   });
 
+  it("ArtOutput includes basePixelCanvas and animationHints for live animation", () => {
+    const output = renderArt({
+      seed: "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+      progress: 0.5,
+      traits: TRAITS,
+      depthMetrics: DEPTH,
+      styleMetrics: STYLE,
+      canvasWidth: 32,
+      canvasHeight: 16,
+    });
+    expect(output.basePixelCanvas).toBeDefined();
+    expect(output.animationHints).toBeDefined();
+    expect(output.limbStage).toBe(3); // progress 0.5 → Stage 3
+  });
+
   it("colorFrames contain ANSI escape sequences", () => {
     const output = renderArt({
       seed: "aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777",

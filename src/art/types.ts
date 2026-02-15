@@ -1,5 +1,7 @@
 export type { PixelCanvas, Palette, AnimationHints, BodyResult } from "./pixel/types.js";
 
+import type { PixelCanvas, Palette, AnimationHints } from "./pixel/types.js";
+import type { LimbStage } from "./parametric/types.js";
 import type { DepthMetrics, StyleMetrics } from "../store/types.js";
 
 export interface ArtParams {
@@ -19,4 +21,8 @@ export type Canvas = string[][];
 export interface ArtOutput {
   readonly frames: readonly string[][];
   readonly colorFrames: readonly string[][];
+  readonly basePixelCanvas: PixelCanvas;
+  readonly animationHints: AnimationHints;
+  readonly limbStage: LimbStage;
+  readonly palette: Palette;
 }
