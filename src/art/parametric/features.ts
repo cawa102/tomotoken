@@ -174,14 +174,16 @@ export function placeFeatures(
     const armLen = Math.max(1, Math.round((bodyBounds.bottom - bodyBounds.top) * params.armLength));
     const armRow = bodyBounds.top + Math.round((bodyBounds.bottom - bodyBounds.top) * 0.25);
 
-    for (let i = 0; i < armLen; i++) {
-      // Left arm
-      setPixel(result, armRow + i, bodyBounds.left - 1, 2);
-      gesturePixels.push([armRow + i, bodyBounds.left - 1]);
-      // Right arm
-      setPixel(result, armRow + i, bodyBounds.right + 1, 2);
-      gesturePixels.push([armRow + i, bodyBounds.right + 1]);
+    if (params.limbStage === 1) {
+      // Stage 1: 1px wide sticks
+      for (let i = 0; i < armLen; i++) {
+        setPixel(result, armRow + i, bodyBounds.left - 1, 2);
+        gesturePixels.push([armRow + i, bodyBounds.left - 1]);
+        setPixel(result, armRow + i, bodyBounds.right + 1, 2);
+        gesturePixels.push([armRow + i, bodyBounds.right + 1]);
+      }
     }
+    // Stage 2-5 handled in subsequent tasks
   }
 
   // --- Legs (limbStage >= 1) ---
@@ -191,12 +193,16 @@ export function placeFeatures(
     const leftLegCol = Math.round((bodyBounds.left + bodyBounds.right) / 2) - legSpacing;
     const rightLegCol = Math.round((bodyBounds.left + bodyBounds.right) / 2) + legSpacing;
 
-    for (let i = 1; i <= legLen; i++) {
-      setPixel(result, bodyBounds.bottom + i, leftLegCol, 2);
-      gesturePixels.push([bodyBounds.bottom + i, leftLegCol]);
-      setPixel(result, bodyBounds.bottom + i, rightLegCol, 2);
-      gesturePixels.push([bodyBounds.bottom + i, rightLegCol]);
+    if (params.limbStage === 1) {
+      // Stage 1: 1px wide sticks
+      for (let i = 1; i <= legLen; i++) {
+        setPixel(result, bodyBounds.bottom + i, leftLegCol, 2);
+        gesturePixels.push([bodyBounds.bottom + i, leftLegCol]);
+        setPixel(result, bodyBounds.bottom + i, rightLegCol, 2);
+        gesturePixels.push([bodyBounds.bottom + i, rightLegCol]);
+      }
     }
+    // Stage 2-5 handled in subsequent tasks
   }
 
   // --- Collect shimmer pixels (non-transparent, non-eye body pixels) ---
