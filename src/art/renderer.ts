@@ -16,7 +16,7 @@ import type { ArtParams, ArtOutput } from "./types.js";
  *   5. Render to ANSI-colored half-block strings (color frames)
  */
 export function renderArt(params: ArtParams): ArtOutput {
-  const { seed, progress, traits, depthMetrics, styleMetrics, canvasWidth, canvasHeight } = params;
+  const { seed, progress, traits, depthMetrics, styleMetrics, canvasWidth, canvasHeight, usageMix, tokenRatio } = params;
 
   const prng = createPrng(seed);
   const { pixelCanvas, animationHints, palette } = generateBody(
@@ -27,6 +27,8 @@ export function renderArt(params: ArtParams): ArtOutput {
     styleMetrics,
     canvasWidth,
     canvasHeight,
+    usageMix,
+    tokenRatio,
   );
 
   // Pixel height is 2x text height (half-block encoding)

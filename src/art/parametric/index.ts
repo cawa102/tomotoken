@@ -16,11 +16,12 @@ import { generateSilhouette } from "./silhouette.js";
 import { rasterizeSilhouette } from "./rasterize.js";
 import { placeFeatures } from "./features.js";
 import { applyPattern } from "./pattern.js";
+import { placeItemOnCanvas } from "./item.js";
 
 /**
  * Generates a complete parametric creature body from personality data and PRNG.
  *
- * Pipeline: params → progress gate → silhouette → rasterize → features → pattern → BodyResult
+ * Pipeline: params → progress gate → silhouette → rasterize → features → pattern → (item?) → BodyResult
  */
 export function generateParametricBody(
   prng: () => number,
@@ -30,6 +31,8 @@ export function generateParametricBody(
   style: StyleMetrics,
   canvasW: number,
   canvasH: number,
+  usageMix?: Record<string, number>,
+  tokenRatio?: number,
 ): BodyResult {
   const pixelH = canvasH * 2;
   const rawParams = deriveCreatureParams(traits, depth, style, prng);
@@ -50,13 +53,25 @@ export function generateParametricBody(
     bodyBounds,
     prng,
   );
-  const patterned = applyPattern(
+  let patterned = applyPattern(
     featured,
     widthMap,
     params,
     bodyBounds,
     prng,
   );
+
+  // Stage 5: place procedural item if usageMix is provided
+  if (params.limbStage >= 5 && usageMix) {
+    patterned = placeItemOnCanvas(
+      patterned,
+      bodyBounds,
+      traits,
+      usageMix,
+      tokenRatio ?? 1.0,
+      prng,
+    );
+  }
 
   return { pixelCanvas: patterned, animationHints: hints, palette };
 }

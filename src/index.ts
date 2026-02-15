@@ -87,6 +87,7 @@ export function runProgression(state: AppState, newTokens: number, config: Confi
     const seed = generateSeed(hostname(), pet.petId);
     const personality = pet.personality;
 
+    const tokenRatio = state.calibration ? pet.consumedTokens / state.calibration.t0 : 1.0;
     const art = renderArt({
       seed,
       progress: 1.0,
@@ -95,6 +96,8 @@ export function runProgression(state: AppState, newTokens: number, config: Confi
       styleMetrics: personality.styleMetrics,
       canvasWidth: config.canvas.width,
       canvasHeight: config.canvas.height,
+      usageMix: personality.usageMix,
+      tokenRatio,
     });
     completedWithArt.push({
       ...pet,

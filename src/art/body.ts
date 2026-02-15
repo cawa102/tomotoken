@@ -19,6 +19,8 @@ export function generateBody(
   style: StyleMetrics,
   canvasWidth: number,
   canvasHeight: number,
+  usageMix?: Record<string, number>,
+  tokenRatio?: number,
 ): BodyResult {
-  return generateParametricBody(prng, progress, traits, depth, style, canvasWidth, canvasHeight);
+  return generateParametricBody(prng, progress, traits, depth, style, canvasWidth, canvasHeight, usageMix, tokenRatio);
 }

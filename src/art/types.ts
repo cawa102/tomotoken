@@ -10,6 +10,8 @@ export interface ArtParams {
   readonly styleMetrics: StyleMetrics;
   readonly canvasWidth: number;
   readonly canvasHeight: number;
+  readonly usageMix?: Record<string, number>;
+  readonly tokenRatio?: number;
 }
 
 export type Canvas = string[][];

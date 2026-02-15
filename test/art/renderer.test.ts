@@ -64,6 +64,21 @@ describe("renderArt", () => {
     expect(hasBlocks).toBe(true);
   });
 
+  it("accepts usageMix and tokenRatio in ArtParams", () => {
+    const output = renderArt({
+      seed: "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+      progress: 1.0,
+      traits: TRAITS,
+      depthMetrics: DEPTH,
+      styleMetrics: STYLE,
+      canvasWidth: 32,
+      canvasHeight: 16,
+      usageMix: { impl: 0.5, debug: 0.3, refactor: 0.1, research: 0.05, docs: 0.03, planning: 0.01, ops: 0.005, security: 0.005 },
+      tokenRatio: 0.8,
+    });
+    expect(output.frames).toHaveLength(4);
+  });
+
   it("colorFrames contain ANSI escape sequences", () => {
     const output = renderArt({
       seed: "aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777aaaa7777",
