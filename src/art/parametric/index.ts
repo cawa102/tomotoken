@@ -5,7 +5,11 @@ export { generateSilhouette } from "./silhouette.js";
 export { rasterizeSilhouette } from "./rasterize.js";
 export { placeFeatures } from "./features.js";
 export { applyPattern } from "./pattern.js";
-export type { CreatureParams, WidthMap, Bounds, PatternType } from "./types.js";
+export type { CreatureParams, WidthMap, Bounds, PatternType, LimbStage } from "./types.js";
+export type { ItemFamily, Richness } from "./item-types.js";
+export { deriveItemParams } from "./item-params.js";
+export { generateItemPixels } from "./item-shapes.js";
+export { placeItemOnCanvas } from "./item.js";
 
 import type { BodyResult } from "../pixel/types.js";
 import type { DepthMetrics, StyleMetrics } from "../../store/types.js";
