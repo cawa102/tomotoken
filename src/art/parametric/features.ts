@@ -169,8 +169,8 @@ export function placeFeatures(
     }
   }
 
-  // --- Arms (if enabled) ---
-  if (params.hasArms) {
+  // --- Arms (limbStage >= 1) ---
+  if (params.limbStage >= 1) {
     const armLen = Math.max(1, Math.round((bodyBounds.bottom - bodyBounds.top) * params.armLength));
     const armRow = bodyBounds.top + Math.round((bodyBounds.bottom - bodyBounds.top) * 0.25);
 
@@ -184,8 +184,8 @@ export function placeFeatures(
     }
   }
 
-  // --- Legs (if enabled) ---
-  if (params.hasLegs) {
+  // --- Legs (limbStage >= 1) ---
+  if (params.limbStage >= 1) {
     const legLen = Math.max(1, Math.round((bodyBounds.bottom - bodyBounds.top) * params.legLength));
     const legSpacing = Math.max(1, Math.round((bodyBounds.right - bodyBounds.left) * 0.25));
     const leftLegCol = Math.round((bodyBounds.left + bodyBounds.right) / 2) - legSpacing;

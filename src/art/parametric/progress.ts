@@ -11,8 +11,7 @@ export function adjustParamsForProgress(
   if (progress < 0.1) {
     return {
       ...params,
-      hasLegs: false,
-      hasArms: false,
+      limbStage: 0,
       hasEars: false,
       hasTail: false,
       hasHorns: false,
@@ -24,6 +23,7 @@ export function adjustParamsForProgress(
   if (progress < 0.3) {
     return {
       ...params,
+      limbStage: 1,
       hasEars: false,
       hasTail: false,
       hasHorns: false,

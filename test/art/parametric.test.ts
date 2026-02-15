@@ -52,8 +52,7 @@ describe("deriveCreatureParams", () => {
     expect(p).toHaveProperty("hasHorns");
     expect(p).toHaveProperty("hasTail");
     expect(p).toHaveProperty("hasWings");
-    expect(p).toHaveProperty("hasArms");
-    expect(p).toHaveProperty("hasLegs");
+    expect(p).toHaveProperty("limbStage");
     expect(p).toHaveProperty("patternType");
     expect(p).toHaveProperty("patternDensity");
     expect(p).toHaveProperty("neckWidth");
@@ -101,8 +100,21 @@ describe("deriveCreatureParams", () => {
     expect(typeof p.hasHorns).toBe("boolean");
     expect(typeof p.hasTail).toBe("boolean");
     expect(typeof p.hasWings).toBe("boolean");
-    expect(typeof p.hasArms).toBe("boolean");
-    expect(typeof p.hasLegs).toBe("boolean");
+    expect(typeof p.limbStage).toBe("number");
+  });
+
+  it("has limbStage property of type number", () => {
+    const prng = createPrng(SEED);
+    const p = deriveCreatureParams(TRAITS, DEPTH, STYLE, prng);
+    expect(typeof p.limbStage).toBe("number");
+    expect(p.limbStage).toBe(0); // raw params always have limbStage=0 (pre-progress)
+  });
+
+  it("does not have hasArms or hasLegs properties", () => {
+    const prng = createPrng(SEED);
+    const p = deriveCreatureParams(TRAITS, DEPTH, STYLE, prng);
+    expect("hasArms" in p).toBe(false);
+    expect("hasLegs" in p).toBe(false);
   });
 
   it("is deterministic (same seed → same result)", () => {
@@ -167,10 +179,9 @@ describe("adjustParamsForProgress", () => {
     createPrng(SEED),
   );
 
-  it("progress < 0.1: all limbs/features disabled, patternDensity=0", () => {
+  it("progress < 0.1: limbStage=0, features disabled, patternDensity=0", () => {
     const p = adjustParamsForProgress(baseParams, 0.05);
-    expect(p.hasLegs).toBe(false);
-    expect(p.hasArms).toBe(false);
+    expect(p.limbStage).toBe(0);
     expect(p.hasEars).toBe(false);
     expect(p.hasTail).toBe(false);
     expect(p.hasHorns).toBe(false);
@@ -193,8 +204,6 @@ describe("adjustParamsForProgress", () => {
     expect(p.hasTail).toBe(baseParams.hasTail);
     expect(p.hasHorns).toBe(baseParams.hasHorns);
     expect(p.hasWings).toBe(baseParams.hasWings);
-    expect(p.hasArms).toBe(baseParams.hasArms);
-    expect(p.hasLegs).toBe(baseParams.hasLegs);
   });
 
   it("immutable: input params not modified", () => {

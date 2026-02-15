@@ -1,5 +1,5 @@
 import type { DepthMetrics, StyleMetrics } from "../../store/types.js";
-import type { CreatureParams, PatternType } from "./types.js";
+import type { CreatureParams, LimbStage, PatternType } from "./types.js";
 
 /**
  * Blend a trait influence (0-1) with PRNG randomness.
@@ -48,8 +48,7 @@ export function deriveCreatureParams(
   const hasHorns = featureCheck((t("guardian") + t("builder")) / 200, prng, 0.70);
   const hasTail = featureCheck((t("operator") + t("fixer")) / 200, prng, 0.40);
   const hasWings = featureCheck((t("scribe") + t("architect")) / 200, prng, 0.80);
-  const hasArms = true;
-  const hasLegs = true;
+  const limbStage: LimbStage = 0; // Raw params: always 0, progress.ts sets actual stage
 
   // Pattern type from style complexity
   const styleComplexity = style.codeblockRatio + style.bulletRatio + style.headingRatio;
@@ -86,8 +85,7 @@ export function deriveCreatureParams(
     hasHorns,
     hasTail,
     hasWings,
-    hasArms,
-    hasLegs,
+    limbStage,
     patternType,
     patternDensity,
     neckWidth,

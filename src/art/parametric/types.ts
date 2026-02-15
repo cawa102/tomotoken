@@ -1,6 +1,9 @@
 /** Pattern type: 0=none, 1=stripes, 2=spots, 3=gradient, 4=checker, 5=swirl */
 export type PatternType = 0 | 1 | 2 | 3 | 4 | 5;
 
+/** Limb development stage: 0=none, 1=sticks, 2=joints, 3=endpoints, 4=complete, 5=item */
+export type LimbStage = 0 | 1 | 2 | 3 | 4 | 5;
+
 export interface CreatureParams {
   readonly headRatio: number; // 0.20-0.45
   readonly bodyWidthRatio: number; // 0.30-0.80
@@ -12,8 +15,7 @@ export interface CreatureParams {
   readonly hasHorns: boolean;
   readonly hasTail: boolean;
   readonly hasWings: boolean;
-  readonly hasArms: boolean;
-  readonly hasLegs: boolean;
+  readonly limbStage: LimbStage; // replaces hasArms + hasLegs
   readonly patternType: PatternType;
   readonly patternDensity: number; // 0.0-1.0
   readonly neckWidth: number; // 0.3-0.8
