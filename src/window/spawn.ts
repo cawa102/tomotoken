@@ -16,6 +16,10 @@ interface SpawnArgs {
 const GNOME_LIKE = new Set(["gnome-terminal", "xfce4-terminal"]);
 const XTERM_LIKE = new Set(["xterm", "x-terminal-emulator", "konsole"]);
 
+function escapeAppleScript(str: string): string {
+  return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 export function buildSpawnArgs(
   info: TerminalInfo,
   binPath: string,
@@ -25,18 +29,19 @@ export function buildSpawnArgs(
   const fullCmd = watchCmd.join(" ");
 
   if (info.platform === "darwin") {
+    const escaped = escapeAppleScript(fullCmd);
     if (info.terminalApp === "iTerm.app") {
       return {
         command: "osascript",
         args: [
           "-e",
-          `tell application "iTerm2" to create window with default profile command "${fullCmd}"`,
+          `tell application "iTerm2" to create window with default profile command "${escaped}"`,
         ],
       };
     }
     return {
       command: "osascript",
-      args: ["-e", `tell application "Terminal" to do script "${fullCmd}"`],
+      args: ["-e", `tell application "Terminal" to do script "${escaped}"`],
     };
   }
 

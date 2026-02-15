@@ -54,4 +54,13 @@ describe("buildSpawnArgs", () => {
     const info: TerminalInfo = { platform: "unsupported", terminalApp: null };
     expect(() => buildSpawnArgs(info, binPath, [])).toThrow();
   });
+
+  it("escapes quotes and backslashes in macOS osascript commands", () => {
+    const info: TerminalInfo = { platform: "darwin", terminalApp: null };
+    const pathWithQuotes = '/path/to/"my app"/tomotoken';
+    const result = buildSpawnArgs(info, pathWithQuotes, []);
+    // The AppleScript string should have escaped quotes
+    expect(result.args[1]).not.toContain('""');
+    expect(result.args[1]).toContain('\\"my app\\"');
+  });
 });
