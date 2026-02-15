@@ -78,7 +78,7 @@ function readJson<T>(filePath: string): T | null {
   }
 }
 
-export function createInitialPet(spawnIndex: number, requiredTokens: number): PetRecord {
+function createInitialPet(spawnIndex: number, requiredTokens: number): PetRecord {
   return {
     petId: uuidv4(),
     spawnedAt: new Date().toISOString(),
@@ -96,7 +96,7 @@ function currentMonthString(): string {
 
 export function createInitialState(requiredTokens: number): AppState {
   return {
-    version: 1,
+    version: 2,
     calibration: null,
     spawnIndexCurrentMonth: 0,
     currentMonth: currentMonthString(),
@@ -112,7 +112,33 @@ export function createInitialState(requiredTokens: number): AppState {
 }
 
 export function loadState(path: string = STATE_PATH): AppState | null {
-  return readJson<AppState>(path);
+  const raw = readJson<Record<string, unknown>>(path);
+  if (!raw) return null;
+
+  // Version migration: v1 → v2 (reset pet, keep calibration/ingestion)
+  if ((raw as { version?: number }).version === 1) {
+    // Use unknown-based access for v1 data since types have changed
+    const v1 = raw as Record<string, unknown>;
+    const v1Pet = v1.currentPet as Record<string, unknown>;
+    return {
+      version: 2,
+      calibration: v1.calibration as AppState["calibration"],
+      spawnIndexCurrentMonth: 0,
+      currentMonth: v1.currentMonth as string,
+      currentPet: {
+        petId: v1Pet.petId as string,
+        spawnedAt: v1Pet.spawnedAt as string,
+        requiredTokens: v1Pet.requiredTokens as number,
+        consumedTokens: v1Pet.consumedTokens as number,
+        spawnIndex: 0,
+        personalitySnapshot: null,
+      },
+      ingestionState: v1.ingestionState as AppState["ingestionState"],
+      globalStats: v1.globalStats as AppState["globalStats"],
+    };
+  }
+
+  return raw as unknown as AppState;
 }
 
 export function saveState(state: AppState, path: string = STATE_PATH): void {
@@ -121,13 +147,20 @@ export function saveState(state: AppState, path: string = STATE_PATH): void {
 
 export function createInitialCollection(): Collection {
   return {
-    version: 1,
+    version: 2,
     pets: [],
   };
 }
 
 export function loadCollection(path: string = COLLECTION_PATH): Collection {
-  return readJson<Collection>(path) ?? createInitialCollection();
+  const raw = readJson<Record<string, unknown>>(path);
+  if (!raw) return createInitialCollection();
+
+  if ((raw as { version?: number }).version === 1) {
+    return createInitialCollection(); // v1 → v2: reset collection
+  }
+
+  return raw as unknown as Collection;
 }
 
 export function saveCollection(

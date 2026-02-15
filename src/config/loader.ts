@@ -1,5 +1,4 @@
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { CONFIG_PATH, TOMOTOKEN_DIR } from "./constants.js";
 import { Config, ConfigSchema, createDefaultConfig } from "./schema.js";
 
@@ -15,14 +14,6 @@ export function loadConfig(path: string = CONFIG_PATH): Config {
   } catch (_err) {
     return createDefaultConfig();
   }
-}
-
-export function saveConfig(config: Config, path: string = CONFIG_PATH): void {
-  const dir = dirname(path);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true, mode: 0o700 });
-  }
-  writeFileSync(path, JSON.stringify(config, null, 2), { encoding: "utf-8", mode: 0o600 });
 }
 
 export function ensureDataDir(): void {

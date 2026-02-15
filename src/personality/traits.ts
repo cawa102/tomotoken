@@ -1,19 +1,13 @@
 import { CATEGORY_IDS, TRAIT_IDS, CATEGORY_TO_TRAIT } from "../config/constants.js";
 import { clamp } from "../utils/clamp.js";
-import type { UsageMix, TraitVector, TraitId } from "./types.js";
+import type { UsageMix, TraitVector } from "./types.js";
 import type { DepthMetrics, StyleMetrics } from "../store/types.js";
-
-export interface TraitResult {
-  readonly traits: TraitVector;
-  readonly archetype: TraitId;
-  readonly subtype: TraitId;
-}
 
 export function computeTraits(
   usageMix: UsageMix,
   depth: DepthMetrics,
   style: StyleMetrics,
-): TraitResult {
+): TraitVector {
   const traits: Record<string, number> = {};
 
   // Base scores from usage_mix
@@ -41,12 +35,5 @@ export function computeTraits(
     traits[t] = clamp(0, 100, traits[t] ?? 0);
   }
 
-  // Find archetype (highest) and subtype (second highest)
-  const sorted = [...TRAIT_IDS].sort((a, b) => (traits[b] ?? 0) - (traits[a] ?? 0));
-
-  return {
-    traits: traits as TraitVector,
-    archetype: sorted[0],
-    subtype: sorted[1],
-  };
+  return traits as TraitVector;
 }

@@ -82,19 +82,27 @@ export function runProgression(state: AppState, newTokens: number, config: Confi
 
   const result = advancePet(current.currentPet, newTokens, state.calibration.t0, config.growth.g, current.spawnIndexCurrentMonth);
 
-  const completedWithArt: CompletedPet[] = result.completedPets.map((pet) => {
+  const completedWithArt: CompletedPet[] = [];
+  for (const pet of result.completedPets) {
     const seed = generateSeed(hostname(), pet.petId);
+    const personality = pet.personality;
+
     const art = renderArt({
       seed,
       progress: 1.0,
-      archetype: pet.personality.archetype,
-      subtype: pet.personality.subtype,
-      traits: pet.personality.traits,
+      traits: personality.traits,
+      depthMetrics: personality.depthMetrics,
+      styleMetrics: personality.styleMetrics,
       canvasWidth: config.canvas.width,
       canvasHeight: config.canvas.height,
     });
-    return { ...pet, frames: art.frames, colorFrames: art.colorFrames, seed };
-  });
+    completedWithArt.push({
+      ...pet,
+      frames: art.frames,
+      colorFrames: art.colorFrames,
+      seed,
+    });
+  }
 
   current = {
     ...current,
@@ -128,7 +136,8 @@ export function runPersonality(state: AppState, sessionMetrics: readonly Session
   const classification = classifySession(merged);
   const depth = computeDepthMetrics(sessionMetrics);
   const style = computeStyleMetrics(sessionMetrics.flatMap((m) => m.userMessageTexts));
-  const { traits, archetype, subtype } = computeTraits(classification.scores, depth, style);
+
+  const traits = computeTraits(classification.scores, depth, style);
 
   return updatePetInState(state, {
     personalitySnapshot: {
@@ -136,13 +145,11 @@ export function runPersonality(state: AppState, sessionMetrics: readonly Session
       depthMetrics: depth,
       styleMetrics: style,
       traits,
-      archetype,
-      subtype,
     },
   });
 }
 
-export function runFull(config?: Config): RunResult {
+export async function runFull(config?: Config): Promise<RunResult> {
   const cfg = config ?? loadConfig();
   ensureDataDir();
 

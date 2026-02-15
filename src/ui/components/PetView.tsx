@@ -13,26 +13,29 @@ interface Props {
   config: Config;
 }
 
+const EMPTY_DEPTH = { editTestLoopCount: 0, repeatEditSameFileCount: 0, phaseSwitchCount: 0, totalSessions: 0 };
+const EMPTY_STYLE = { bulletRatio: 0, questionRatio: 0, codeblockRatio: 0, avgMessageLen: 0, messageLenStd: 0, headingRatio: 0 };
+
 export function PetView({ state, config }: Props) {
   const pet = state.currentPet;
   const progress = pet.requiredTokens > 0 ? pet.consumedTokens / pet.requiredTokens : 0;
   const personality = pet.personalitySnapshot;
-  const archetype = personality?.archetype ?? "builder";
-  const subtype = personality?.subtype ?? "scholar";
   const traits = personality?.traits ?? {};
+  const depthMetrics = personality?.depthMetrics ?? EMPTY_DEPTH;
+  const styleMetrics = personality?.styleMetrics ?? EMPTY_STYLE;
 
   const seed = generateSeed(hostname(), pet.petId);
   const art = useMemo(
     () => renderArt({
       seed,
       progress,
-      archetype,
-      subtype,
       traits,
+      depthMetrics,
+      styleMetrics,
       canvasWidth: config.canvas.width,
       canvasHeight: config.canvas.height,
     }),
-    [seed, progress, archetype, subtype, config.canvas.width, config.canvas.height],
+    [seed, progress, config.canvas.width, config.canvas.height],
   );
 
   const frameIdx = useAnimation(art.colorFrames.length, config.animation.fps, config.animation.enabled);
@@ -48,7 +51,7 @@ export function PetView({ state, config }: Props) {
       <Text> </Text>
       <ProgressBar consumed={pet.consumedTokens} required={pet.requiredTokens} />
       <Text> </Text>
-      {personality && <TraitDisplay traits={traits} archetype={archetype} subtype={subtype} />}
+      {personality && <TraitDisplay traits={traits} />}
     </Box>
   );
 }

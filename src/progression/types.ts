@@ -1,11 +1,5 @@
 import type { CompletedPet, PetRecord } from "../store/types.js";
 
-export interface SpawnConfig {
-  readonly t0: number;
-  readonly g: number;
-  readonly spawnIndex: number;
-}
-
 export interface AdvanceResult {
   readonly updatedPet: PetRecord;
   readonly completedPets: readonly CompletedPet[];

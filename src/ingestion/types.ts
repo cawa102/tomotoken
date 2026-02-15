@@ -45,11 +45,3 @@ export interface ScanResult {
   readonly filePath: string;
   readonly sizeBytes: number;
 }
-
-export interface IngestDelta {
-  readonly newTokens: number;
-  readonly newSessions: number;
-  readonly sessionMetrics: readonly SessionMetrics[];
-  readonly earliestTimestamp: string | null;
-  readonly latestTimestamp: string | null;
-}

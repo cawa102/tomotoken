@@ -26,7 +26,7 @@ export function PetDetail({ pet, fps, animate }: Props) {
         <Text key={i}>{line}</Text>
       ))}
       <Text> </Text>
-      <TraitDisplay traits={pet.personality.traits} archetype={pet.personality.archetype} subtype={pet.personality.subtype} />
+      <TraitDisplay traits={pet.personality.traits} />
     </Box>
   );
 }

@@ -1,9 +1,15 @@
 import React from "react";
 import { Text, Box } from "ink";
+import { TRAIT_IDS } from "../../config/constants.js";
 import type { Collection } from "../../store/types.js";
 
 interface Props {
   collection: Collection;
+}
+
+function topTrait(traits: Record<string, number>): string {
+  const sorted = [...TRAIT_IDS].sort((a, b) => (traits[b] ?? 0) - (traits[a] ?? 0));
+  return sorted[0];
 }
 
 export function CollectionList({ collection }: Props) {
@@ -17,7 +23,7 @@ export function CollectionList({ collection }: Props) {
       <Text> </Text>
       {collection.pets.map((pet, i) => (
         <Text key={pet.petId}>
-          #{i + 1} {pet.petId.slice(0, 8)} | {pet.personality.archetype}/{pet.personality.subtype} | {pet.consumedTokens.toLocaleString()} tokens | {new Date(pet.completedAt).toLocaleDateString()}
+          #{i + 1} {pet.petId.slice(0, 8)} | {topTrait(pet.personality.traits)} | {pet.consumedTokens.toLocaleString()} tokens | {new Date(pet.completedAt).toLocaleDateString()}
         </Text>
       ))}
     </Box>

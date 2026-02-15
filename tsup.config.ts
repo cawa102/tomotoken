@@ -9,7 +9,5 @@ export default defineConfig({
   splitting: true,
   sourcemap: true,
   dts: false,
-  banner: {
-    js: "#!/usr/bin/env node",
-  },
+  // Shebang is in bin/tomotoken.ts source; no global banner needed
 });

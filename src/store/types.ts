@@ -23,8 +23,6 @@ export interface PersonalitySnapshot {
   readonly depthMetrics: DepthMetrics;
   readonly styleMetrics: StyleMetrics;
   readonly traits: Record<string, number>;
-  readonly archetype: string;
-  readonly subtype: string;
 }
 
 export interface DepthMetrics {
@@ -51,7 +49,7 @@ export interface GlobalStats {
 }
 
 export interface AppState {
-  readonly version: 1;
+  readonly version: 2;
   readonly calibration: Calibration | null;
   readonly spawnIndexCurrentMonth: number;
   readonly currentMonth: string;
@@ -76,6 +74,6 @@ export interface CompletedPet {
 }
 
 export interface Collection {
-  readonly version: 1;
+  readonly version: 2;
   readonly pets: readonly CompletedPet[];
 }

@@ -10,10 +10,9 @@ export const LOCK_PATH = join(TOMOTOKEN_DIR, "tomotoken.lock");
 export const CLAUDE_PROJECTS_DIR = join(homedir(), ".claude", "projects");
 
 export const GROWTH_MULTIPLIER = 1.5;
-export const GROWTH_DENOMINATOR = 1 + GROWTH_MULTIPLIER + GROWTH_MULTIPLIER ** 2; // 4.75
 
-export const CANVAS_WIDTH = 24;
-export const CANVAS_HEIGHT = 12;
+export const CANVAS_WIDTH = 32;
+export const CANVAS_HEIGHT = 16;
 export const FRAME_COUNT = 4;
 export const DEFAULT_FPS = 3;
 

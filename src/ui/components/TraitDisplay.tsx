@@ -4,15 +4,18 @@ import { TRAIT_IDS } from "../../config/constants.js";
 
 interface Props {
   traits: Record<string, number>;
-  archetype: string;
-  subtype: string;
 }
 
-export function TraitDisplay({ traits, archetype, subtype }: Props) {
+export function TraitDisplay({ traits }: Props) {
+  // Find top two traits for display
+  const sorted = [...TRAIT_IDS].sort((a, b) => (traits[b] ?? 0) - (traits[a] ?? 0));
+  const primary = sorted[0];
+  const secondary = sorted[1];
+
   return (
     <Box flexDirection="column">
       <Text bold>
-        {archetype.toUpperCase()} / {subtype}
+        {primary.toUpperCase()} / {secondary}
       </Text>
       {TRAIT_IDS.map((id) => {
         const score = traits[id] ?? 0;

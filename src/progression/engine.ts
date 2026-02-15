@@ -7,8 +7,6 @@ const EMPTY_PERSONALITY: PersonalitySnapshot = {
   depthMetrics: { editTestLoopCount: 0, repeatEditSameFileCount: 0, phaseSwitchCount: 0, totalSessions: 0 },
   styleMetrics: { bulletRatio: 0, questionRatio: 0, codeblockRatio: 0, avgMessageLen: 0, messageLenStd: 0, headingRatio: 0 },
   traits: {},
-  archetype: "builder",
-  subtype: "scholar",
 };
 
 export function advancePet(

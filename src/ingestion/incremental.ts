@@ -2,7 +2,7 @@ import { openSync, readSync, closeSync, statSync, lstatSync } from "node:fs";
 import { parseLine } from "./parser.js";
 import type { ParsedLogEntry } from "./types.js";
 
-export interface IncrementalResult {
+interface IncrementalResult {
   readonly entries: readonly ParsedLogEntry[];
   readonly newByteOffset: number;
 }
