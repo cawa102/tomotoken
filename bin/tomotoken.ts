@@ -4,6 +4,7 @@ import React from "react";
 import { render } from "ink";
 import { App } from "../src/ui/app.js";
 import { WatchApp } from "../src/ui/WatchApp.js";
+import { ZukanApp } from "../src/ui/ZukanApp.js";
 import { runFull, runCalibration, runIngestion, runProgression, runPersonality } from "../src/index.js";
 import { loadState, saveState, saveCollection, createInitialState, addCompletedPet, acquireLock, releaseLock } from "../src/store/index.js";
 import { loadConfig, ensureDataDir } from "../src/config/index.js";
@@ -84,6 +85,24 @@ program
     saveState(state);
     const { state: result } = await runFull(config);
     console.log(`Rescan complete. ${result.globalStats.totalTokensAllTime.toLocaleString()} total tokens.`);
+  });
+
+program
+  .command("zukan")
+  .description("Interactive encyclopedia of completed pets")
+  .action(async () => {
+    const { state: _state, collection } = await runFull();
+    const config = loadConfig();
+    const { unmount } = render(
+      React.createElement(ZukanApp, {
+        collection,
+        config,
+        onExit: () => {
+          unmount();
+          process.exit(0);
+        },
+      }),
+    );
   });
 
 program
