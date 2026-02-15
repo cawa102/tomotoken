@@ -182,8 +182,44 @@ export function placeFeatures(
         setPixel(result, armRow + i, bodyBounds.right + 1, 2);
         gesturePixels.push([armRow + i, bodyBounds.right + 1]);
       }
+    } else {
+      // Stage 2+: 2px wide arms with elbow joint
+      const halfLen = Math.max(1, Math.floor(armLen / 2));
+      const elbowOffset = Math.round(params.asymmetry * 3) + 1;
+
+      // -- Left arm --
+      const lCol = bodyBounds.left - 1;
+      for (let i = 0; i < halfLen; i++) {
+        setPixel(result, armRow + i, lCol, 2);
+        setPixel(result, armRow + i, lCol - 1, 2);
+        gesturePixels.push([armRow + i, lCol]);
+      }
+      const elbowRow = armRow + halfLen;
+      setPixel(result, elbowRow, lCol - elbowOffset, 3);
+      setPixel(result, elbowRow, lCol - elbowOffset + 1, 3);
+      gesturePixels.push([elbowRow, lCol - elbowOffset]);
+      for (let i = 1; i <= halfLen; i++) {
+        setPixel(result, elbowRow + i, lCol - elbowOffset, 2);
+        setPixel(result, elbowRow + i, lCol - elbowOffset + 1, 2);
+        gesturePixels.push([elbowRow + i, lCol - elbowOffset]);
+      }
+
+      // -- Right arm (mirrored) --
+      const rCol = bodyBounds.right + 1;
+      for (let i = 0; i < halfLen; i++) {
+        setPixel(result, armRow + i, rCol, 2);
+        setPixel(result, armRow + i, rCol + 1, 2);
+        gesturePixels.push([armRow + i, rCol + 1]);
+      }
+      setPixel(result, elbowRow, rCol + elbowOffset, 3);
+      setPixel(result, elbowRow, rCol + elbowOffset - 1, 3);
+      gesturePixels.push([elbowRow, rCol + elbowOffset]);
+      for (let i = 1; i <= halfLen; i++) {
+        setPixel(result, elbowRow + i, rCol + elbowOffset - 1, 2);
+        setPixel(result, elbowRow + i, rCol + elbowOffset, 2);
+        gesturePixels.push([elbowRow + i, rCol + elbowOffset]);
+      }
     }
-    // Stage 2-5 handled in subsequent tasks
   }
 
   // --- Legs (limbStage >= 1) ---
@@ -201,8 +237,41 @@ export function placeFeatures(
         setPixel(result, bodyBounds.bottom + i, rightLegCol, 2);
         gesturePixels.push([bodyBounds.bottom + i, rightLegCol]);
       }
+    } else {
+      // Stage 2+: 2px wide legs with knee joint
+      const halfLen = Math.max(1, Math.floor(legLen / 2));
+
+      // -- Left leg --
+      for (let i = 1; i <= halfLen; i++) {
+        setPixel(result, bodyBounds.bottom + i, leftLegCol, 2);
+        setPixel(result, bodyBounds.bottom + i, leftLegCol - 1, 2);
+        gesturePixels.push([bodyBounds.bottom + i, leftLegCol]);
+      }
+      const kneeRow = bodyBounds.bottom + halfLen + 1;
+      setPixel(result, kneeRow, leftLegCol, 3);
+      setPixel(result, kneeRow, leftLegCol - 1, 3);
+      gesturePixels.push([kneeRow, leftLegCol]);
+      for (let i = 1; i <= halfLen; i++) {
+        setPixel(result, kneeRow + i, leftLegCol, 2);
+        setPixel(result, kneeRow + i, leftLegCol - 1, 2);
+        gesturePixels.push([kneeRow + i, leftLegCol]);
+      }
+
+      // -- Right leg (mirrored) --
+      for (let i = 1; i <= halfLen; i++) {
+        setPixel(result, bodyBounds.bottom + i, rightLegCol, 2);
+        setPixel(result, bodyBounds.bottom + i, rightLegCol + 1, 2);
+        gesturePixels.push([bodyBounds.bottom + i, rightLegCol + 1]);
+      }
+      setPixel(result, kneeRow, rightLegCol, 3);
+      setPixel(result, kneeRow, rightLegCol + 1, 3);
+      gesturePixels.push([kneeRow, rightLegCol]);
+      for (let i = 1; i <= halfLen; i++) {
+        setPixel(result, kneeRow + i, rightLegCol, 2);
+        setPixel(result, kneeRow + i, rightLegCol + 1, 2);
+        gesturePixels.push([kneeRow + i, rightLegCol + 1]);
+      }
     }
-    // Stage 2-5 handled in subsequent tasks
   }
 
   // --- Collect shimmer pixels (non-transparent, non-eye body pixels) ---

@@ -148,4 +148,69 @@ describe("placeFeatures limb stages", () => {
     }
     expect(legPixels).toBeGreaterThan(0);
   });
+
+  it("limbStage=2: arms are 2px wide", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 2, armLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    const armRow =
+      bodyBounds.top +
+      Math.round((bodyBounds.bottom - bodyBounds.top) * 0.25);
+    // Left arm: should have pixels at both bodyBounds.left - 1 and bodyBounds.left - 2
+    const col1 = bodyBounds.left - 1;
+    const col2 = bodyBounds.left - 2;
+    let twoPixWideRows = 0;
+    for (let r = armRow; r <= bodyBounds.bottom; r++) {
+      if (result[r][col1] !== 0 && result[r][col2] !== 0) twoPixWideRows++;
+    }
+    expect(twoPixWideRows).toBeGreaterThan(0);
+  });
+
+  it("limbStage=2: elbow has joint highlight (palette 3)", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 2, armLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    // There should be at least one pixel with palette 3 (joint) in the arm region
+    let jointPixels = 0;
+    for (let r = bodyBounds.top; r <= bodyBounds.bottom; r++) {
+      for (let c = 0; c < bodyBounds.left; c++) {
+        if (result[r][c] === 3) jointPixels++;
+      }
+    }
+    expect(jointPixels).toBeGreaterThan(0);
+  });
+
+  it("limbStage=2: legs are 2px wide with knee highlight", () => {
+    const canvas = makeCanvas(W, H);
+    const params = makeParams({ limbStage: 2, legLength: 0.3 });
+    const { canvas: result } = placeFeatures(
+      canvas,
+      widthMap,
+      params,
+      headBounds,
+      bodyBounds,
+      prng,
+    );
+    let kneePixels = 0;
+    for (let r = bodyBounds.bottom + 1; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        if (result[r][c] === 3) kneePixels++;
+      }
+    }
+    expect(kneePixels).toBeGreaterThan(0);
+  });
 });
