@@ -58,6 +58,7 @@ export interface AppState {
     readonly files: Record<string, FileIngestionState>;
   };
   readonly globalStats: GlobalStats;
+  readonly lastEncouragementShownAt: string | null;
 }
 
 export interface CompletedPet {

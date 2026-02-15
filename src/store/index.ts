@@ -14,6 +14,7 @@ export {
   updatePetInState,
   updateIngestionFile,
   updateGlobalStats,
+  updateEncouragementTimestamp,
   acquireLock,
   releaseLock,
 } from "./store.js";

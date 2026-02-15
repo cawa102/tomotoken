@@ -58,6 +58,7 @@ function createTestState(): AppState {
       earliestTimestamp: "2026-01-01T00:00:00.000Z",
       latestTimestamp: "2026-02-01T00:00:00.000Z",
     },
+    lastEncouragementShownAt: null,
   };
 }
 

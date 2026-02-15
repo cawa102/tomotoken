@@ -5,6 +5,7 @@ import {
   createInitialState, loadState, saveState,
   createInitialCollection, loadCollection, saveCollection, addCompletedPet,
   updateGlobalStats, updatePetInState, updateIngestionFile,
+  updateEncouragementTimestamp,
   acquireLock, releaseLock,
 } from "../../src/store/store.js";
 
@@ -50,6 +51,20 @@ describe("immutable updates", () => {
     const updated = updatePetInState(state, { consumedTokens: 2500 });
     expect(updated.currentPet.consumedTokens).toBe(2500);
     expect(state.currentPet.consumedTokens).toBe(0);
+  });
+
+  it("createInitialState includes lastEncouragementShownAt", () => {
+    const state = createInitialState(5000);
+    expect(state.lastEncouragementShownAt).toBeNull();
+  });
+
+  it("updateEncouragementTimestamp creates new state", () => {
+    const state = createInitialState(5000);
+    const ts = "2026-02-15T12:00:00.000Z";
+    const updated = updateEncouragementTimestamp(state, ts);
+    expect(updated).not.toBe(state);
+    expect(updated.lastEncouragementShownAt).toBe(ts);
+    expect(state.lastEncouragementShownAt).toBeNull();
   });
 
   it("updateIngestionFile creates new state with file entry", () => {

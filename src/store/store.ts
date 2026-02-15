@@ -108,6 +108,7 @@ export function createInitialState(requiredTokens: number): AppState {
       earliestTimestamp: null,
       latestTimestamp: null,
     },
+    lastEncouragementShownAt: null,
   };
 }
 
@@ -135,10 +136,16 @@ export function loadState(path: string = STATE_PATH): AppState | null {
       },
       ingestionState: v1.ingestionState as AppState["ingestionState"],
       globalStats: v1.globalStats as AppState["globalStats"],
+      lastEncouragementShownAt: null,
     };
   }
 
-  return raw as unknown as AppState;
+  // Backfill lastEncouragementShownAt for pre-encouragement states
+  const state = raw as unknown as AppState;
+  if (!("lastEncouragementShownAt" in raw)) {
+    return { ...state, lastEncouragementShownAt: null };
+  }
+  return state;
 }
 
 export function saveState(state: AppState, path: string = STATE_PATH): void {
@@ -206,6 +213,13 @@ export function updateIngestionFile(
       },
     },
   };
+}
+
+export function updateEncouragementTimestamp(
+  state: AppState,
+  timestamp: string,
+): AppState {
+  return { ...state, lastEncouragementShownAt: timestamp };
 }
 
 export function updateGlobalStats(
