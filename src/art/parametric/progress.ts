@@ -1,6 +1,6 @@
 import type { CreatureParams, LimbStage } from "./types.js";
 
-function computeLimbStage(progress: number): LimbStage {
+export function computeLimbStage(progress: number): LimbStage {
   if (progress < 0.1) return 0;
   if (progress < 0.3) return 1;
   if (progress < 0.5) return 2;

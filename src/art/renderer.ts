@@ -4,16 +4,7 @@ import { generateFrames } from "./animator.js";
 import { colorizeFrames } from "./color.js";
 import { pixelsToPlainBlocks } from "./pixel/render.js";
 import type { ArtParams, ArtOutput } from "./types.js";
-import type { LimbStage } from "./parametric/types.js";
-
-function computeLimbStage(progress: number): LimbStage {
-  if (progress < 0.1) return 0;
-  if (progress < 0.3) return 1;
-  if (progress < 0.5) return 2;
-  if (progress < 0.7) return 3;
-  if (progress >= 1.0) return 5;
-  return 4;
-}
+import { computeLimbStage } from "./parametric/index.js";
 
 /**
  * Render pixel art for a pet.

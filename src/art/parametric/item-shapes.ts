@@ -77,15 +77,14 @@ function generateBlade(params: ItemParams, prng: () => number): ItemPixelResult 
   // Cross piece (guard)
   if (params.crossPiece && h > 3) {
     const guardRow = h - 2;
-    const guardWidth = Math.min(w + 2, w + 1);
+    const guardWidth = w + 2;
     const newGrid = makeGrid(h, Math.max(w, guardWidth));
+    const offset = Math.max(0, Math.floor((guardWidth - w) / 2));
     for (let r = 0; r < h; r++) {
       for (let c = 0; c < w; c++) {
-        const offset = Math.max(0, Math.floor((guardWidth - w) / 2));
         newGrid[r][c + offset] = grid[r][c];
       }
     }
-    const offset = Math.max(0, Math.floor((guardWidth - w) / 2));
     for (let c = 0; c < guardWidth; c++) {
       newGrid[guardRow][c] = 3;
     }

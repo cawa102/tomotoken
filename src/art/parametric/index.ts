@@ -1,6 +1,6 @@
 export { deriveCreatureParams } from "./params.js";
 export { generatePalette } from "./palette.js";
-export { adjustParamsForProgress } from "./progress.js";
+export { adjustParamsForProgress, computeLimbStage } from "./progress.js";
 export { generateSilhouette } from "./silhouette.js";
 export { rasterizeSilhouette } from "./rasterize.js";
 export { placeFeatures } from "./features.js";
@@ -57,7 +57,7 @@ export function generateParametricBody(
     bodyBounds,
     prng,
   );
-  let patterned = applyPattern(
+  const patterned = applyPattern(
     featured,
     widthMap,
     params,
@@ -66,16 +66,9 @@ export function generateParametricBody(
   );
 
   // Stage 5: place procedural item if usageMix is provided
-  if (params.limbStage >= 5 && usageMix) {
-    patterned = placeItemOnCanvas(
-      patterned,
-      bodyBounds,
-      traits,
-      usageMix,
-      tokenRatio ?? 1.0,
-      prng,
-    );
-  }
+  const finalCanvas = (params.limbStage >= 5 && usageMix)
+    ? placeItemOnCanvas(patterned, bodyBounds, traits, usageMix, tokenRatio ?? 1.0, prng)
+    : patterned;
 
-  return { pixelCanvas: patterned, animationHints: hints, palette };
+  return { pixelCanvas: finalCanvas, animationHints: hints, palette };
 }

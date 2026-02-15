@@ -256,6 +256,19 @@ export function placeFeatures(
           }
         }
         gesturePixels.push([fistRow, fistCol], [fistRow + 1, fistCol + 2]);
+        // Stage 4+: outline around right fist
+        if (params.limbStage >= 4) {
+          for (let fc = -1; fc <= 3; fc++) {
+            setPixel(result, fistRow - 1, fistCol + fc, 1);
+          }
+          for (let fc = -1; fc <= 3; fc++) {
+            setPixel(result, fistRow + 2, fistCol + fc, 1);
+          }
+          for (let fr = 0; fr < 2; fr++) {
+            setPixel(result, fistRow + fr, fistCol - 1, 1);
+            setPixel(result, fistRow + fr, fistCol + 3, 1);
+          }
+        }
       }
     }
   }
