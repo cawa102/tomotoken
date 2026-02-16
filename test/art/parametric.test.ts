@@ -289,6 +289,52 @@ describe("generateSilhouette", () => {
     expect(tinyFilled).toBeLessThan(fullFilled);
     expect(tinyFilled).toBeGreaterThan(0); // still has some rows even at 0
   });
+
+  it("outline rows differ by at most 2px within head and body regions (smooth)", () => {
+    const s = generateSilhouette(params, canvasW, pixelH, 0.8);
+    const widths = s.widthMap.map((e) =>
+      e !== null ? e.right - e.left + 1 : null,
+    );
+    // Check smoothness within head region
+    for (let r = s.headBounds.top + 1; r <= s.headBounds.bottom; r++) {
+      if (widths[r] !== null && widths[r - 1] !== null) {
+        const diff = Math.abs(widths[r]! - widths[r - 1]!);
+        expect(diff).toBeLessThanOrEqual(2);
+      }
+    }
+    // Skip bodyTop (neck-blended) and bodyTop+1 (transition from blend to ellipse)
+    for (let r = s.bodyBounds.top + 2; r <= s.bodyBounds.bottom; r++) {
+      if (widths[r] !== null && widths[r - 1] !== null) {
+        const diff = Math.abs(widths[r]! - widths[r - 1]!);
+        expect(diff).toBeLessThanOrEqual(2);
+      }
+    }
+  });
+
+  it("legs render within canvas bounds when limbStage > 0", () => {
+    const limbParams = adjustParamsForProgress(
+      deriveCreatureParams(TRAITS, DEPTH, STYLE, createPrng(SEED)),
+      0.5, // limbStage = 3
+    );
+    const s = generateSilhouette(limbParams, canvasW, pixelH, 0.5);
+    // Body bottom should leave room for legs below
+    expect(s.bodyBounds.bottom).toBeLessThan(pixelH - 1);
+    // Verify leg rows would fit: body bottom + legReserve <= pixelH - 1
+    const bodyH = s.bodyBounds.bottom - s.bodyBounds.top + 1;
+    const legLen = Math.max(1, Math.round(bodyH * limbParams.legLength));
+    const halfLen = Math.max(1, Math.floor(legLen / 2));
+    const maxLegRow = s.bodyBounds.bottom + halfLen + 1 + halfLen + 2; // upper+knee+lower+shoes
+    expect(maxLegRow).toBeLessThan(pixelH);
+  });
+
+  it("limbStage 0 has body at bottom edge (no leg reserve)", () => {
+    const noLimbParams = adjustParamsForProgress(
+      deriveCreatureParams(TRAITS, DEPTH, STYLE, createPrng(SEED)),
+      0.05, // limbStage = 0
+    );
+    const s = generateSilhouette(noLimbParams, canvasW, pixelH, 0.05);
+    expect(s.bodyBounds.bottom).toBe(pixelH - 1);
+  });
 });
 
 // ---------------------------------------------------------------------------

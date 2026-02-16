@@ -26,8 +26,23 @@ function ellipseWidth(
 }
 
 /**
+ * Compute rows needed below the body for legs, based on limb stage.
+ */
+function computeLegReserve(params: CreatureParams, totalH: number): number {
+  if (params.limbStage === 0) return 0;
+  const bodyH = Math.max(2, totalH - Math.max(2, Math.round(totalH * params.headRatio)));
+  // Use (bodyH - 1) to match features.ts which computes legLen from (bottom - top)
+  const legLen = Math.max(1, Math.round((bodyH - 1) * params.legLength));
+  if (params.limbStage === 1) return legLen; // sticks only
+  const halfLen = Math.max(1, Math.floor(legLen / 2));
+  let reserve = halfLen + 1 + halfLen; // upper + knee + lower
+  if (params.limbStage >= 3) reserve += 2; // shoes
+  return reserve;
+}
+
+/**
  * Generates a silhouette (width map) describing the creature's outline.
- * The creature is bottom-aligned on the canvas and scaled by progress.
+ * The creature is bottom-aligned on the canvas with room reserved for legs.
  */
 export function generateSilhouette(
   params: CreatureParams,
@@ -43,8 +58,10 @@ export function generateSilhouette(
   const headH = Math.max(2, Math.round(totalH * params.headRatio));
   const bodyH = Math.max(2, totalH - headH);
 
-  // Bottom-align on canvas
-  const creatureBottom = pixelH - 1;
+  // Reserve space below body for legs, then bottom-align
+  const legReserve = computeLegReserve(params, totalH);
+  // Clamp so creatureTop (creatureBottom - totalH + 1) never goes negative
+  const creatureBottom = Math.max(totalH - 1, pixelH - 1 - legReserve);
   const creatureTop = creatureBottom - totalH + 1;
 
   const headTop = creatureTop;
@@ -83,7 +100,7 @@ export function generateSilhouette(
     const halfW = ellipseWidth(dy, headRy, headMaxHalfW, params.roundness);
     if (halfW <= 0) continue;
 
-    const asymOffset = Math.round(params.asymmetry * halfW * (r % 2 === 0 ? 1 : -1));
+    const asymOffset = Math.round(params.asymmetry * halfW);
     const left = Math.max(0, centerX - halfW + asymOffset);
     const right = Math.min(canvasW - 1, centerX + halfW + asymOffset);
     entries[r] = { left, right };
@@ -109,7 +126,7 @@ export function generateSilhouette(
     const halfW = ellipseWidth(dy, bodyRy, effectiveMaxHalfW, params.roundness);
     if (halfW <= 0) continue;
 
-    const asymOffset = Math.round(params.asymmetry * halfW * (r % 2 === 0 ? 1 : -1));
+    const asymOffset = Math.round(params.asymmetry * halfW);
     const left = Math.max(0, centerX - halfW + asymOffset);
     const right = Math.min(canvasW - 1, centerX + halfW + asymOffset);
     entries[r] = { left, right };
@@ -127,7 +144,7 @@ export function generateSilhouette(
     const blendedHalfW = Math.round(
       (currentHalfW + neckHalfW) / 2,
     );
-    const asymOffset = Math.round(params.asymmetry * blendedHalfW * (r % 2 === 0 ? 1 : -1));
+    const asymOffset = Math.round(params.asymmetry * blendedHalfW);
     entries[r] = {
       left: Math.max(0, centerX - blendedHalfW + asymOffset),
       right: Math.min(canvasW - 1, centerX + blendedHalfW + asymOffset),
