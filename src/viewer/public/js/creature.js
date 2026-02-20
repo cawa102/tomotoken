@@ -112,6 +112,7 @@ export async function buildFromModel(archetype, palette) {
 
   const group = result.scene;
   group.name = "creature";
+  group.userData.isGltfModel = true;
 
   if (palette) {
     applyPalette(group, palette);

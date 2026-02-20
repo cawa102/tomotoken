@@ -3,6 +3,7 @@ import { createPostProcessing } from "./postprocess.js";
 import { buildFromDesign, buildFromModel, buildLegacyCreature, disposeCreature } from "./creature.js";
 import { applyAnimations, applyLegacyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
+import { applyMorphExpression } from "./morph-expression.js";
 
 // --- DOM references ---
 const container = document.getElementById("canvas-container");
@@ -141,7 +142,16 @@ function animate() {
   clock.lastTime = time;
 
   if (currentGroup && currentParts) {
-    if (currentDesign) {
+    if (currentGroup.userData?.isGltfModel) {
+      // glTF model: morph-target-based expressions
+      const expr = currentDesign?.expressions
+        ? selectExpression(currentDesign.expressions, {
+            progress: currentProgress,
+            hour: new Date().getHours(),
+          })
+        : null;
+      applyMorphExpression(currentGroup, expr || "default");
+    } else if (currentDesign) {
       // LLM-generated: flag-based animation + expressions
       applyAnimations(currentGroup, time);
       if (currentDesign.expressions) {

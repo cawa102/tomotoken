@@ -73,6 +73,15 @@ describe("buildFromModel", () => {
     expect(result!.parts.spine).toBe(nested);
   });
 
+  it("sets isGltfModel flag on loaded group", async () => {
+    const fakeScene = new THREE.Group();
+    mockLoadModel.mockResolvedValue({ scene: fakeScene, animations: [] });
+
+    const result = await buildFromModel("explorer");
+
+    expect(result!.group.userData.isGltfModel).toBe(true);
+  });
+
   it("applies palette colors to loaded model when palette provided", async () => {
     const mesh = new THREE.Mesh(
       new THREE.BoxGeometry(),
