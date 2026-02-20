@@ -10,8 +10,8 @@ const materialSchema = z.object({
 
 const animatableSchema = z.object({
   type: z.enum(["sway", "bob", "rotate", "wiggle", "flap"]),
-  speed: z.number().optional(),
-  amplitude: z.number().optional(),
+  speed: z.number().min(0.01).max(10).optional(),
+  amplitude: z.number().min(0.001).max(2).optional(),
 });
 
 const vec3Schema = z.tuple([z.number(), z.number(), z.number()]);
@@ -29,7 +29,7 @@ const basePartSchema = z.object({
 
 type Part = z.infer<typeof basePartSchema> & { children?: Part[] };
 const partSchema: z.ZodType<Part> = basePartSchema.extend({
-  children: z.lazy(() => partSchema.array()).optional(),
+  children: z.lazy(() => partSchema.array().max(20)).optional(),
 });
 
 const eyeExpressionSchema = z.object({
@@ -55,7 +55,7 @@ const personalitySchema = z.object({
 });
 
 export const creatureDesignSchema = z.object({
-  parts: z.array(partSchema).min(1),
+  parts: z.array(partSchema).min(1).max(50),
   expressions: z.record(z.string(), expressionSchema),
   personality: personalitySchema,
 });

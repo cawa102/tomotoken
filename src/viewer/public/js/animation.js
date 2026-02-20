@@ -34,7 +34,10 @@ export function applyAnimations(group, time) {
         child.rotation.z = Math.sin(time * speed) * amplitude;
         break;
       case "bob":
-        child.position.y += Math.sin(time * speed) * amplitude;
+        if (child.userData._origY === undefined) {
+          child.userData._origY = child.position.y;
+        }
+        child.position.y = child.userData._origY + Math.sin(time * speed) * amplitude;
         break;
       case "rotate":
         child.rotation.y = time * speed;

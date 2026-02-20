@@ -83,7 +83,7 @@ function startServer(): void {
     }
   }, POLL_INTERVAL_MS);
 
-  server.listen(PORT, () => {
+  server.listen(PORT, "127.0.0.1", () => {
     process.stdout.write(`Tomotoken 3D viewer: http://localhost:${PORT}\n`);
   });
 }

@@ -31,7 +31,10 @@ export function applyExpression(parts, expression) {
         mesh.scale.y = scaleY;
       }
       if (offsetY !== undefined) {
-        mesh.position.y += offsetY;
+        if (mesh.userData._origPosY === undefined) {
+          mesh.userData._origPosY = mesh.position.y;
+        }
+        mesh.position.y = mesh.userData._origPosY + offsetY;
       }
       applyEyeShape(mesh, shape);
     }
@@ -64,7 +67,10 @@ function applyEyeShape(mesh, shape) {
       break;
     case "happy":
       mesh.scale.y = 0.5;
-      mesh.position.y += 0.01;
+      if (mesh.userData._origPosY === undefined) {
+        mesh.userData._origPosY = mesh.position.y;
+      }
+      mesh.position.y = mesh.userData._origPosY + 0.01;
       break;
     case "sleepy":
       mesh.scale.y = 0.3;
@@ -118,14 +124,14 @@ export function selectExpression(expressions, context) {
     return expressions.sleepy;
   }
 
+  // Near stage advance → focused (check before happy since 0.9 > 0.7)
+  if (progress > 0.9 && expressions.focused) {
+    return expressions.focused;
+  }
+
   // Progress increasing rapidly → happy
   if (progress > 0.7 && expressions.happy) {
     return expressions.happy;
-  }
-
-  // Near stage advance → focused
-  if (progress > 0.9 && expressions.focused) {
-    return expressions.focused;
   }
 
   // Default

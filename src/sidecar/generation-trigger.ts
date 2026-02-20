@@ -54,7 +54,9 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
     const updatedState = updatePetInState(state, { generatedDesigns: updatedDesigns });
     saveState(updatedState);
     return updatedState;
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`[tomotoken] LLM generation failed (falling back to PRNG): ${message}\n`);
     return state;
   }
 }
