@@ -53,19 +53,68 @@ describe("buildPrompt", () => {
     expect(prompt).toContain("sphere");
   });
 
-  it("includes arms/legs constraint for stage >= 2", () => {
-    const prompt = buildPrompt({
-      archetype: "builder", subtype: "fixer",
-      traits, depth, style, stage: 2, previousParts: null,
-    });
-    expect(prompt).toMatch(/両手両足|arms.*legs|limbs/i);
-  });
-
   it("returns a non-empty string", () => {
     const prompt = buildPrompt({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 0, previousParts: null,
     });
     expect(prompt.length).toBeGreaterThan(100);
+  });
+
+  // New tests for Customization format
+  it("describes Customization format with bodyColor and accentColor", () => {
+    const prompt = buildPrompt({
+      archetype: "builder", subtype: "fixer",
+      traits, depth, style, stage: 2, previousParts: null,
+    });
+    expect(prompt).toContain("bodyColor");
+    expect(prompt).toContain("accentColor");
+    expect(prompt).toContain("eyeColor");
+    expect(prompt).toContain("accessoryColor");
+  });
+
+  it("describes showAccessories options", () => {
+    const prompt = buildPrompt({
+      archetype: "builder", subtype: "fixer",
+      traits, depth, style, stage: 2, previousParts: null,
+    });
+    expect(prompt).toContain("showAccessories");
+    expect(prompt).toContain("hat");
+    expect(prompt).toContain("scarf");
+    expect(prompt).toContain("backpack");
+    expect(prompt).toContain("glasses");
+  });
+
+  it("describes animationStyle options", () => {
+    const prompt = buildPrompt({
+      archetype: "builder", subtype: "fixer",
+      traits, depth, style, stage: 2, previousParts: null,
+    });
+    expect(prompt).toContain("animationStyle");
+    expect(prompt).toContain("calm");
+    expect(prompt).toContain("energetic");
+    expect(prompt).toContain("sleepy");
+  });
+
+  it("does NOT contain raw part geometry instructions", () => {
+    const prompt = buildPrompt({
+      archetype: "builder", subtype: "fixer",
+      traits, depth, style, stage: 2, previousParts: null,
+    });
+    // Should not instruct LLM to specify position/rotation/scale/primitive
+    expect(prompt).not.toContain("position [x,y,z]");
+    expect(prompt).not.toContain("rotation [x,y,z]");
+    expect(prompt).not.toContain("scale [x,y,z]");
+  });
+
+  it("includes expressions and personality in output format", () => {
+    const prompt = buildPrompt({
+      archetype: "builder", subtype: "fixer",
+      traits, depth, style, stage: 2, previousParts: null,
+    });
+    expect(prompt).toContain("expressions");
+    expect(prompt).toContain("personality");
+    expect(prompt).toContain("name");
+    expect(prompt).toContain("quirk");
   });
 });
