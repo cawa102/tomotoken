@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { createGradientMap } from "./toon-utils.js";
 import { addOutlines } from "./outline.js";
+import { loadModel } from "./model-loader.js";
 
 const STAGE_NAMES = ["egg", "infant", "child", "youth", "complete", "item"];
 
@@ -95,6 +96,29 @@ export function buildFromDesign(design) {
   }
 
   addOutlines(group);
+  return { group, parts };
+}
+
+/**
+ * Build a 3D creature from a pre-made glTF model.
+ * Returns { group, parts } or null if the model cannot be loaded.
+ */
+export async function buildFromModel(archetype) {
+  const result = await loadModel(archetype);
+  if (!result) {
+    return null;
+  }
+
+  const group = result.scene;
+  group.name = "creature";
+
+  const parts = {};
+  group.traverse((child) => {
+    if (child !== group && child.name) {
+      parts[child.name] = child;
+    }
+  });
+
   return { group, parts };
 }
 
