@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tomotoken 3D Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      overflow: hidden;
+      height: 100vh;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    canvas { display: block; }
+    #info-panel {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(20, 20, 40, 0.85);
+      border: 1px solid rgba(100, 100, 160, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+    }
+    #info-panel .label { color: #888; }
+    #info-panel .value { color: #ddd; font-weight: 600; }
+    #info-panel .archetype { color: #7ecfff; text-transform: uppercase; }
+    #pet-name { font-size: 14px; color: #ffcc66; }
+    #pet-quirk { font-style: italic; color: #aaa; font-size: 11px; }
+    #progress-bar {
+      width: 120px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+    #connection-status {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      color: #666;
+    }
+    #connection-status.connected { color: #4caf50; }
+    #connection-status.disconnected { color: #f44336; }
+  </style>
+</head>
+<body>
+  <div id="canvas-container">
+    <div id="connection-status" class="disconnected">Disconnected</div>
+    <div id="info-panel">
+      <div style="display:none"><span class="value" id="pet-name">—</span></div>
+      <div style="display:none"><span class="label" id="pet-quirk">—</span></div>
+      <div><span class="label">Pet: </span><span class="value" id="pet-id">—</span></div>
+      <div><span class="label">Archetype: </span><span class="archetype" id="archetype">—</span></div>
+      <div><span class="label">Stage: </span><span class="value" id="stage">—</span></div>
+      <div id="progress-bar"><div id="progress-fill" style="width: 0%"></div></div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
