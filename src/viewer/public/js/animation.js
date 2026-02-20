@@ -8,6 +8,15 @@
  * All animations are time-based (not frame-based) for smooth rendering.
  */
 
+/**
+ * Cubic ease-in-out for smoother animation transitions.
+ * @param {number} t - Input value 0..1
+ * @returns {number} Eased value 0..1
+ */
+export function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
 // ============================================================
 // Flag-based animation system (for LLM-generated designs)
 // ============================================================
@@ -86,7 +95,7 @@ function animateBlink(parts, time) {
 
   if (blinkPhase < blinkDuration) {
     const t = blinkPhase / blinkDuration;
-    const squash = 1 - Math.sin(t * Math.PI);
+    const squash = 1 - easeInOutCubic(Math.sin(t * Math.PI));
     parts.leftEye.scale.y = Math.max(0.05, squash);
     parts.rightEye.scale.y = Math.max(0.05, squash);
   } else {
