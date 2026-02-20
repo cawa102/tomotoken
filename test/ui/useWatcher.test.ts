@@ -50,6 +50,7 @@ function createTestState(): AppState {
       consumedTokens: 3_000,
       spawnIndex: 0,
       personalitySnapshot: null,
+      generatedDesigns: null,
     },
     ingestionState: { files: {} },
     globalStats: {

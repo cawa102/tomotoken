@@ -10,6 +10,7 @@ function makePet(overrides: Partial<PetRecord> = {}): PetRecord {
     consumedTokens: 0,
     spawnIndex: 0,
     personalitySnapshot: null,
+    generatedDesigns: null,
     ...overrides,
   };
 }

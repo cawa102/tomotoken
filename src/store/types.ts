@@ -1,3 +1,5 @@
+import type { CreatureDesign } from "../generation/schema.js";
+
 export interface FileIngestionState {
   readonly byteOffset: number;
   readonly lastLineTimestamp: string | null;
@@ -16,6 +18,7 @@ export interface PetRecord {
   readonly consumedTokens: number;
   readonly spawnIndex: number;
   readonly personalitySnapshot: PersonalitySnapshot | null;
+  readonly generatedDesigns: Record<number, CreatureDesign> | null;
 }
 
 export interface PersonalitySnapshot {
