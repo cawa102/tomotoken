@@ -360,6 +360,14 @@ function createEye(scale, whiteMat, pupilMat) {
   pupil.position.z = scale * 0.5;
   eyeGroup.add(pupil);
 
+  // Anime-style highlight sparkle (unlit, always bright for bloom)
+  const highlightGeo = new THREE.SphereGeometry(scale * 0.2, 8, 6);
+  const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const highlight = new THREE.Mesh(highlightGeo, highlightMat);
+  highlight.position.set(scale * 0.25, scale * 0.2, scale * 0.7);
+  highlight.name = "eye_highlight";
+  eyeGroup.add(highlight);
+
   return eyeGroup;
 }
 
