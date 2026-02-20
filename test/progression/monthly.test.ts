@@ -26,6 +26,7 @@ describe("handleMonthChange", () => {
         consumedTokens: 3000,
         spawnIndex: 5,
         personalitySnapshot: null,
+        generatedDesigns: null,
       },
       ingestionState: { files: {} },
       globalStats: {

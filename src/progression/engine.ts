@@ -53,6 +53,7 @@ export function advancePet(
         consumedTokens: 0,
         spawnIndex: idx,
         personalitySnapshot: null,
+        generatedDesigns: null,
       };
     }
   }

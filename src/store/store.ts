@@ -86,6 +86,7 @@ function createInitialPet(spawnIndex: number, requiredTokens: number): PetRecord
     consumedTokens: 0,
     spawnIndex,
     personalitySnapshot: null,
+    generatedDesigns: null,
   };
 }
 
@@ -133,6 +134,7 @@ export function loadState(path: string = STATE_PATH): AppState | null {
         consumedTokens: v1Pet.consumedTokens as number,
         spawnIndex: 0,
         personalitySnapshot: null,
+        generatedDesigns: null,
       },
       ingestionState: v1.ingestionState as AppState["ingestionState"],
       globalStats: v1.globalStats as AppState["globalStats"],
@@ -141,9 +143,14 @@ export function loadState(path: string = STATE_PATH): AppState | null {
   }
 
   // Backfill lastEncouragementShownAt for pre-encouragement states
-  const state = raw as unknown as AppState;
+  let state = raw as unknown as AppState;
   if (!("lastEncouragementShownAt" in raw)) {
-    return { ...state, lastEncouragementShownAt: null };
+    state = { ...state, lastEncouragementShownAt: null };
+  }
+  // Backfill generatedDesigns for pre-LLM states
+  const pet = raw.currentPet as Record<string, unknown> | undefined;
+  if (pet && !("generatedDesigns" in pet)) {
+    state = { ...state, currentPet: { ...state.currentPet, generatedDesigns: null } };
   }
   return state;
 }
