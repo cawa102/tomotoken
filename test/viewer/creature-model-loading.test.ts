@@ -19,12 +19,22 @@ vi.mock("../../src/viewer/public/js/palette-apply.js", () => ({
   applyPalette: mockApplyPalette,
 }));
 
+// Mock anim-mixer module
+const { mockCreateAnimMixer } = vi.hoisted(() => ({
+  mockCreateAnimMixer: vi.fn(() => ({ mixer: { update: vi.fn() }, actions: {} })),
+}));
+vi.mock("../../src/viewer/public/js/anim-mixer.js", () => ({
+  createAnimMixer: mockCreateAnimMixer,
+}));
+
 import { buildFromModel } from "../../src/viewer/public/js/creature.js";
 
 describe("buildFromModel", () => {
   beforeEach(() => {
     mockLoadModel.mockReset();
     mockApplyPalette.mockReset();
+    mockCreateAnimMixer.mockClear();
+    mockCreateAnimMixer.mockReturnValue({ mixer: { update: vi.fn() }, actions: {} });
   });
 
   it("returns loaded model scene as group with parts map", async () => {
@@ -109,5 +119,32 @@ describe("buildFromModel", () => {
     await buildFromModel("explorer");
 
     expect(mockApplyPalette).not.toHaveBeenCalled();
+  });
+
+  it("creates animation mixer from loaded animations", async () => {
+    const fakeScene = new THREE.Group();
+    const fakeClip = new THREE.AnimationClip("idle", 1, []);
+    const fakeMixer = { update: vi.fn() };
+    const fakeActions = { idle: {} };
+    mockCreateAnimMixer.mockReturnValue({ mixer: fakeMixer, actions: fakeActions });
+    mockLoadModel.mockResolvedValue({ scene: fakeScene, animations: [fakeClip] });
+
+    const result = await buildFromModel("explorer");
+
+    expect(mockCreateAnimMixer).toHaveBeenCalledOnce();
+    expect(mockCreateAnimMixer).toHaveBeenCalledWith(result!.group, [fakeClip]);
+    expect(result!.mixer).toBe(fakeMixer);
+    expect(result!.actions).toBe(fakeActions);
+  });
+
+  it("returns null mixer and actions when no animations", async () => {
+    const fakeScene = new THREE.Group();
+    mockLoadModel.mockResolvedValue({ scene: fakeScene, animations: [] });
+
+    const result = await buildFromModel("explorer");
+
+    expect(mockCreateAnimMixer).not.toHaveBeenCalled();
+    expect(result!.mixer).toBeNull();
+    expect(result!.actions).toBeNull();
   });
 });

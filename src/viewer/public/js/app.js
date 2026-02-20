@@ -31,6 +31,7 @@ let currentGroup = null;
 let currentPetId = null;
 let currentStage = null;
 let currentDesign = null;
+let currentMixer = null;
 let currentProgress = 0;
 
 // --- WebSocket with exponential backoff ---
@@ -104,6 +105,7 @@ async function updateCreature(data) {
     scene.add(result.group);
     currentGroup = result.group;
     currentParts = result.parts;
+    currentMixer = result.mixer || null;
     currentPetId = petId;
     currentStage = stage;
   }
@@ -143,7 +145,10 @@ function animate() {
 
   if (currentGroup && currentParts) {
     if (currentGroup.userData?.isGltfModel) {
-      // glTF model: morph-target-based expressions
+      // glTF model: animation mixer + morph-target expressions
+      if (currentMixer) {
+        currentMixer.update(deltaTime);
+      }
       const expr = currentDesign?.expressions
         ? selectExpression(currentDesign.expressions, {
             progress: currentProgress,

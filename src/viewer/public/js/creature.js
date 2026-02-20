@@ -3,6 +3,7 @@ import { createGradientMap } from "./toon-utils.js";
 import { addOutlines } from "./outline.js";
 import { loadModel } from "./model-loader.js";
 import { applyPalette } from "./palette-apply.js";
+import { createAnimMixer } from "./anim-mixer.js";
 
 const STAGE_NAMES = ["egg", "infant", "child", "youth", "complete", "item"];
 
@@ -125,7 +126,15 @@ export async function buildFromModel(archetype, palette) {
     }
   });
 
-  return { group, parts };
+  let mixer = null;
+  let actions = null;
+  if (result.animations && result.animations.length > 0) {
+    const anim = createAnimMixer(group, result.animations);
+    mixer = anim.mixer;
+    actions = anim.actions;
+  }
+
+  return { group, parts, mixer, actions };
 }
 
 /**
