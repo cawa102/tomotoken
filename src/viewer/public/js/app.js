@@ -1,4 +1,5 @@
 import { createScene } from "./scene.js";
+import { createPostProcessing } from "./postprocess.js";
 import { buildFromDesign, buildLegacyCreature, disposeCreature } from "./creature.js";
 import { applyAnimations, applyLegacyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
@@ -17,6 +18,11 @@ const STAGE_NAMES = ["Egg", "Infant", "Child", "Youth", "Complete", "Mastered"];
 
 // --- Scene setup ---
 const { scene, camera, renderer } = createScene(container);
+const { composer, resize: resizeComposer } = createPostProcessing(renderer, scene, camera);
+
+window.addEventListener("resize", () => {
+  resizeComposer(container.clientWidth, container.clientHeight);
+});
 
 // --- State ---
 let currentParts = null;
@@ -143,7 +149,7 @@ function animate() {
     }
   }
 
-  renderer.render(scene, camera);
+  composer.render();
 }
 
 // --- Startup ---
