@@ -1,6 +1,6 @@
 import { createScene } from "./scene.js";
 import { createPostProcessing } from "./postprocess.js";
-import { buildFromDesign, buildLegacyCreature, disposeCreature } from "./creature.js";
+import { buildFromDesign, buildFromModel, buildLegacyCreature, disposeCreature } from "./creature.js";
 import { applyAnimations, applyLegacyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
 
@@ -71,21 +71,31 @@ function connectWebSocket() {
 /**
  * Update or rebuild the 3D creature from PetRenderData.
  * Rebuilds when pet ID changes or growth stage advances.
- * Uses LLM-generated design if available, falls back to PRNG legacy builder.
+ * Priority: glTF model → LLM design → PRNG legacy builder.
  */
-function updateCreature(data) {
-  const { creatureDesign, creatureParams, palette, stage, petId, progress } = data;
+async function updateCreature(data) {
+  const { archetype, creatureDesign, creatureParams, palette, stage, petId, progress } = data;
 
   currentProgress = progress || 0;
 
   if (petId !== currentPetId || stage !== currentStage) {
     disposeCreature(scene);
 
-    let result;
-    if (creatureDesign) {
+    let result = null;
+
+    // 1. Try glTF model first
+    if (archetype) {
+      result = await buildFromModel(archetype);
+    }
+
+    // 2. Fall back to LLM design
+    if (!result && creatureDesign) {
       result = buildFromDesign(creatureDesign);
       currentDesign = creatureDesign;
-    } else {
+    }
+
+    // 3. Fall back to PRNG legacy builder
+    if (!result) {
       result = buildLegacyCreature(creatureParams, palette, stage);
       currentDesign = null;
     }
