@@ -274,13 +274,19 @@ export function buildLegacyCreature(params, palette, stage) {
   if (hasHorns && stage >= 3) {
     const hornH = hornSize * 2.0;
     const hornGeo = new THREE.ConeGeometry(hornSize * 0.15, hornH, 5);
-    const leftHorn = new THREE.Mesh(hornGeo, highlightMat);
+    const hornMat = new THREE.MeshToonMaterial({
+      color: highlightColor,
+      gradientMap,
+      emissive: highlightColor,
+      emissiveIntensity: 0.15,
+    });
+    const leftHorn = new THREE.Mesh(hornGeo, hornMat);
     leftHorn.position.set(-headRadius * 0.4, headY + headRadius * 0.85, -headRadius * 0.1);
     leftHorn.rotation.z = 0.2;
     leftHorn.castShadow = true;
     group.add(leftHorn);
 
-    const rightHorn = new THREE.Mesh(hornGeo.clone(), highlightMat);
+    const rightHorn = new THREE.Mesh(hornGeo.clone(), hornMat);
     rightHorn.position.set(headRadius * 0.4, headY + headRadius * 0.85, -headRadius * 0.1);
     rightHorn.rotation.z = -0.2;
     rightHorn.castShadow = true;
