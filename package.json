@@ -18,7 +18,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/ bin/ --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:viewer": "tsup src/viewer/server.ts --format esm --out-dir dist/viewer --external express --external ws --onSuccess 'node dist/viewer/server.js'",
+    "sidecar": "tsup src/sidecar/main.ts --format esm --out-dir dist/sidecar --onSuccess 'node dist/sidecar/main.js'"
   },
   "keywords": [
     "claude",
@@ -34,6 +36,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "ink": "^5.1.0",
@@ -42,13 +45,17 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^22.13.4",
     "@types/react": "^18.3.18",
     "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "@vitest/coverage-v8": "^3.0.5",
     "eslint": "^9.20.0",
+    "express": "^5.2.1",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "ws": "^8.19.0"
   }
 }
