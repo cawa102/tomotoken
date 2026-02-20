@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { createGradientMap } from "./toon-utils.js";
 import { addOutlines } from "./outline.js";
 import { loadModel } from "./model-loader.js";
+import { applyPalette } from "./palette-apply.js";
 
 const STAGE_NAMES = ["egg", "infant", "child", "youth", "complete", "item"];
 
@@ -103,7 +104,7 @@ export function buildFromDesign(design) {
  * Build a 3D creature from a pre-made glTF model.
  * Returns { group, parts } or null if the model cannot be loaded.
  */
-export async function buildFromModel(archetype) {
+export async function buildFromModel(archetype, palette) {
   const result = await loadModel(archetype);
   if (!result) {
     return null;
@@ -111,6 +112,10 @@ export async function buildFromModel(archetype) {
 
   const group = result.scene;
   group.name = "creature";
+
+  if (palette) {
+    applyPalette(group, palette);
+  }
 
   const parts = {};
   group.traverse((child) => {

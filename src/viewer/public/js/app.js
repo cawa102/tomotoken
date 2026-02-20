@@ -85,7 +85,7 @@ async function updateCreature(data) {
 
     // 1. Try glTF model first
     if (archetype) {
-      result = await buildFromModel(archetype);
+      result = await buildFromModel(archetype, palette);
     }
 
     // 2. Fall back to LLM design

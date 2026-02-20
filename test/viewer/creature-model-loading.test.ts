@@ -13,11 +13,18 @@ vi.mock("../../src/viewer/public/js/outline.js", () => ({
   addOutlines: vi.fn(),
 }));
 
+// Mock palette-apply module
+const { mockApplyPalette } = vi.hoisted(() => ({ mockApplyPalette: vi.fn() }));
+vi.mock("../../src/viewer/public/js/palette-apply.js", () => ({
+  applyPalette: mockApplyPalette,
+}));
+
 import { buildFromModel } from "../../src/viewer/public/js/creature.js";
 
 describe("buildFromModel", () => {
   beforeEach(() => {
     mockLoadModel.mockReset();
+    mockApplyPalette.mockReset();
   });
 
   it("returns loaded model scene as group with parts map", async () => {
@@ -64,5 +71,34 @@ describe("buildFromModel", () => {
 
     expect(result!.parts.torso).toBe(parent);
     expect(result!.parts.spine).toBe(nested);
+  });
+
+  it("applies palette colors to loaded model when palette provided", async () => {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshStandardMaterial({ color: 0xffffff }),
+    );
+    mesh.name = "cr_body_torso";
+
+    const fakeScene = new THREE.Group();
+    fakeScene.add(mesh);
+
+    mockLoadModel.mockResolvedValue({ scene: fakeScene, animations: [] });
+
+    const palette = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ffffff", "#000000", "#888888", "#ff8800"];
+    const result = await buildFromModel("explorer", palette);
+
+    expect(result).not.toBeNull();
+    expect(mockApplyPalette).toHaveBeenCalledOnce();
+    expect(mockApplyPalette).toHaveBeenCalledWith(result!.group, palette);
+  });
+
+  it("does not call applyPalette when no palette provided", async () => {
+    const fakeScene = new THREE.Group();
+    mockLoadModel.mockResolvedValue({ scene: fakeScene, animations: [] });
+
+    await buildFromModel("explorer");
+
+    expect(mockApplyPalette).not.toHaveBeenCalled();
   });
 });
