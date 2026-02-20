@@ -4,7 +4,7 @@ import { createGradientMap } from "./toon-utils.js";
 const STAGE_NAMES = ["egg", "infant", "child", "youth", "complete", "item"];
 
 // --- Geometry factory for primitive strings ---
-const LOW_POLY_SEGMENTS = 8;
+const TOON_SEGMENTS = 24;
 
 function createGeometry(primitive, scale) {
   const [sx, sy, sz] = scale;
@@ -12,25 +12,25 @@ function createGeometry(primitive, scale) {
 
   switch (primitive) {
     case "sphere":
-      geo = new THREE.SphereGeometry(0.5, LOW_POLY_SEGMENTS, LOW_POLY_SEGMENTS - 2);
+      geo = new THREE.SphereGeometry(0.5, TOON_SEGMENTS, TOON_SEGMENTS - 2);
       break;
     case "box":
       geo = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
       break;
     case "cylinder":
-      geo = new THREE.CylinderGeometry(0.5, 0.5, 1, LOW_POLY_SEGMENTS);
+      geo = new THREE.CylinderGeometry(0.5, 0.5, 1, TOON_SEGMENTS);
       break;
     case "cone":
-      geo = new THREE.ConeGeometry(0.5, 1, LOW_POLY_SEGMENTS);
+      geo = new THREE.ConeGeometry(0.5, 1, TOON_SEGMENTS);
       break;
     case "torus":
-      geo = new THREE.TorusGeometry(0.35, 0.15, LOW_POLY_SEGMENTS, LOW_POLY_SEGMENTS);
+      geo = new THREE.TorusGeometry(0.35, 0.15, TOON_SEGMENTS, TOON_SEGMENTS);
       break;
     case "capsule":
-      geo = new THREE.CapsuleGeometry(0.3, 0.4, 4, LOW_POLY_SEGMENTS);
+      geo = new THREE.CapsuleGeometry(0.3, 0.4, 4, TOON_SEGMENTS);
       break;
     default:
-      geo = new THREE.SphereGeometry(0.5, LOW_POLY_SEGMENTS, LOW_POLY_SEGMENTS - 2);
+      geo = new THREE.SphereGeometry(0.5, TOON_SEGMENTS, TOON_SEGMENTS - 2);
   }
 
   geo.scale(sx, sy, sz);
@@ -164,8 +164,8 @@ export function buildLegacyCreature(params, palette, stage) {
   } = params;
 
   // Subdivision level based on roundness
-  const subdivW = Math.floor(6 + roundness * 10); // 6-16
-  const subdivH = Math.floor(4 + roundness * 8);  // 4-12
+  const subdivW = Math.max(20, Math.floor(16 + roundness * 12)); // 20-28
+  const subdivH = Math.max(14, Math.floor(10 + roundness * 10)); // 14-20
 
   // --- Body ---
   const bodyHeight = 0.8;
@@ -347,11 +347,11 @@ function createEye(scale, whiteMat, pupilMat) {
   const eyeGroup = new THREE.Group();
   eyeGroup.name = "eye";
 
-  const whiteGeo = new THREE.SphereGeometry(scale, 8, 6);
+  const whiteGeo = new THREE.SphereGeometry(scale, 16, 12);
   const white = new THREE.Mesh(whiteGeo, whiteMat);
   eyeGroup.add(white);
 
-  const pupilGeo = new THREE.SphereGeometry(scale * 0.55, 6, 4);
+  const pupilGeo = new THREE.SphereGeometry(scale * 0.55, 12, 8);
   const pupil = new THREE.Mesh(pupilGeo, pupilMat);
   pupil.position.z = scale * 0.5;
   eyeGroup.add(pupil);
@@ -366,14 +366,14 @@ function createLimb(radius, height, jointRadius, limbStage, limbMat, endpointMat
   const limbGroup = new THREE.Group();
   limbGroup.name = "limb";
 
-  const cylGeo = new THREE.CylinderGeometry(radius, radius, height, 5);
+  const cylGeo = new THREE.CylinderGeometry(radius, radius, height, 12);
   const cyl = new THREE.Mesh(cylGeo, limbMat);
   cyl.position.y = -height / 2;
   limbGroup.add(cyl);
 
   // Joint
   if (limbStage >= 2 && jointRadius > 0) {
-    const jointGeo = new THREE.SphereGeometry(jointRadius, 6, 4);
+    const jointGeo = new THREE.SphereGeometry(jointRadius, 12, 8);
     const joint = new THREE.Mesh(jointGeo, limbMat);
     joint.position.y = -height * 0.5;
     limbGroup.add(joint);
@@ -381,7 +381,7 @@ function createLimb(radius, height, jointRadius, limbStage, limbMat, endpointMat
 
   // Endpoint (hand/foot)
   if (limbStage >= 3) {
-    const endGeo = new THREE.SphereGeometry(radius * 1.5, 6, 4);
+    const endGeo = new THREE.SphereGeometry(radius * 1.5, 12, 8);
     const end = new THREE.Mesh(endGeo, endpointMat);
     end.position.y = -height;
     limbGroup.add(end);
@@ -403,7 +403,7 @@ function createTail(tailLength, bodyWidth, bodyMat, tipMat) {
   for (let i = 0; i < segments; i++) {
     const t = i / segments;
     const radius = 0.05 * (1 - t * 0.5);
-    const geo = new THREE.CylinderGeometry(radius, radius * 0.7, segLen, 5);
+    const geo = new THREE.CylinderGeometry(radius, radius * 0.7, segLen, 12);
     const mat = i === segments - 1 ? tipMat : bodyMat;
     const seg = new THREE.Mesh(geo, mat);
 
