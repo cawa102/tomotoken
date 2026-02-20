@@ -36,7 +36,9 @@ export function applyPalette(group, palette) {
 
     const material = child.material;
     if (material && material.color) {
-      material.color.set(color);
+      const cloned = material.clone();
+      cloned.color.set(color);
+      child.material = cloned;
     }
   });
 }

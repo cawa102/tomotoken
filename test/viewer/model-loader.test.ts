@@ -58,5 +58,30 @@ describe("model-loader", () => {
       expect(result).toBeNull();
       expect(mockLoad).not.toHaveBeenCalled();
     });
+
+    it("returns null for archetype with path traversal characters", async () => {
+      const result = await loadModel("../../etc/passwd");
+
+      expect(result).toBeNull();
+      expect(mockLoad).not.toHaveBeenCalled();
+    });
+
+    it("returns null for archetype with slashes", async () => {
+      const result = await loadModel("foo/bar");
+
+      expect(result).toBeNull();
+      expect(mockLoad).not.toHaveBeenCalled();
+    });
+
+    it("allows hyphenated archetype names", async () => {
+      mockLoad.mockImplementation((_url: string, onLoad: (gltf: unknown) => void) => {
+        onLoad({ scene: { name: "Scene" }, animations: [] });
+      });
+
+      const result = await loadModel("code-builder");
+
+      expect(result).not.toBeNull();
+      expect(mockLoad.mock.calls[0][0]).toBe("./models/code-builder.glb");
+    });
   });
 });

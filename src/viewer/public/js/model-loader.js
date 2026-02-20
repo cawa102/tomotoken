@@ -2,6 +2,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export const MODEL_BASE_PATH = "./models/";
 
+const SAFE_ARCHETYPE_RE = /^[a-z0-9-]+$/i;
+
 const loader = new GLTFLoader();
 
 /**
@@ -9,7 +11,7 @@ const loader = new GLTFLoader();
  * Returns { scene, animations } on success, or null on failure.
  */
 export function loadModel(archetype) {
-  if (!archetype) {
+  if (!archetype || !SAFE_ARCHETYPE_RE.test(archetype)) {
     return Promise.resolve(null);
   }
 

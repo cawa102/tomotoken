@@ -82,6 +82,7 @@ async function updateCreature(data) {
 
   if (petId !== currentPetId || stage !== currentStage) {
     disposeCreature(scene);
+    currentDesign = null;
 
     let result = null;
 
