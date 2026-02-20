@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { createGradientMap } from "./toon-utils.js";
+import { addOutlines } from "./outline.js";
 
 const STAGE_NAMES = ["egg", "infant", "child", "youth", "complete", "item"];
 
@@ -93,6 +94,7 @@ export function buildFromDesign(design) {
     });
   }
 
+  addOutlines(group);
   return { group, parts };
 }
 
@@ -150,6 +152,7 @@ export function buildLegacyCreature(params, palette, stage) {
       );
       group.add(spot);
     }
+    addOutlines(group, { thickness: 0.02 });
     return { group, parts: { egg } };
   }
 
@@ -337,6 +340,7 @@ export function buildLegacyCreature(params, palette, stage) {
     parts.wings = wingGroup;
   }
 
+  addOutlines(group, { thickness: 0.025 });
   return { group, parts };
 }
 

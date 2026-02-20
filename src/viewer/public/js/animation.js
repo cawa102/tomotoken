@@ -30,6 +30,7 @@ export function easeInOutCubic(t) {
 export function applyAnimations(group, time) {
   // Global breathing on body mesh
   group.traverse((child) => {
+    if (child.userData?.isOutline) return;
     if (child.name === "body" && child.isMesh) {
       const breathCycle = Math.sin(time * 1.5) * 0.02;
       child.scale.y = 1 + breathCycle;
