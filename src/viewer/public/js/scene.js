@@ -7,7 +7,36 @@ import { createGradientMap } from "./toon-utils.js";
  */
 export function createScene(container) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x1a1a2e);
+
+  // Gradient background via NDC plane (replaces flat scene.background)
+  const bgGeo = new THREE.PlaneGeometry(2, 2);
+  const bgMat = new THREE.ShaderMaterial({
+    uniforms: {
+      topColor: { value: new THREE.Color(0x1a1a3e) },
+      bottomColor: { value: new THREE.Color(0x0a0a1a) },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position.xy, 0.999, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 topColor;
+      uniform vec3 bottomColor;
+      varying vec2 vUv;
+      void main() {
+        gl_FragColor = vec4(mix(bottomColor, topColor, vUv.y), 1.0);
+      }
+    `,
+    depthWrite: false,
+    depthTest: false,
+  });
+  const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+  bgMesh.renderOrder = -1;
+  bgMesh.frustumCulled = false;
+  scene.add(bgMesh);
 
   // Camera
   const aspect = container.clientWidth / container.clientHeight;
