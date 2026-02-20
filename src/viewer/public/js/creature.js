@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { createGradientMap } from "./toon-utils.js";
 
 const STAGE_NAMES = ["egg", "infant", "child", "youth", "complete", "item"];
 
@@ -43,11 +44,10 @@ function buildPart(partDef) {
   const { name, primitive, position, rotation, scale, color, material, children, animatable } = partDef;
 
   const geo = createGeometry(primitive, scale);
-  const mat = new THREE.MeshStandardMaterial({
+  const gradientMap = createGradientMap(3);
+  const mat = new THREE.MeshToonMaterial({
     color: new THREE.Color(color),
-    roughness: material.roughness,
-    metalness: material.metalness,
-    flatShading: material.flatShading,
+    gradientMap,
   });
 
   const mesh = new THREE.Mesh(geo, mat);
@@ -117,47 +117,17 @@ export function buildLegacyCreature(params, palette, stage) {
   const pupilColor = colors[6] || new THREE.Color(0x000000);
   const accentColor = colors[7] || new THREE.Color(0xff6644);
 
-  // Materials
-  const bodyMat = new THREE.MeshStandardMaterial({
-    color: bodyColor,
-    roughness: 0.7,
-    metalness: 0.05,
-    flatShading: true,
-  });
-  const bodySecMat = new THREE.MeshStandardMaterial({
-    color: bodySecondary,
-    roughness: 0.7,
-    metalness: 0.05,
-    flatShading: true,
-  });
-  const outlineMat = new THREE.MeshStandardMaterial({
-    color: outlineColor,
-    roughness: 0.9,
-    metalness: 0.0,
-    flatShading: true,
-  });
-  const eyeWhiteMat = new THREE.MeshStandardMaterial({
-    color: eyeWhite,
-    roughness: 0.3,
-    metalness: 0.0,
-  });
-  const pupilMat = new THREE.MeshStandardMaterial({
-    color: pupilColor,
-    roughness: 0.5,
-    metalness: 0.0,
-  });
-  const accentMat = new THREE.MeshStandardMaterial({
-    color: accentColor,
-    roughness: 0.6,
-    metalness: 0.1,
-    flatShading: true,
-  });
-  const highlightMat = new THREE.MeshStandardMaterial({
-    color: highlightColor,
-    roughness: 0.5,
-    metalness: 0.1,
-    flatShading: true,
-  });
+  // Materials — Toon shading with shared gradient map
+  const gradientMap = createGradientMap(3);
+  const toon = (c) => new THREE.MeshToonMaterial({ color: c, gradientMap });
+
+  const bodyMat = toon(bodyColor);
+  const bodySecMat = toon(bodySecondary);
+  const outlineMat = toon(outlineColor);
+  const highlightMat = toon(highlightColor);
+  const eyeWhiteMat = toon(eyeWhite);
+  const pupilMat = toon(pupilColor);
+  const accentMat = toon(accentColor);
 
   // === Stage 0: Egg ===
   if (stage === 0) {
