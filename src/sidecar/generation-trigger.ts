@@ -4,6 +4,7 @@ import { generateCreatureDesign } from "../generation/designer.js";
 import { createLLMProvider } from "../generation/llm-provider.js";
 import { computeEggStage } from "../progression/stages.js";
 import { TRAIT_IDS } from "../config/constants.js";
+import { loadConfig, resolveApiKey } from "../config/index.js";
 
 function deriveArchetypeAndSubtype(traits: Record<string, number>): { archetype: string; subtype: string } {
   const sorted = [...TRAIT_IDS].sort((a, b) => (traits[b] ?? 0) - (traits[a] ?? 0));
@@ -12,13 +13,14 @@ function deriveArchetypeAndSubtype(traits: Record<string, number>): { archetype:
 
 /**
  * Check if LLM generation should be triggered for the current stage.
- * If ANTHROPIC_API_KEY is set and no design exists for the current stage,
- * call the LLM provider to generate a design and save it to state.
+ * Resolves API key from config (config.json) or env vars.
+ * Only generates at stage 4 (hatched) — egg stages use procedural shaders.
  *
  * Returns the (possibly updated) state. On failure, returns original state (PRNG fallback).
  */
 export async function triggerGenerationIfNeeded(state: AppState): Promise<AppState> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const config = loadConfig();
+  const apiKey = resolveApiKey(config.llm);
   if (!apiKey) return state;
 
   const pet = state.currentPet;
@@ -30,6 +32,9 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
     : 0;
   const stage = computeEggStage(progress);
 
+  // Only generate at stage 4 (hatched). Egg stages 0-3 use procedural shaders.
+  if (stage < 4) return state;
+
   if (pet.generatedDesigns?.[stage]) return state;
 
   const { archetype, subtype } = deriveArchetypeAndSubtype(snapshot.traits);
@@ -40,8 +45,8 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
     : null;
 
   const provider = createLLMProvider({
-    provider: "anthropic",
-    model: "claude-sonnet-4-6",
+    provider: config.llm.provider,
+    model: config.llm.model,
     apiKey,
   });
 

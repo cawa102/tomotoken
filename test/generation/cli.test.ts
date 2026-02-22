@@ -98,8 +98,8 @@ describe("getDesignContext", () => {
     expect(ctx.stage).toBe(2);
     expect(ctx.petId).toBe("test-pet-abc");
     expect(ctx.templateId).toBe("humanoid");
-    expect(ctx.prompt).toContain("アーキタイプ: architect");
-    expect(ctx.prompt).toContain("builder寄り");
+    expect(ctx.prompt).toContain("Archetype: architect");
+    expect(ctx.prompt).toContain("leans builder");
     expect(ctx.stageDescription).toContain("2");
     expect(ctx.existingStages).toEqual([]);
     expect(ctx.previousParts).toBeNull();

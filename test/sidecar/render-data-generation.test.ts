@@ -18,6 +18,18 @@ vi.mock("../../src/store/store.js", () => ({
   }),
 }));
 
+// Mock config to resolve API key from env
+vi.mock("../../src/config/index.js", () => ({
+  loadConfig: () => ({
+    llm: { provider: "anthropic", model: "claude-sonnet-4-6-20250620" },
+  }),
+  resolveApiKey: (config: { provider: string; apiKey?: string }) => {
+    if (config.apiKey) return config.apiKey;
+    if (config.provider === "anthropic") return process.env.ANTHROPIC_API_KEY;
+    return undefined;
+  },
+}));
+
 import { triggerGenerationIfNeeded } from "../../src/sidecar/generation-trigger.js";
 
 function createTestState(overrides: Partial<AppState["currentPet"]> = {}): AppState {
@@ -28,7 +40,7 @@ function createTestState(overrides: Partial<AppState["currentPet"]> = {}): AppSt
       petId: "test-pet",
       spawnedAt: "2026-01-15T00:00:00Z",
       requiredTokens: 10000,
-      consumedTokens: 5000,
+      consumedTokens: 10000, // progress=1.0 → stage 4 (hatched)
       spawnIndex: 0,
       personalitySnapshot: {
         usageMix: {},
@@ -85,14 +97,14 @@ describe("triggerGenerationIfNeeded", () => {
 
     expect(mockGenerate).toHaveBeenCalledOnce();
     expect(result.currentPet.generatedDesigns).toBeDefined();
-    expect(result.currentPet.generatedDesigns?.[2]).toEqual(mockDesign);
+    expect(result.currentPet.generatedDesigns?.[4]).toEqual(mockDesign);
     expect(mockSaveState).toHaveBeenCalledOnce();
   });
 
   it("does not trigger generation when design already exists for stage", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
 
-    const state = createTestState({ generatedDesigns: { 2: mockDesign } });
+    const state = createTestState({ generatedDesigns: { 4: mockDesign } });
     const result = await triggerGenerationIfNeeded(state);
 
     expect(mockGenerate).not.toHaveBeenCalled();
@@ -117,6 +129,17 @@ describe("triggerGenerationIfNeeded", () => {
     const result = await triggerGenerationIfNeeded(state);
 
     expect(mockGenerate).toHaveBeenCalledOnce();
+    expect(result).toBe(state);
+  });
+
+  it("skips generation for egg stages 0-3", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+
+    // consumedTokens=5000 / requiredTokens=10000 → progress=0.5 → stage 2
+    const state = createTestState({ consumedTokens: 5000 });
+    const result = await triggerGenerationIfNeeded(state);
+
+    expect(mockGenerate).not.toHaveBeenCalled();
     expect(result).toBe(state);
   });
 

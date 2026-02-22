@@ -61,50 +61,50 @@ describe("buildPrompt", () => {
     expect(prompt.length).toBeGreaterThan(100);
   });
 
-  // New tests for Customization format
-  it("describes Customization format with bodyColor and accentColor", () => {
+  // Tests for parts-based prompt format
+  it("describes parts format with primitive and material", () => {
     const prompt = buildPrompt({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 2, previousParts: null,
     });
-    expect(prompt).toContain("bodyColor");
-    expect(prompt).toContain("accentColor");
-    expect(prompt).toContain("eyeColor");
-    expect(prompt).toContain("accessoryColor");
+    expect(prompt).toContain("primitive");
+    expect(prompt).toContain("position");
+    expect(prompt).toContain("material");
+    expect(prompt).toContain("color");
   });
 
-  it("describes showAccessories options", () => {
+  it("describes available primitive types", () => {
     const prompt = buildPrompt({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 2, previousParts: null,
     });
-    expect(prompt).toContain("showAccessories");
-    expect(prompt).toContain("hat");
-    expect(prompt).toContain("scarf");
-    expect(prompt).toContain("backpack");
-    expect(prompt).toContain("glasses");
+    expect(prompt).toContain("sphere");
+    expect(prompt).toContain("box");
+    expect(prompt).toContain("cylinder");
+    expect(prompt).toContain("cone");
+    expect(prompt).toContain("capsule");
   });
 
-  it("describes animationStyle options", () => {
+  it("describes animatable options", () => {
     const prompt = buildPrompt({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 2, previousParts: null,
     });
-    expect(prompt).toContain("animationStyle");
-    expect(prompt).toContain("calm");
-    expect(prompt).toContain("energetic");
-    expect(prompt).toContain("sleepy");
+    expect(prompt).toContain("animatable");
+    expect(prompt).toContain("sway");
+    expect(prompt).toContain("bob");
+    expect(prompt).toContain("wiggle");
   });
 
-  it("does NOT contain raw part geometry instructions", () => {
+  it("does NOT contain old Customization format fields", () => {
     const prompt = buildPrompt({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 2, previousParts: null,
     });
-    // Should not instruct LLM to specify position/rotation/scale/primitive
-    expect(prompt).not.toContain("position [x,y,z]");
-    expect(prompt).not.toContain("rotation [x,y,z]");
-    expect(prompt).not.toContain("scale [x,y,z]");
+    expect(prompt).not.toContain("bodyColor");
+    expect(prompt).not.toContain("accentColor");
+    expect(prompt).not.toContain("showAccessories");
+    expect(prompt).not.toContain("animationStyle");
   });
 
   it("includes expressions and personality in output format", () => {
