@@ -2,65 +2,36 @@
 
 > Auto-generated from `package.json` on 2026-02-22
 
-## Build & Deploy
+## Build & Start
 
 ### Build
 
 ```bash
-npm run build    # tsup → dist/
+npm run build    # tsup -> dist/
 npm run typecheck # verify types
-npm test         # verify tests
+npm test         # verify tests (325 tests, 55 files)
 ```
 
-Output: `dist/bin/tomotoken.js` (CLI entry point)
+Output: `dist/bin/tomotoken.js` (server entry point)
 
-### Install Locally
+### Start
+
+```bash
+npm start        # Express + WebSocket on localhost:3456
+```
+
+Open `http://localhost:3456` in browser.
+
+- Main page (`/`): 3D pet viewer with personality radar chart and progress bar
+- Collection page (`/collection`): Card grid of completed pets with modal detail
+
+Server pushes `PetRenderData` via WebSocket every 5 seconds. Egg stages (0-3) render wobbling egg models. Stage 4 (hatched) renders the character model with animations.
+
+### Install Globally
 
 ```bash
 npm link         # symlinks 'tomotoken' command globally
-tomotoken show   # verify it works
-```
-
-### Publish (npm)
-
-```bash
-npm run build && npm test
-npm version patch|minor|major
-npm publish
-```
-
-## Running
-
-### CLI Commands
-
-```bash
-tomotoken              # show current pet (default)
-tomotoken show         # display current pet
-tomotoken stats        # token statistics
-tomotoken collection   # list completed pets
-tomotoken view <id>    # detailed pet view
-tomotoken config       # show configuration
-tomotoken watch        # live mode (polls every 5s)
-tomotoken window       # spawn new terminal window
-tomotoken zukan        # interactive encyclopedia
-tomotoken recalibrate  # recompute T0 calibration
-tomotoken rescan       # re-ingest all logs from scratch
-```
-
-### 3D Viewer
-
-```bash
-npm run dev:viewer     # starts Express + WebSocket on localhost:3456
-```
-
-Open `http://localhost:3456` in browser. Server pushes `PetRenderData` via WebSocket every 5 seconds.
-
-Egg stages (0-3) render wobbling egg models. Stage 4 (hatched) renders the character model with animations.
-
-### Sidecar
-
-```bash
-npm run sidecar        # outputs PetRenderData JSON to stdout
+tomotoken        # starts web server
 ```
 
 ## Common Issues
@@ -71,23 +42,16 @@ npm run sidecar        # outputs PetRenderData JSON to stdout
 
 **Fix**:
 1. Check `~/.claude/projects/` contains `.jsonl` files
-2. If custom path, verify `config.json` `logPath` setting
-3. Run `tomotoken rescan` to re-ingest from scratch
-
-### Calibration shows T0 = 0 or very large
-
-**Cause**: Insufficient log history for accurate monthly estimate.
-
-**Fix**: Use more Claude Code sessions. T0 formula is `ceil(M / 4.75)` where M = monthly token estimate. With few sessions, the estimate can be off.
+2. If custom path, verify `~/.tomotoken/config.json` settings
+3. Delete `~/.tomotoken/state.json` to re-ingest from scratch
 
 ### Pet stuck at 0% progress
 
 **Cause**: Byte offsets may be ahead of actual file content (e.g., after log rotation).
 
 **Fix**:
-```bash
-tomotoken rescan       # resets all offsets and re-reads everything
-```
+1. Delete `~/.tomotoken/state.json`
+2. Restart: `npm start` (re-ingests all logs)
 
 ### State file corruption
 
@@ -95,8 +59,8 @@ tomotoken rescan       # resets all offsets and re-reads everything
 
 **Fix**:
 1. Back up `~/.tomotoken/state.json`
-2. Delete it — a fresh state will be created on next run
-3. Run `tomotoken rescan` to rebuild from logs
+2. Delete it -- a fresh state will be created on next run
+3. Restart the server to rebuild from logs
 
 ### Lock file prevents startup
 
@@ -104,34 +68,56 @@ tomotoken rescan       # resets all offsets and re-reads everything
 
 **Fix**: Delete `~/.tomotoken/tomotoken.lock`. Lock files older than 5 minutes are auto-stale.
 
-### 3D Viewer: WebSocket disconnects
+### Port 3456 already in use
 
-**Cause**: Server crashed or port conflict.
+**Cause**: Another process or previous server instance using the port.
 
 **Fix**:
-1. Check if port 3456 is in use: `lsof -i :3456`
-2. Restart: `npm run dev:viewer`
+```bash
+lsof -ti:3456 | xargs kill    # kill existing process
+npm start                       # restart
+```
+
+Or set a different port:
+```bash
+VIEWER_PORT=4000 npm start
+```
+
+### WebSocket disconnects / "Disconnected" in UI
+
+**Cause**: Server crashed or network interruption.
+
+**Fix**:
+1. Check server console for errors
+2. Restart: `npm start`
+3. The client auto-reconnects with exponential backoff (1s -> 30s max)
 
 ### Egg stuck at stage 0 / no wobble
 
-**Cause**: Progress is 0 or `computeEggStage` receives invalid input.
+**Cause**: Progress is 0 or no new log data.
 
 **Fix**:
-1. Check progress via `tomotoken stats`
-2. If progress > 0 but stage 0, run `tomotoken rescan`
+1. Check `/api/pet` response: `curl http://localhost:3456/api/pet | jq .progress`
+2. If progress > 0 but stage 0, restart the server
 3. Verify viewer is receiving WebSocket updates (check browser console)
 
-### Generation fails (ANTHROPIC_API_KEY)
+### Generation fails (API key)
 
-**Cause**: `ANTHROPIC_API_KEY` not set or expired.
+**Cause**: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` not set or expired.
 
 **Fix**:
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-npm run sidecar
+npm start
 ```
 
-Core CLI works without the API key — only LLM creature design requires it.
+Core app works without the API key -- only LLM creature design requires it.
+
+### Collection page empty
+
+**Cause**: No pets have completed yet (each pet requires ~1 billion tokens).
+
+**Fix**: This is expected for new users. Keep using Claude Code and your pet will eventually hatch and complete.
 
 ## Data Recovery
 
@@ -143,14 +129,13 @@ Collection is append-only. If `state.json` is lost, completed pets are safe in `
 
 ```bash
 rm -rf ~/.tomotoken/    # delete all state
-tomotoken               # fresh start, re-ingests logs
+npm start               # fresh start, re-ingests logs
 ```
 
 ## Monitoring
 
-This is a local CLI tool — no server monitoring needed for core usage.
-
-For 3D Viewer server:
-- Health check: `curl http://localhost:3456/api/pet`
+Health check endpoints:
+- `GET http://localhost:3456/api/pet` -- current pet data
+- `GET http://localhost:3456/api/collection` -- completed pets
 - WebSocket: connect to `ws://localhost:3456`
-- Logs: stdout/stderr from `npm run dev:viewer`
+- Server logs: stdout/stderr from `npm start`

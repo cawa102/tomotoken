@@ -4,7 +4,7 @@ Specification (v3 — Web-only Architecture)
 
 ## 1. Background
 
-Tomotoken is a local web application for Claude Code users that visualizes token usage as a growing 3D pet character. As the user consumes tokens, the pet grows through egg stages and eventually hatches into a unique creature. Completed pets enter a collection gallery (zukan). The primary goal is to make usage fun to look back on.
+Tomotoken is a local web application for Claude Code users that visualizes token usage as a growing 3D pet character. As the user consumes tokens, the pet grows through egg stages and eventually hatches into a unique creature. Completed pets enter a collection gallery (collection gallery). The primary goal is to make usage fun to look back on.
 
 ---
 
@@ -14,7 +14,7 @@ Tomotoken is a local web application for Claude Code users that visualizes token
 - Provide a fun, low-friction visualization of Claude Code usage:
   - Token consumption grows a character through egg stages (0-4) into a hatched creature.
   - When a character completes (1 billion tokens), a new character spawns.
-  - Users can view a collection of completed characters in a web gallery (zukan).
+  - Users can view a collection of completed characters in a web gallery (collection gallery).
 
 ### 2.2 Secondary Objectives
 - Capture "personality" from usage patterns using **local-only heuristics** (no LLM required).
@@ -56,8 +56,8 @@ Tomotoken is a local web application for Claude Code users that visualizes token
    - Main page: current pet 3D viewer (Three.js with toon shading).
    - Egg stages 0-3 with wobble animation, stage 4 hatches into character.
 
-6) **Zukan (Collection Gallery)**
-   - Web page at `/zukan` showing card grid of completed pets.
+6) **Collection Gallery**
+   - Web page at `/collection` showing card grid of completed pets.
    - Card: snapshot thumbnail, archetype, completion date, token count.
    - Modal overlay with 3D viewer and personality details.
 
@@ -265,7 +265,7 @@ Scoring (0-100, deterministic):
 
 - Archetype = trait with highest score
 - Subtype = trait with second-highest score
-- Displayed in: main page, zukan cards, modal detail
+- Displayed in: main page, collection cards, modal detail
 
 ### 7.7 When to Capture
 
@@ -348,7 +348,7 @@ Startup flow:
 | Page | URL | Purpose |
 |------|-----|---------|
 | Main | `/` | Current pet 3D viewer with radar chart and progress |
-| Zukan | `/zukan` | Collection gallery — card grid + modal detail |
+| Collection | `/collection` | Collection gallery — card grid + modal detail |
 
 Navigation: floating circular buttons (bottom-right) linking between pages.
 
@@ -370,7 +370,7 @@ Navigation: floating circular buttons (bottom-right) linking between pages.
 - Initial data sent on connection
 - Clients tracked in Set, cleaned up on close/error
 
-### 9.5 Zukan Page
+### 9.5 Collection Page
 
 Card grid layout:
 - Responsive: `auto-fill, minmax(240px, 1fr)`
@@ -452,8 +452,8 @@ No dedicated rescan command. To re-ingest all logs: `rm ~/.tomotoken/state.json 
 - User runs `npm start` and sees:
   - 3D pet viewer at localhost:3456 (egg or hatched character)
   - Progress bar and radar chart
-  - Floating button to zukan page
-- Zukan page shows completed pets as card grid with modal detail
+  - Floating button to collection page
+- Collection page shows completed pets as card grid with modal detail
 - Pet completion triggers snapshot capture
 - Monthly boundary: spawn index resets, current pet persists
 - Core app works without API key (LLM features gracefully disabled)
@@ -467,7 +467,7 @@ Phase 2: Progression engine (pets, completion, monthly reset)
 Phase 3: Personality metrics (heuristics) + Traits
 Phase 4: 3D viewer + toon shading + egg system
 Phase 5: LLM creature design + Hyper3D pipeline (optional)
-Phase 6: Web migration (CLI removal, zukan page, snapshot system)
+Phase 6: Web migration (CLI removal, collection page, snapshot system)
 
 ---
 

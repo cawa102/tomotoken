@@ -1,15 +1,15 @@
 # Frontend Codemap
 
-> Freshness: 2026-02-22 18:03
+> Freshness: 2026-02-22 21:45
 
 ## Pages
 
 | Page | URL | File | Purpose |
 |------|-----|------|---------|
 | Main | `/` | `index.html` | 3D pet viewer (egg stages + hatched character) |
-| Zukan | `/zukan` | `zukan.html` | Encyclopedia — card grid of completed pets |
+| Collection | `/collection` | `collection.html` | Gallery — card grid of completed pets |
 
-Navigation: floating circular buttons (bottom-right) linking between pages.
+Navigation: floating circular buttons (top-left) linking between pages.
 
 ## 3D Viewer — Main Page (`src/viewer/public/`)
 
@@ -23,7 +23,7 @@ Navigation: floating circular buttons (bottom-right) linking between pages.
 | `js/toon-utils.js` | Gradient map for MeshToonMaterial |
 | `js/outline.js` | Toon outline post-processing |
 | `js/easing.js` | Easing functions (cubicInOut, etc.) |
-| `js/radar-chart.js` | SVG radar chart for personality traits |
+| `js/radar-chart.js` | Canvas 2D radar chart for personality traits (8-axis, max-normalized, smart label alignment) |
 
 ### Creature Loading
 
@@ -55,7 +55,7 @@ Navigation: floating circular buttons (bottom-right) linking between pages.
 
 | File | Purpose |
 |------|---------|
-| `js/viewer-core.js` | `createPetViewer(container, renderData)` — self-contained Three.js viewer for reuse in zukan modal. Returns `{ dispose() }` for cleanup. |
+| `js/viewer-core.js` | `createPetViewer(container, renderData)` — self-contained Three.js viewer for reuse in collection modal. Returns `{ dispose() }` for cleanup. |
 
 ### Snapshot Capture (in app.js)
 
@@ -84,7 +84,7 @@ currentDesign?
   → applyAnimations() + applyExpression()
 ```
 
-## Zukan Page (`zukan.html` + `js/zukan.js` + `css/zukan.css`)
+## Collection Page (`collection.html` + `js/collection.js` + `css/collection.css`)
 
 ### Layout
 
@@ -94,7 +94,7 @@ currentDesign?
 - Modal overlay: backdrop + close button + 3D viewer + info panel
 - Floating nav button: home icon → `/`
 
-### Client Logic (zukan.js)
+### Client Logic (collection.js)
 
 | Function | Purpose |
 |----------|---------|
@@ -111,9 +111,28 @@ Uses `viewer-core.js` (`createPetViewer`) to render completed pets.
 Fetches `GET /api/collection/:petId/render` for PetRenderData.
 Properly disposes renderer/composer/creature on close.
 
-### Styles (zukan.css)
+### Styles (collection.css)
 
-- Cards: white bg, rounded corners, hover lift + shadow
-- Modal: centered, max 600px, backdrop blur
-- Trait badges: primary (blue highlight) + secondary
+- Body: `padding: 32px 28px 40px`, monospace font family
+- Cards: white bg, `border-radius: 14px`, `padding: 18px`, hover lift + shadow
+- Grid: `gap: 24px`, `max-width: 1200px`, `auto-fill minmax(240px, 1fr)`
+- Modal: centered, max 600px, `padding: 28px`, backdrop blur
+- Trait badges: `padding: 4px 10px`, primary (blue) + secondary (gray)
 - Floating button: 48px circle, semi-transparent black, z-index 1000
+
+### Main Page Layout (index.html)
+
+- Radar container: `bottom: 76px; left: 16px`, frosted glass background (`rgba(255,255,255,0.3)` + `blur(8px)`), `border-radius: 16px`
+- Radar canvas: 600x600 internal / 280x280 CSS (2.14x DPR)
+- Bottom bar: `padding: 14px 28px 18px`, `rgba(255,255,255,0.65)` + `blur(10px)`
+- Archetype label: `12px`, `letter-spacing: 0.8px`, blue (#3a7bd5)
+- Exp bar: `5px` height, gradient `#4facfe → #00d2ff`
+
+### Radar Chart (radar-chart.js)
+
+- Canvas 2D, 8-axis spider chart
+- Max-value normalization: dominant trait always reaches outer ring
+- Smart label alignment: `textAlign` / `textBaseline` adjusted per angle to prevent edge clipping
+- Chart radius: `size * 0.24`, label offset: `radius + 30`
+- Fonts: active `bold 22px`, inactive `18px` monospace
+- Grid opacity: 0.25, axis opacity: 0.15, polygon fill: 0.18

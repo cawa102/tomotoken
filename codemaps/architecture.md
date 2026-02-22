@@ -1,6 +1,6 @@
 # Architecture Codemap
 
-> Freshness: 2026-02-22 18:03 | 63 TS files + 23 client files | 323 tests (55 files)
+> Freshness: 2026-02-22 21:45 | 63 TS files + 23 client files | 325 tests (55 files)
 
 ## Domain Flow
 
@@ -33,7 +33,7 @@ Palette, First-Run, Validation, Snapshot
 | Config | `src/config/` | `index.ts` | `loadConfig`, `ensureDataDir`, `CLAUDE_PROJECTS_DIR`, `TOKENS_PER_PET` |
 | Validation | `src/validation/` | `startup.ts` | `validateStartup(llmConfig)` |
 | First-Run | `src/first-run/` | (none) | `isFirstRun`, `buildFirstRunState`, `extractRecentTokens` |
-| Viewer | `src/viewer/` | (none) | Express server, API routes, Three.js client, snapshot, zukan page |
+| Viewer | `src/viewer/` | (none) | Express server, API routes, Three.js client, snapshot, collection page |
 | Sidecar | `src/sidecar/` | (none) | `buildRenderData`, `triggerGenerationIfNeeded` |
 | Generation | `src/generation/` | `index.ts` | `buildPrompt`, `creatureDesignSchema`, `saveDesign`, `createLLMProvider` |
 | Art3D | `src/art3d/` | `index.ts` | `PetRenderData` type, `STYLE_SUFFIX`, `buildModelPrompt` |
@@ -64,7 +64,7 @@ Viewer/snapshot → filesystem (~/.tomotoken/snapshots/)
 | GET | `/api/collection/:petId/render` | PetRenderData for completed pet |
 | POST | `/api/snapshot/:petId` | Save PNG snapshot |
 | GET | `/api/snapshot/:petId` | Serve PNG snapshot |
-| GET | `/zukan` | Zukan page (clean URL) |
+| GET | `/collection` | Collection page (clean URL) |
 | WS | `/` | 5s poll PetRenderData push |
 
 ## Key Design Patterns

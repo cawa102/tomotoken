@@ -1,3 +1,44 @@
+Codemap Update: 2026-02-22 21:45
+Trigger: UI polish + zukan→collection rename
+==============================================
+
+DIFF SUMMARY
+  architecture.md:  2 lines changed (<2% — timestamp + test count)
+  backend.md:       1 line changed (<1% — timestamp only)
+  frontend.md:      28 lines changed (~25% — rename + UI details)
+  data.md:          0 lines changed (0% — timestamp only)
+  Total:            31 insertions, 12 deletions
+
+CHANGE THRESHOLD: <30% on all files (auto-approved)
+
+KEY CHANGES BY FILE
+
+architecture.md:
+  - Updated: test count 323 → 325
+  - No structural changes
+
+backend.md:
+  - Route /zukan → /collection (already updated in prior edit)
+  - No structural changes
+
+frontend.md:
+  - Renamed: zukan → collection across page table and section headers
+  - Fixed: radar-chart.js description (SVG → Canvas 2D, added normalization + smart alignment)
+  - Fixed: navigation button position (bottom-right → top-left)
+  - Added: Main Page Layout section (radar container, bottom bar, exp bar details)
+  - Added: Radar Chart section (normalization, alignment, sizing, font details)
+  - Updated: collection.css styles section (specific padding/spacing values)
+
+data.md:
+  - No changes
+
+METRICS
+  Previous: 63 TS + 23 client = 86 files, 323 tests (55 files)
+  Current:  63 TS + 23 client = 86 files, 325 tests (55 files)
+  Delta:    +2 tests
+
+---
+
 Codemap Update: 2026-02-22 18:03
 Trigger: Web App Migration (CLI → Web-only)
 ==============================================
@@ -31,8 +72,8 @@ backend.md:
 
 frontend.md:
   - Removed: Entire CLI UI section (Ink 5 + React: 3 apps, 11 components, 4 hooks)
-  - Added: Pages table (main + zukan)
-  - Added: Zukan page section (layout, client logic, modal, styles)
+  - Added: Pages table (main + collection)
+  - Added: Collection page section (layout, client logic, modal, styles)
   - Added: viewer-core.js (shared rendering module)
   - Added: Snapshot capture logic
   - Added: procedural-egg.js, radar-chart.js

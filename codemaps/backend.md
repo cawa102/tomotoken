@@ -1,6 +1,6 @@
 # Backend Codemap
 
-> Freshness: 2026-02-22 18:03
+> Freshness: 2026-02-22 21:45
 
 ## Ingestion (`src/ingestion/`)
 
@@ -109,7 +109,7 @@ Express on :3456 (VIEWER_PORT env), binds `127.0.0.1`.
 | `GET /api/collection/:petId/render` | `api-collection.ts` → `buildCompletedPetRenderData` |
 | `POST /api/snapshot/:petId` | `snapshot.ts` → `saveSnapshot` |
 | `GET /api/snapshot/:petId` | `snapshot.ts` → `getSnapshotPath` |
-| `GET /zukan` | static file (zukan.html) |
+| `GET /collection` | static file (collection.html) |
 
 ## Viewer API Modules
 

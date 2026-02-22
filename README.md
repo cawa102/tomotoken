@@ -8,7 +8,7 @@ Every billion tokens produces one pet.
 
 - 3D character in the browser via Three.js, designed by an LLM, optionally post-processed with Blender
 - Personality traits computed from how you actually use Claude Code (file types, tools, bash habits, session depth)
-- A collection of completed pets you can browse in the zukan (encyclopedia) page with card grid and detail modals
+- A collection of completed pets you can browse in the collection gallery with card grid and detail modals
 - Automatic PNG snapshots captured when a pet completes
 
 ## Requirements
@@ -66,7 +66,7 @@ The default provider is Anthropic with `claude-sonnet-4-6-20250620`. The default
 npm start
 ```
 
-Opens the web app at `http://localhost:3456`. The main page shows your current pet in 3D with a personality radar chart and progress bar. Click the book button to browse your completed pets in the zukan.
+Opens the web app at `http://localhost:3456`. The main page shows your current pet in 3D with a personality radar chart and progress bar. Click the book button to browse your completed pets in the collection.
 
 To change the port:
 
@@ -94,7 +94,7 @@ On first launch, tomotoken looks at your recent Claude Code sessions and creates
 ## Pages
 
 - **Main** (`/`) -- 3D viewer with your current pet, personality radar chart, and progress bar
-- **Zukan** (`/zukan`) -- Card grid of completed pets with snapshot thumbnails, click to open detail modal with 3D viewer and trait badges
+- **Collection** (`/collection`) -- Card grid of completed pets with snapshot thumbnails, click to open detail modal with 3D viewer and trait badges
 
 ## Configuration
 

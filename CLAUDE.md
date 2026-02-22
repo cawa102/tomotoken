@@ -46,7 +46,7 @@ Subsystems: Generation, Art3D, Viewer, Sidecar
 
 **Art3D** (`src/art3d/`) — Style guide and prompt building for Hyper3D character generation. Defines `STYLE_SUFFIX` (Disney Pixar chibi style) and `buildModelPrompt()`. Post-processing via Blender lattice deformation for eye enlargement.
 
-**Viewer** (`src/viewer/`) — Express web server on :3456 with WebSocket push. Serves two pages: main page (current pet 3D viewer) and `/zukan` (collection gallery). REST API endpoints:
+**Viewer** (`src/viewer/`) — Express web server on :3456 with WebSocket push. Serves two pages: main page (current pet 3D viewer) and `/collection` (collection gallery). REST API endpoints:
 - `GET /api/pet` — Current pet PetRenderData
 - `GET /api/collection` — List of completed pets with summaries
 - `GET /api/collection/:petId` — Completed pet detail
