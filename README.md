@@ -58,13 +58,13 @@ OpenAI works too:
 {
   "llm": {
     "provider": "openai",
-    "model": "gpt-4o",
+    "model": "gpt-5.2",
     "apiKey": "sk-..."
   }
 }
 ```
 
-The default provider is Anthropic with `claude-sonnet-4-20250514`. The default OpenAI model is `gpt-4o`.
+The default provider is Anthropic with `claude-sonnet-4-6-20250620`. The default OpenAI model is `gpt-5.2`.
 
 ## Usage
 

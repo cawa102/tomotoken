@@ -62,7 +62,7 @@ export const ConfigSchema = z.object({
       ...llm,
       model:
         llm.model ??
-        (llm.provider === "openai" ? "gpt-4o" : "claude-sonnet-4-20250514"),
+        (llm.provider === "openai" ? "gpt-5.2" : "claude-sonnet-4-6-20250620"),
     })),
 });
 

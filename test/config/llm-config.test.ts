@@ -9,7 +9,7 @@ describe("ConfigSchema llm field", () => {
 
   it("defaults llm.model based on provider", () => {
     const config = ConfigSchema.parse({});
-    expect(config.llm.model).toBe("claude-sonnet-4-20250514");
+    expect(config.llm.model).toBe("claude-sonnet-4-6-20250620");
   });
 
   it("accepts openai provider with custom model", () => {

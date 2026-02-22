@@ -31,7 +31,6 @@ tomotoken config       # show current config
 tomotoken watch        # live mode (polls every 5s, animates)
 tomotoken window       # spawn new terminal window
 tomotoken zukan        # interactive encyclopedia (gallery/timeline/stats)
-tomotoken recalibrate  # recompute T0 calibration
 tomotoken rescan       # re-ingest all logs from scratch
 ```
 
@@ -51,7 +50,7 @@ Subsystems: Generation, Art3D, Viewer, Sidecar, Encouragement, Window
 
 **Ingestion** (`src/ingestion/`) — Scans `~/.claude/projects/**/*.jsonl` (including `subagents/agent-*.jsonl`), parses Claude Code log entries, aggregates per-session token metrics. Supports incremental reads via byte offset tracking.
 
-**Progression** (`src/progression/`) — Calibrates T0 from historical data (`M/4.75` where `M = monthly token estimate`), advances pet progress, handles completion overflow (one delta can complete multiple pets), resets spawn index on month boundaries.
+**Progression** (`src/progression/`) — Each pet requires a fixed `TOKENS_PER_PET` (1 billion tokens). Advances pet progress, handles completion overflow (one delta can complete multiple pets). Tracks egg stages (0–4) based on progress percentage.
 
 **Personality** (`src/personality/`) — Classifies sessions into 8 categories via weighted scoring of 4 signals (file extensions, tool transitions, bash keywords, tool distribution). Computes depth/style metrics. Maps to 8 trait scores → archetype (highest) + subtype (second).
 
@@ -80,7 +79,7 @@ Subsystems: Generation, Art3D, Viewer, Sidecar, Encouragement, Window
 ## Data Store
 
 Three JSON files in `~/.tomotoken/`:
-- `state.json` — Current pet (including `generatedDesigns`), calibration, ingestion byte offsets, global stats
+- `state.json` — Current pet (including `generatedDesigns`), ingestion byte offsets, global stats
 - `collection.json` — Completed pets with frames, personality, seed
 - `config.json` — User configuration (Zod-validated via `src/config/schema.ts`)
 

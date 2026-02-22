@@ -9,13 +9,13 @@ describe("createLLMProvider", () => {
   });
 
   it("returns AnthropicProvider for 'anthropic'", () => {
-    const p = createLLMProvider({ provider: "anthropic", model: "claude-sonnet-4-20250514", apiKey: "test-key" });
+    const p = createLLMProvider({ provider: "anthropic", model: "claude-sonnet-4-6-20250620", apiKey: "test-key" });
     expect(p).toBeDefined();
     expect(p.providerName).toBe("anthropic");
   });
 
   it("returns OpenAIProvider for 'openai'", () => {
-    const p = createLLMProvider({ provider: "openai", model: "gpt-4o", apiKey: "test-key" });
+    const p = createLLMProvider({ provider: "openai", model: "gpt-5.2", apiKey: "test-key" });
     expect(p).toBeDefined();
     expect(p.providerName).toBe("openai");
   });
