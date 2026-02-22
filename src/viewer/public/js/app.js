@@ -5,6 +5,7 @@ import { applyAnimations, applyLegacyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
 import { applyMorphExpression } from "./morph-expression.js";
 import { loadEggModel } from "./egg-loader.js";
+import { EggWobbleController } from "./egg-wobble.js";
 
 // --- DOM references ---
 const container = document.getElementById("canvas-container");
@@ -34,6 +35,7 @@ let currentStage = null;
 let currentDesign = null;
 let currentMixer = null;
 let currentProgress = 0;
+let currentWobble = null;
 
 // --- WebSocket with exponential backoff ---
 let reconnectDelay = 1000;
@@ -85,6 +87,10 @@ async function updateCreature(data) {
     disposeCreature(scene);
     currentDesign = null;
     currentMixer = null;
+    if (currentWobble) {
+      currentWobble.dispose();
+      currentWobble = null;
+    }
 
     let result = null;
 
@@ -112,6 +118,11 @@ async function updateCreature(data) {
       if (palette && result.group) {
         const { applyPalette } = await import("./palette-apply.js");
         applyPalette(result.group, palette);
+      }
+
+      // Start wobble controller for eggs
+      if (stage < 4) {
+        currentWobble = new EggWobbleController(result.group, progress);
       }
 
       scene.add(result.group);
@@ -158,8 +169,10 @@ function animate() {
 
   if (currentGroup) {
     if (currentGroup.userData?.isEgg) {
-      // Egg: wobble animation handled by egg-wobble module (Task 6)
-      // No mixer, no expressions
+      // Egg: wobble animation handled by EggWobbleController
+      if (currentWobble) {
+        currentWobble.updateProgress(currentProgress);
+      }
     } else if (currentGroup.userData?.isGltfModel) {
       // glTF character model: animation mixer + morph-target expressions
       if (currentMixer) {
