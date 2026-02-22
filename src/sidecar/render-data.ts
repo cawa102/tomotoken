@@ -2,7 +2,7 @@ import type { PetRenderData } from "../art3d/types.js";
 import type { AppState, PersonalitySnapshot } from "../store/types.js";
 import { TRAIT_IDS } from "../config/constants.js";
 import { createPrng } from "../utils/hash.js";
-import { deriveCreatureParams, adjustParamsForProgress } from "../art/parametric/index.js";
+import { deriveCreatureParams, adjustParamsForProgress } from "../creature/index.js";
 import { generatePalette, paletteToHexArray } from "../palette/index.js";
 import { computeEggStage } from "../progression/stages.js";
 

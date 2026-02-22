@@ -1,4 +1,4 @@
-import type { CreatureParams } from "../art/parametric/types.js";
+import type { CreatureParams } from "../creature/types.js";
 import type { EggStage } from "../progression/stages.js";
 import type { CreatureDesign } from "../generation/schema.js";
 

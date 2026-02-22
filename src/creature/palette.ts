@@ -1,9 +1,9 @@
-import type { DepthMetrics, StyleMetrics } from "../../store/types.js";
+import type { DepthMetrics, StyleMetrics } from "../store/types.js";
 
 export interface Palette {
   readonly colors: readonly number[];
 }
-import { clamp } from "../../utils/clamp.js";
+import { clamp } from "../utils/clamp.js";
 
 /** Hue anchor per trait (degrees). */
 const HUE_ANCHORS: Record<string, number> = {

@@ -1,4 +1,4 @@
-import type { DepthMetrics, StyleMetrics } from "../../store/types.js";
+import type { DepthMetrics, StyleMetrics } from "../store/types.js";
 import type { CreatureParams, LimbStage, PatternType } from "./types.js";
 
 /**

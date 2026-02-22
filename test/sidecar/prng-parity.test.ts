@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { buildRenderData } from "../../src/sidecar/render-data.js";
 import { createPrng } from "../../src/utils/hash.js";
-import { deriveCreatureParams, adjustParamsForProgress, generatePalette, paletteToHexArray } from "../../src/art/parametric/index.js";
+import { deriveCreatureParams, adjustParamsForProgress, generatePalette, paletteToHexArray } from "../../src/creature/index.js";
 import type { AppState, DepthMetrics, StyleMetrics } from "../../src/store/types.js";
 
 /**

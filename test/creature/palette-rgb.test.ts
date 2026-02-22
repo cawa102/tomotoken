@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ansi256ToHex, paletteToHexArray, generatePalette, type Palette } from "../../src/art/parametric/palette.js";
+import { ansi256ToHex, paletteToHexArray, generatePalette, type Palette } from "../../src/creature/palette.js";
 
 describe("ansi256ToHex", () => {
   it("converts standard black (index 0) to #000000", () => {

@@ -1,1 +1,1 @@
-export { generatePalette, paletteToHexArray, ansi256ToHex } from "../art/parametric/palette.js";
+export { generatePalette, paletteToHexArray, ansi256ToHex } from "../creature/palette.js";
