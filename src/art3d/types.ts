@@ -1,4 +1,5 @@
-import type { CreatureParams, LimbStage } from "../art/parametric/types.js";
+import type { CreatureParams } from "../art/parametric/types.js";
+import type { EggStage } from "../progression/stages.js";
 import type { CreatureDesign } from "../generation/schema.js";
 
 /**
@@ -15,7 +16,7 @@ export interface PetRenderData {
   readonly seed: string;
   readonly archetype: string; // highest trait: "builder" | "fixer" | ...
   readonly subtype: string; // second highest trait
-  readonly stage: LimbStage; // 0-5 growth stage
+  readonly stage: EggStage; // 0-5 growth stage
   readonly traits: Record<string, number>; // 8 trait scores (0-100)
   readonly creatureDesign: CreatureDesign | null; // LLM-generated design, null if not available
 }

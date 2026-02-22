@@ -2,7 +2,8 @@ import type { PetRenderData } from "../art3d/types.js";
 import type { AppState, PersonalitySnapshot } from "../store/types.js";
 import { TRAIT_IDS } from "../config/constants.js";
 import { createPrng } from "../utils/hash.js";
-import { deriveCreatureParams, adjustParamsForProgress, computeLimbStage, paletteToHexArray, generatePalette } from "../art/parametric/index.js";
+import { deriveCreatureParams, adjustParamsForProgress, paletteToHexArray, generatePalette } from "../art/parametric/index.js";
+import { computeEggStage } from "../progression/stages.js";
 
 /**
  * Derive the archetype (highest trait) and subtype (second highest).
@@ -43,7 +44,7 @@ export function buildRenderData(state: AppState, seed: string): PetRenderData {
   const palette = generatePalette(traits, snapshot.depthMetrics, snapshot.styleMetrics, prng);
   const hexPalette = paletteToHexArray(palette);
 
-  const stage = computeLimbStage(progress);
+  const stage = computeEggStage(progress);
 
   const creatureDesign = pet.generatedDesigns?.[stage] ?? null;
 

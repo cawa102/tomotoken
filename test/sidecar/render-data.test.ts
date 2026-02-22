@@ -87,15 +87,15 @@ describe("buildRenderData", () => {
   it("includes correct stage based on progress", () => {
     const state50 = createTestState({ consumedTokens: 5000, requiredTokens: 10000 });
     const data50 = buildRenderData(state50, seed);
-    expect(data50.stage).toBe(3); // progress=0.5 → stage 3 (>=0.5, <0.7)
+    expect(data50.stage).toBe(2); // progress=0.5 → egg stage 2 (>=0.50, <0.75)
 
     const state10 = createTestState({ consumedTokens: 1000, requiredTokens: 10000 });
     const data10 = buildRenderData(state10, seed);
-    expect(data10.stage).toBe(1); // progress=0.1 → stage 1 (>=0.1, <0.3)
+    expect(data10.stage).toBe(0); // progress=0.1 → egg stage 0 (<0.25)
 
     const state100 = createTestState({ consumedTokens: 10000, requiredTokens: 10000 });
     const data100 = buildRenderData(state100, seed);
-    expect(data100.stage).toBe(5); // progress=1.0 → stage 5
+    expect(data100.stage).toBe(4); // progress=1.0 → egg stage 4 (hatched)
   });
 
   it("is deterministic: same state+seed produces identical output", () => {

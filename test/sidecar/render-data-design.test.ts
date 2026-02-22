@@ -35,7 +35,7 @@ describe("buildRenderData with generatedDesigns", () => {
           styleMetrics: { bulletRatio: 0.3, questionRatio: 0.1, codeblockRatio: 0.4, avgMessageLen: 120, messageLenStd: 40, headingRatio: 0.2 },
           traits: { builder: 50, fixer: 30, refiner: 20, scholar: 40, scribe: 10, architect: 60, operator: 25, guardian: 35 },
         },
-        generatedDesigns: { 3: mockDesign },
+        generatedDesigns: { 2: mockDesign },
       },
       ingestionState: { files: {} },
       globalStats: { totalTokensAllTime: 50000, totalSessionsIngested: 10, earliestTimestamp: "2026-01-01", latestTimestamp: "2026-01-20" },
