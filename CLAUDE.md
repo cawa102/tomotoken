@@ -93,11 +93,12 @@ Token total = input + output + cache_creation + cache_read (all are API-billable
 
 ## Reference Documents
 
-開発作業の前に必ず `docs/plans/` 配下のドキュメントを参照すること。
+開発作業の前に必ず以下のドキュメントを参照すること。
 
-- **`spec.md`** — 要件定義の原本（v1 core scope）。v2 拡張（Generation, Viewer, Art3D）は spec に未反映
+- **`spec.md`** — 要件定義（v3: Web-only architecture、全機能反映済み）
 - **`codemaps/`** — アーキテクチャ・バックエンド・フロントエンド・データモデルの詳細マップ
+- **`docs/plans/`** — 設計ドキュメントと実装計画
 
 ## Testing
 
-Tests live in `test/` mirroring `src/` structure. Fixtures in `test/fixtures/`. Tests use temp directories (`test/tmp-*`) cleaned up in afterEach. Coverage excludes `.tsx` files and `types.ts`.
+Tests live in `test/` mirroring `src/` structure. Fixtures in `test/fixtures/`. Tests use temp directories (`test/tmp-*`) cleaned up in afterEach. Coverage excludes `types.ts`.
