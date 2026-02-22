@@ -1,24 +1,21 @@
 import { createScene } from "./scene.js";
 import { createPostProcessing } from "./postprocess.js";
-import { buildFromDesign, buildFromModel, buildLegacyCreature, disposeCreature } from "./creature.js";
-import { applyAnimations, applyLegacyAnimations } from "./animation.js";
+import { buildFromDesign, buildFromModel, disposeCreature } from "./creature.js";
+import { applyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
 import { applyMorphExpression } from "./morph-expression.js";
 import { loadEggModel } from "./egg-loader.js";
 import { EggWobbleController } from "./egg-wobble.js";
 import { showLoading, hideLoading, playFlash, bounceIn } from "./hatch-transition.js";
+import { renderRadarChart } from "./radar-chart.js";
 
 // --- DOM references ---
 const container = document.getElementById("canvas-container");
 const statusEl = document.getElementById("connection-status");
-const petIdEl = document.getElementById("pet-id");
-const archetypeEl = document.getElementById("archetype");
-const stageEl = document.getElementById("stage");
-const progressFill = document.getElementById("progress-fill");
-const petNameEl = document.getElementById("pet-name");
-const petQuirkEl = document.getElementById("pet-quirk");
-
-const STAGE_NAMES = ["Egg", "Cracking", "Hatching Soon", "Almost There", "Hatched!"];
+const archetypeLabel = document.getElementById("archetype-label");
+const progressPct = document.getElementById("progress-pct");
+const expFill = document.getElementById("exp-fill");
+const radarCanvas = document.getElementById("radar-canvas");
 
 // --- Scene setup ---
 const { scene, camera, renderer } = createScene(container);
@@ -53,13 +50,14 @@ function connectWebSocket() {
   });
 
   ws.addEventListener("message", (event) => {
+    let data;
     try {
-      const data = JSON.parse(event.data);
-      updateCreature(data);
-      updateInfoPanel(data);
+      data = JSON.parse(event.data);
     } catch (_err) {
-      // Ignore malformed messages
+      return; // Ignore malformed JSON
     }
+    updateCreature(data).catch(() => { /* model load failure, non-fatal */ });
+    updateUI(data);
   });
 
   ws.addEventListener("close", () => {
@@ -105,7 +103,8 @@ async function updateCreature(data) {
     hideLoading();
 
     if (newResult) {
-      if (palette && newResult.group) {
+      // Only apply palette for non-glTF models (buildFromModel handles palette internally)
+      if (palette && newResult.group && !newResult.group.userData?.isGltfModel) {
         const { applyPalette } = await import("./palette-apply.js");
         applyPalette(newResult.group, palette);
       }
@@ -141,6 +140,7 @@ async function updateCreature(data) {
       const eggGltf = await loadEggModel(stage);
       if (eggGltf) {
         const group = eggGltf.scene;
+        group.name = "creature";
         group.userData.isEgg = true;
         result = { group, parts: {}, mixer: null };
       }
@@ -156,8 +156,9 @@ async function updateCreature(data) {
     }
 
     if (result) {
-      // Apply palette colors to egg or character
-      if (palette && result.group) {
+      // Apply palette colors to egg or LLM-generated creature
+      // (buildFromModel handles palette internally for glTF models)
+      if (palette && result.group && !result.group.userData?.isGltfModel) {
         const { applyPalette } = await import("./palette-apply.js");
         applyPalette(result.group, palette);
       }
@@ -178,23 +179,16 @@ async function updateCreature(data) {
 }
 
 /**
- * Update the info panel text.
+ * Update the bottom bar and radar chart from PetRenderData.
  */
-function updateInfoPanel(data) {
-  petIdEl.textContent = data.petId.slice(0, 8);
-  archetypeEl.textContent = data.archetype;
-  stageEl.textContent = STAGE_NAMES[data.stage] || `Stage ${data.stage}`;
-  progressFill.style.width = `${Math.round(data.progress * 100)}%`;
+function updateUI(data) {
+  const pct = Math.round(data.progress * 100);
+  archetypeLabel.textContent = data.archetype || "--";
+  progressPct.textContent = `${pct}%`;
+  expFill.style.width = `${pct}%`;
 
-  // Show personality info from LLM-generated design
-  if (data.creatureDesign?.personality) {
-    petNameEl.textContent = data.creatureDesign.personality.name;
-    petQuirkEl.textContent = data.creatureDesign.personality.quirk;
-    petNameEl.parentElement.style.display = "";
-    petQuirkEl.parentElement.style.display = "";
-  } else {
-    petNameEl.parentElement.style.display = "none";
-    petQuirkEl.parentElement.style.display = "none";
+  if (data.traits && radarCanvas) {
+    renderRadarChart(radarCanvas, data.traits, data.archetype);
   }
 }
 
@@ -239,9 +233,6 @@ function animate() {
           applyExpression(currentParts, expr);
         }
       }
-    } else {
-      // PRNG fallback: legacy fixed animation functions
-      applyLegacyAnimations(currentGroup, currentParts, time, deltaTime);
     }
   }
 
@@ -257,7 +248,7 @@ fetch("/api/pet")
   .then((data) => {
     if (!currentPetId) {
       updateCreature(data);
-      updateInfoPanel(data);
+      updateUI(data);
     }
   })
   .catch(() => { /* WebSocket will handle it */ });

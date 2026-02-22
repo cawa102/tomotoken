@@ -19,33 +19,51 @@
       position: relative;
     }
     canvas { display: block; }
-    #info-panel {
+    #radar-container {
       position: absolute;
-      bottom: 12px;
-      left: 12px;
-      background: rgba(20, 20, 40, 0.85);
-      border: 1px solid rgba(100, 100, 160, 0.3);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 12px;
-      line-height: 1.5;
+      bottom: 60px;
+      left: 16px;
       pointer-events: none;
-      backdrop-filter: blur(8px);
     }
-    #info-panel .label { color: #888; }
-    #info-panel .value { color: #ddd; font-weight: 600; }
-    #info-panel .archetype { color: #7ecfff; text-transform: uppercase; }
-    #pet-name { font-size: 14px; color: #ffcc66; }
-    #pet-quirk { font-style: italic; color: #aaa; font-size: 11px; }
-    #progress-bar {
-      width: 120px;
+    #radar-canvas {
+      width: 200px;
+      height: 200px;
+    }
+    #bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 20px 12px;
+      background: rgba(10, 10, 25, 0.7);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+    #bottom-bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+    #archetype-label {
+      color: #7ecfff;
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    #progress-pct {
+      color: rgba(200, 200, 220, 0.7);
+      font-size: 11px;
+    }
+    #exp-bar {
+      width: 100%;
       height: 6px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 3px;
-      margin-top: 4px;
       overflow: hidden;
     }
-    #progress-fill {
+    #exp-fill {
       height: 100%;
       background: linear-gradient(90deg, #4facfe, #00f2fe);
       border-radius: 3px;
@@ -65,13 +83,15 @@
 <body>
   <div id="canvas-container">
     <div id="connection-status" class="disconnected">Disconnected</div>
-    <div id="info-panel">
-      <div style="display:none"><span class="value" id="pet-name">—</span></div>
-      <div style="display:none"><span class="label" id="pet-quirk">—</span></div>
-      <div><span class="label">Pet: </span><span class="value" id="pet-id">—</span></div>
-      <div><span class="label">Archetype: </span><span class="archetype" id="archetype">—</span></div>
-      <div><span class="label">Stage: </span><span class="value" id="stage">—</span></div>
-      <div id="progress-bar"><div id="progress-fill" style="width: 0%"></div></div>
+    <div id="radar-container">
+      <canvas id="radar-canvas" width="400" height="400"></canvas>
+    </div>
+    <div id="bottom-bar">
+      <div id="bottom-bar-header">
+        <span id="archetype-label">--</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div id="exp-bar"><div id="exp-fill" style="width: 0%"></div></div>
     </div>
   </div>
 
