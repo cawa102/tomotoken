@@ -37,6 +37,29 @@ let currentProgress = 0;
 let currentWobble = null;
 
 /**
+ * Capture a PNG snapshot of the current canvas and POST it to the server.
+ */
+function captureSnapshot(petId) {
+  requestAnimationFrame(() => {
+    // Render one final frame to ensure canvas is up-to-date
+    composer.render();
+    const canvas = renderer.domElement;
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      try {
+        await fetch(`/api/snapshot/${encodeURIComponent(petId)}`, {
+          method: "POST",
+          headers: { "Content-Type": "image/png" },
+          body: blob,
+        });
+      } catch (_err) {
+        // Snapshot save is best-effort, don't disrupt the viewer
+      }
+    }, "image/png");
+  });
+}
+
+/**
  * Place a group so its bounding box bottom sits at y=0 (on the ground).
  */
 function placeOnGround(group) {
@@ -65,6 +88,10 @@ function connectWebSocket() {
       data = JSON.parse(event.data);
     } catch (_err) {
       return; // Ignore malformed JSON
+    }
+    // Detect pet completion: petId changed means previous pet completed
+    if (currentPetId && data.petId && currentPetId !== data.petId) {
+      captureSnapshot(currentPetId);
     }
     updateCreature(data).catch(() => { /* model load failure, non-fatal */ });
     updateUI(data);
