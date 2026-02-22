@@ -156,9 +156,12 @@ function animate() {
   const deltaTime = time - clock.lastTime;
   clock.lastTime = time;
 
-  if (currentGroup && currentParts) {
-    if (currentGroup.userData?.isGltfModel) {
-      // glTF model: animation mixer + morph-target expressions
+  if (currentGroup) {
+    if (currentGroup.userData?.isEgg) {
+      // Egg: wobble animation handled by egg-wobble module (Task 6)
+      // No mixer, no expressions
+    } else if (currentGroup.userData?.isGltfModel) {
+      // glTF character model: animation mixer + morph-target expressions
       if (currentMixer) {
         currentMixer.update(deltaTime);
       }
