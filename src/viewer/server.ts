@@ -119,9 +119,9 @@ export function startServer(): void {
     }
   });
 
-  // Clean URL for zukan page
-  app.get("/zukan", (_req, res) => {
-    res.sendFile(join(publicDir, "zukan.html"));
+  // Clean URL for collection page
+  app.get("/collection", (_req, res) => {
+    res.sendFile(join(publicDir, "collection.html"));
   });
 
   // REST: save snapshot (PNG from client)

@@ -10,13 +10,17 @@ const TRAIT_KEYS = [
 
 /**
  * Compute polygon vertices from trait values.
+ * Normalizes by the maximum trait value so the dominant trait always
+ * reaches the outer ring, making the shape clearly visible regardless
+ * of absolute magnitudes.
  * @param {Record<string, number>} traits - 8 trait scores (0-100)
  * @param {number} radius - max radius in pixels
  * @returns {{ x: number, y: number }[]} 8 points relative to center
  */
 export function computeRadarPoints(traits, radius) {
+  const maxValue = Math.max(...TRAIT_KEYS.map((k) => traits[k] ?? 0), 1);
   return TRAIT_KEYS.map((key, i) => {
-    const value = (traits[key] ?? 0) / 100;
+    const value = (traits[key] ?? 0) / maxValue;
     const angle = (Math.PI * 2 * i) / TRAIT_KEYS.length - Math.PI / 2;
     return {
       x: Math.cos(angle) * radius * value,
@@ -36,7 +40,7 @@ export function renderRadarChart(canvas, traits, archetype) {
   const size = canvas.width;
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size * 0.35;
+  const radius = size * 0.24;
 
   ctx.clearRect(0, 0, size, size);
 
@@ -52,7 +56,7 @@ export function renderRadarChart(canvas, traits, archetype) {
       else ctx.lineTo(x, y);
     }
     ctx.closePath();
-    ctx.strokeStyle = "rgba(60, 80, 120, 0.2)";
+    ctx.strokeStyle = "rgba(60, 80, 120, 0.25)";
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -63,7 +67,7 @@ export function renderRadarChart(canvas, traits, archetype) {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
-    ctx.strokeStyle = "rgba(60, 80, 120, 0.12)";
+    ctx.strokeStyle = "rgba(60, 80, 120, 0.15)";
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -78,33 +82,43 @@ export function renderRadarChart(canvas, traits, archetype) {
     else ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(58, 123, 213, 0.15)";
+  ctx.fillStyle = "rgba(58, 123, 213, 0.18)";
   ctx.fill();
   ctx.strokeStyle = "rgba(58, 123, 213, 0.7)";
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Data points (small dots)
+  // Data points
   points.forEach((p) => {
     ctx.beginPath();
-    ctx.arc(cx + p.x, cy + p.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(58, 123, 213, 0.85)";
+    ctx.arc(cx + p.x, cy + p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(58, 123, 213, 0.9)";
     ctx.fill();
   });
 
-  // Axis labels
-  const labelRadius = radius + 32;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  // Axis labels — smart alignment to prevent clipping
+  const labelRadius = radius + 30;
 
   TRAIT_KEYS.forEach((key, i) => {
     const angle = (Math.PI * 2 * i) / TRAIT_KEYS.length - Math.PI / 2;
-    const lx = cx + Math.cos(angle) * labelRadius;
-    const ly = cy + Math.sin(angle) * labelRadius;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const lx = cx + cos * labelRadius;
+    const ly = cy + sin * labelRadius;
+
+    // Align text outward from chart center to avoid edge clipping
+    if (cos > 0.25) ctx.textAlign = "left";
+    else if (cos < -0.25) ctx.textAlign = "right";
+    else ctx.textAlign = "center";
+
+    if (sin > 0.25) ctx.textBaseline = "top";
+    else if (sin < -0.3) ctx.textBaseline = "bottom";
+    else ctx.textBaseline = "middle";
 
     const isActive = key === archetype;
-    ctx.font = isActive ? "bold 20px monospace" : "18px monospace";
-    ctx.fillStyle = isActive ? "#3a7bd5" : "rgba(60, 80, 100, 0.55)";
-    ctx.fillText(key, lx, ly);
+    const label = key.charAt(0).toUpperCase() + key.slice(1);
+    ctx.font = isActive ? "bold 22px monospace" : "18px monospace";
+    ctx.fillStyle = isActive ? "#3a7bd5" : "rgba(42, 58, 74, 0.7)";
+    ctx.fillText(label, lx, ly);
   });
 }
