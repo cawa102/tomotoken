@@ -71,8 +71,6 @@ export function runProgression(state: AppState, newTokens: number): { state: App
     const seed = generateSeed(hostname(), pet.petId);
     completedWithArt.push({
       ...pet,
-      frames: [],
-      colorFrames: [],
       seed,
     });
   }

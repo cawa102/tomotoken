@@ -35,8 +35,6 @@ export function advancePet(
         consumedTokens: pet.requiredTokens,
         spawnIndex: pet.spawnIndex,
         personality: pet.personalitySnapshot ?? EMPTY_PERSONALITY,
-        frames: [],
-        colorFrames: [],
         seed: "",
       };
       completed.push(completedPet);

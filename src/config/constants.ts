@@ -11,9 +11,6 @@ export const CLAUDE_PROJECTS_DIR = join(homedir(), ".claude", "projects");
 
 export const TOKENS_PER_PET = 1_000_000_000;
 
-export const CANVAS_WIDTH = 32;
-export const CANVAS_HEIGHT = 16;
-export const FRAME_COUNT = 4;
 export const DEFAULT_FPS = 3;
 
 export const ENCOURAGEMENT_THRESHOLD = 50_000;

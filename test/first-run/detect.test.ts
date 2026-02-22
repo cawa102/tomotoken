@@ -84,8 +84,6 @@ describe("isFirstRun", () => {
             },
             traits: {},
           },
-          frames: [],
-          colorFrames: [],
           seed: "abc",
         },
       ],

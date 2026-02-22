@@ -64,8 +64,6 @@ export interface CompletedPet {
   readonly consumedTokens: number;
   readonly spawnIndex: number;
   readonly personality: PersonalitySnapshot;
-  readonly frames: readonly string[][];
-  readonly colorFrames: readonly string[][];
   readonly seed: string;
 }
 

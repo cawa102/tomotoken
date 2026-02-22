@@ -2,12 +2,9 @@ import { z } from "zod";
 import { homedir } from "node:os";
 import { resolve } from "node:path";
 import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
   DEFAULT_FPS,
   ENCOURAGEMENT_COOLDOWN_HOURS,
   ENCOURAGEMENT_THRESHOLD,
-  FRAME_COUNT,
 } from "./constants.js";
 
 export const ConfigSchema = z.object({
@@ -19,13 +16,6 @@ export const ConfigSchema = z.object({
     },
     "logPath must be within home directory",
   ),
-  canvas: z
-    .object({
-      width: z.number().int().min(16).max(80).default(CANVAS_WIDTH),
-      height: z.number().int().min(8).max(40).default(CANVAS_HEIGHT),
-      frames: z.number().int().min(2).max(8).default(FRAME_COUNT),
-    })
-    .default({}),
   animation: z
     .object({
       enabled: z.boolean().default(true),

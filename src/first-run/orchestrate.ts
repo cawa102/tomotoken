@@ -78,8 +78,6 @@ export function buildFirstRunState(
     consumedTokens: Math.max(totalTokens, TOKENS_PER_PET),
     spawnIndex: 0,
     personality,
-    frames: [],
-    colorFrames: [],
     seed,
   };
 
