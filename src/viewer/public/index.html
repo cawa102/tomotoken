@@ -75,6 +75,16 @@
     </div>
   </div>
 
+  <!-- Hatch transition overlay -->
+  <div id="hatch-flash" style="position:fixed; inset:0; background:white; opacity:0; pointer-events:none; z-index:100;"></div>
+  <div id="hatch-loading" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:50; pointer-events:none;">
+    <div style="text-align:center; color:#fff; font-size:14px;">
+      <div style="margin-bottom:8px;">Hatching...</div>
+      <div style="width:40px; height:40px; border:3px solid rgba(255,255,255,0.3); border-top:3px solid #fff; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto;"></div>
+    </div>
+  </div>
+  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
   <script type="importmap">
   {
     "imports": {

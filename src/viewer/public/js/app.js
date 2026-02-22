@@ -6,6 +6,7 @@ import { applyExpression, selectExpression } from "./expression.js";
 import { applyMorphExpression } from "./morph-expression.js";
 import { loadEggModel } from "./egg-loader.js";
 import { EggWobbleController } from "./egg-wobble.js";
+import { showLoading, hideLoading, playFlash, bounceIn } from "./hatch-transition.js";
 
 // --- DOM references ---
 const container = document.getElementById("canvas-container");
@@ -82,6 +83,47 @@ async function updateCreature(data) {
   const { archetype, creatureDesign, palette, stage, petId, progress } = data;
 
   currentProgress = progress || 0;
+
+  // Detect hatching transition: egg → character
+  if (stage === 4 && currentStage !== null && currentStage < 4) {
+    if (currentWobble) {
+      currentWobble.dispose();
+      currentWobble = null;
+    }
+
+    showLoading();
+
+    let newResult = null;
+    if (archetype) {
+      newResult = await buildFromModel(archetype, palette);
+    }
+    if (!newResult && creatureDesign) {
+      newResult = buildFromDesign(creatureDesign);
+      currentDesign = creatureDesign;
+    }
+
+    hideLoading();
+
+    if (newResult) {
+      if (palette && newResult.group) {
+        const { applyPalette } = await import("./palette-apply.js");
+        applyPalette(newResult.group, palette);
+      }
+
+      await playFlash(() => {
+        disposeCreature(scene);
+        scene.add(newResult.group);
+        currentGroup = newResult.group;
+        currentParts = newResult.parts;
+        currentMixer = newResult.mixer || null;
+      });
+      bounceIn(currentGroup);
+    }
+
+    currentPetId = petId;
+    currentStage = stage;
+    return;
+  }
 
   if (petId !== currentPetId || stage !== currentStage) {
     disposeCreature(scene);

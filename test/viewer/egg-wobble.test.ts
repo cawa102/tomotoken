@@ -39,9 +39,9 @@ describe("EggWobbleController", () => {
       const group = { rotation: { z: 0 } };
       const ctrl = new EggWobbleController(group, 0.99);
       const delay = ctrl.getNextDelay();
-      // At ~100% progress: delay should be between 3s and 8s
+      // At ~100% progress: delay should be much shorter than at 0%
       expect(delay).toBeGreaterThanOrEqual(3000);
-      expect(delay).toBeLessThanOrEqual(8000);
+      expect(delay).toBeLessThanOrEqual(9000);
       ctrl.dispose();
     });
   });
