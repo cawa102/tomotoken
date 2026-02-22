@@ -16,7 +16,7 @@ The `src/art/parametric/` directory contains both ASCII-art-only code and code s
 
 ---
 
-- [ ] Task 1: Move creature param types to src/creature/
+- [x] Task 1: Move creature param types to src/creature/
 
 **Files:**
 - Create: `src/creature/types.ts`
@@ -132,7 +132,7 @@ git commit -m "refactor: relocate creature params from src/art/ to src/creature/
 
 ---
 
-- [ ] Task 2: Delete UI, window, encouragement directories
+- [x] Task 2: Delete UI, window, encouragement directories
 
 **Files:**
 - Delete: `src/ui/` (entire directory, 19 files)
@@ -166,7 +166,7 @@ git commit -m "refactor: delete TUI, window, and encouragement modules"
 
 ---
 
-- [ ] Task 3: Remove frames/colorFrames from types and all creation sites
+- [x] Task 3: Remove frames/colorFrames from types and all creation sites
 
 **Files:**
 - Modify: `src/store/types.ts:67-68` — remove fields from CompletedPet
@@ -274,7 +274,7 @@ git commit -m "refactor: remove frames/colorFrames from CompletedPet and canvas 
 
 ---
 
-- [ ] Task 4: Remove CLI dependencies and rewrite entry point
+- [x] Task 4: Remove CLI dependencies and rewrite entry point
 
 **Files:**
 - Modify: `package.json` — remove `ink`, `react`, `@types/react`, `commander`, `chalk`
@@ -444,7 +444,7 @@ git commit -m "refactor: remove CLI dependencies, rewrite entry point as server-
 
 ---
 
-- [ ] Task 5: Add GET /api/collection endpoint
+- [x] Task 5: Add GET /api/collection endpoint
 
 **Files:**
 - Modify: `src/viewer/server.ts` — add route
@@ -604,7 +604,7 @@ git commit -m "feat: add GET /api/collection endpoint"
 
 ---
 
-- [ ] Task 6: Add GET /api/collection/:petId endpoint
+- [x] Task 6: Add GET /api/collection/:petId endpoint
 
 **Files:**
 - Modify: `src/viewer/server.ts` — add route
@@ -697,7 +697,7 @@ git commit -m "feat: add GET /api/collection/:petId endpoint"
 
 ---
 
-- [ ] Task 7: Add snapshot save/serve endpoints
+- [x] Task 7: Add snapshot save/serve endpoints
 
 **Files:**
 - Create: `src/viewer/snapshot.ts`
@@ -845,7 +845,7 @@ git commit -m "feat: add snapshot save/serve system"
 
 ---
 
-- [ ] Task 8: Client-side snapshot capture on pet completion
+- [x] Task 8: Client-side snapshot capture on pet completion
 
 **Files:**
 - Modify: `src/viewer/public/js/app.js` — detect pet completion, capture canvas, POST to server
@@ -904,7 +904,7 @@ git commit -m "feat: client-side snapshot capture on pet completion"
 
 ---
 
-- [ ] Task 9: Create zukan HTML page with card grid
+- [x] Task 9: Create zukan HTML page with card grid
 
 **Files:**
 - Create: `src/viewer/public/zukan.html`
@@ -1094,7 +1094,7 @@ git commit -m "feat: add 3D viewer to zukan modal with shared rendering code"
 
 ---
 
-- [ ] Task 11: Add floating nav button to main page
+- [x] Task 11: Add floating nav button to main page
 
 **Files:**
 - Modify: `src/viewer/public/index.html` — add floating button linking to `/zukan`
