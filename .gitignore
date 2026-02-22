@@ -6,3 +6,26 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Claude Code / AI tooling
+.claude/
+CLAUDE.md
+
+# Internal design docs
+spec.md
+codemaps/
+
+# Development plans & research
+docs/plans/
+docs/character-research/
+docs/codex-harness/
+
+# Reports & reviews
+.reports/
+security-review/
+
+# Preview / dev-only HTML & scripts
+*-preview.html
+generate-*.mjs
+preview-*.mjs
+src/viewer/public/kitsune-preview.html
