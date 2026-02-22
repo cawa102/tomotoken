@@ -52,7 +52,7 @@ export function renderRadarChart(canvas, traits, archetype) {
       else ctx.lineTo(x, y);
     }
     ctx.closePath();
-    ctx.strokeStyle = "rgba(100, 100, 160, 0.25)";
+    ctx.strokeStyle = "rgba(60, 80, 120, 0.2)";
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -63,7 +63,7 @@ export function renderRadarChart(canvas, traits, archetype) {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
-    ctx.strokeStyle = "rgba(100, 100, 160, 0.15)";
+    ctx.strokeStyle = "rgba(60, 80, 120, 0.12)";
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -78,9 +78,9 @@ export function renderRadarChart(canvas, traits, archetype) {
     else ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(79, 172, 254, 0.2)";
+  ctx.fillStyle = "rgba(58, 123, 213, 0.15)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(79, 172, 254, 0.8)";
+  ctx.strokeStyle = "rgba(58, 123, 213, 0.7)";
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -88,12 +88,12 @@ export function renderRadarChart(canvas, traits, archetype) {
   points.forEach((p) => {
     ctx.beginPath();
     ctx.arc(cx + p.x, cy + p.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(79, 172, 254, 0.9)";
+    ctx.fillStyle = "rgba(58, 123, 213, 0.85)";
     ctx.fill();
   });
 
   // Axis labels
-  const labelRadius = radius + 16;
+  const labelRadius = radius + 32;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -103,8 +103,8 @@ export function renderRadarChart(canvas, traits, archetype) {
     const ly = cy + Math.sin(angle) * labelRadius;
 
     const isActive = key === archetype;
-    ctx.font = isActive ? "bold 10px monospace" : "9px monospace";
-    ctx.fillStyle = isActive ? "#7ecfff" : "rgba(200, 200, 220, 0.6)";
+    ctx.font = isActive ? "bold 20px monospace" : "18px monospace";
+    ctx.fillStyle = isActive ? "#3a7bd5" : "rgba(60, 80, 100, 0.55)";
     ctx.fillText(key, lx, ly);
   });
 }

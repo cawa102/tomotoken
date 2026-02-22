@@ -5,12 +5,6 @@ export interface FileIngestionState {
   readonly lastLineTimestamp: string | null;
 }
 
-export interface Calibration {
-  readonly t0: number;
-  readonly monthlyEstimate: number;
-  readonly calibratedAt: string;
-}
-
 export interface PetRecord {
   readonly petId: string;
   readonly spawnedAt: string;
@@ -53,8 +47,6 @@ export interface GlobalStats {
 
 export interface AppState {
   readonly version: 2;
-  readonly calibration: Calibration | null;
-  readonly spawnIndexCurrentMonth: number;
   readonly currentMonth: string;
   readonly currentPet: PetRecord;
   readonly ingestionState: {

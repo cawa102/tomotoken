@@ -13,8 +13,6 @@ import type { TokenEvent } from "../../../src/encouragement/rate.js";
 function createTestState(overrides?: Partial<AppState>): AppState {
   return {
     version: 2,
-    calibration: null,
-    spawnIndexCurrentMonth: 0,
     currentMonth: "2026-02",
     currentPet: {
       petId: "test-pet",

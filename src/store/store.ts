@@ -14,6 +14,7 @@ import {
   COLLECTION_PATH,
   TOMOTOKEN_DIR,
   LOCK_PATH,
+  TOKENS_PER_PET,
 } from "../config/constants.js";
 import type { AppState, Collection, PetRecord, CompletedPet } from "./types.js";
 
@@ -95,13 +96,11 @@ function currentMonthString(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export function createInitialState(requiredTokens: number): AppState {
+export function createInitialState(): AppState {
   return {
     version: 2,
-    calibration: null,
-    spawnIndexCurrentMonth: 0,
     currentMonth: currentMonthString(),
-    currentPet: createInitialPet(0, requiredTokens),
+    currentPet: createInitialPet(0, TOKENS_PER_PET),
     ingestionState: { files: {} },
     globalStats: {
       totalTokensAllTime: 0,
@@ -117,20 +116,17 @@ export function loadState(path: string = STATE_PATH): AppState | null {
   const raw = readJson<Record<string, unknown>>(path);
   if (!raw) return null;
 
-  // Version migration: v1 → v2 (reset pet, keep calibration/ingestion)
+  // Version migration: v1 → v2 (reset pet, keep ingestion)
   if ((raw as { version?: number }).version === 1) {
-    // Use unknown-based access for v1 data since types have changed
     const v1 = raw as Record<string, unknown>;
     const v1Pet = v1.currentPet as Record<string, unknown>;
     return {
       version: 2,
-      calibration: v1.calibration as AppState["calibration"],
-      spawnIndexCurrentMonth: 0,
       currentMonth: v1.currentMonth as string,
       currentPet: {
         petId: v1Pet.petId as string,
         spawnedAt: v1Pet.spawnedAt as string,
-        requiredTokens: v1Pet.requiredTokens as number,
+        requiredTokens: TOKENS_PER_PET,
         consumedTokens: v1Pet.consumedTokens as number,
         spawnIndex: 0,
         personalitySnapshot: null,
@@ -152,7 +148,12 @@ export function loadState(path: string = STATE_PATH): AppState | null {
   if (pet && !("generatedDesigns" in pet)) {
     state = { ...state, currentPet: { ...state.currentPet, generatedDesigns: null } };
   }
-  return state;
+  // Strip removed fields (calibration, spawnIndexCurrentMonth) from legacy data
+  const { calibration: _c, spawnIndexCurrentMonth: _s, ...cleaned } = state as AppState & {
+    calibration?: unknown;
+    spawnIndexCurrentMonth?: unknown;
+  };
+  return cleaned as AppState;
 }
 
 export function saveState(state: AppState, path: string = STATE_PATH): void {

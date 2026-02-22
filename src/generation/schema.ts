@@ -62,4 +62,4 @@ export const creatureDesignSchema = z.object({
 
 export type CreatureDesign = z.infer<typeof creatureDesignSchema>;
 export type { Part };
-export type Expression = z.infer<typeof expressionSchema>;
+type Expression = z.infer<typeof expressionSchema>;

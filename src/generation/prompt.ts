@@ -11,12 +11,11 @@ export interface PromptInput {
 }
 
 const STAGE_DESCRIPTIONS = [
-  "0=卵: 単純な卵形。模様や色で個性を出す",
-  "1=幼体: 小さく丸い体。手足はまだ短い",
-  "2=子供: 両手両足が生え揃い、耳や尻尾が出始める",
-  "3=青年: 体が大きくなり、角や模様などの装飾が増える",
-  "4=完成: 全てのパーツが揃い、翼やアクセサリーも付く",
-  "5=マスター: 完成形に光り輝くエフェクトや特別な装飾が加わる",
+  "0=たまご: 卵の状態（生成対象外）",
+  "1=ヒビ入り: 卵にヒビが入り始めた（生成対象外）",
+  "2=もうすぐ: ヒビが広がり始める（生成対象外）",
+  "3=孵化寸前: もうすぐ生まれる（生成対象外）",
+  "4=誕生！: 孵化完了。キャラクターの完成形を生成する",
 ];
 
 export function buildPrompt(input: PromptInput): string {
@@ -39,7 +38,7 @@ export function buildPrompt(input: PromptInput): string {
 - スタイル: コードブロック率=${input.style.codeblockRatio.toFixed(2)}, 質問率=${input.style.questionRatio.toFixed(2)}, 見出し率=${input.style.headingRatio.toFixed(2)}, 平均メッセージ長=${Math.round(input.style.avgMessageLen)}
 ${previousPartsSection}
 
-## 現在のステージ: ${input.stage}/5
+## 現在のステージ: ${input.stage}/4
 ${STAGE_DESCRIPTIONS.map(d => `- ${d}`).join("\n")}
 
 ## カスタマイズ項目

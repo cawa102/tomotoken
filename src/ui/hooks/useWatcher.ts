@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { LogWatcher } from "../../ingestion/watcher.js";
-import { runIngestion, runCalibration, runProgression, runPersonality } from "../../index.js";
+import { runIngestion, runProgression, runPersonality } from "../../index.js";
 import {
-  saveState, saveCollection, addCompletedPet, updatePetInState,
+  saveState, saveCollection, addCompletedPet,
   type AppState, type Collection, type CompletedPet,
 } from "../../store/index.js";
 import type { Config } from "../../config/schema.js";
@@ -26,7 +26,7 @@ export const POLL_INTERVAL_MS = 5_000;
 const COMPLETION_DISPLAY_MS = 10_000;
 
 /**
- * Pure function: runs one ingestion→calibration→personality→progression cycle.
+ * Pure function: runs one ingestion→personality→progression cycle.
  * Returns null when there is nothing new to process.
  */
 export async function executeCycle(
@@ -38,27 +38,15 @@ export async function executeCycle(
   const { state: postIngest, sessionMetrics } = runIngestion(config, currentState);
   if (sessionMetrics.length === 0) return null;
 
-  // 2. Recalibrate if needed
-  let state = postIngest;
-  if (!state.calibration) {
-    state = runCalibration(state, config);
-    if (state.calibration) {
-      const t0 = state.calibration.t0;
-      state = updatePetInState(state, {
-        requiredTokens: Math.ceil(t0 * Math.pow(config.growth.g, state.spawnIndexCurrentMonth)),
-      });
-    }
-  }
+  // 2. Personality
+  let state = runPersonality(postIngest, sessionMetrics);
 
-  // 3. Personality
-  state = runPersonality(state, sessionMetrics);
-
-  // 4. Progression
+  // 3. Progression
   const newTokens = sessionMetrics.reduce((sum, m) => sum + m.totalTokens, 0);
-  const { state: postProgress, completed } = runProgression(state, newTokens, config);
+  const { state: postProgress, completed } = runProgression(state, newTokens);
   state = postProgress;
 
-  // 5. Accumulate completed pets
+  // 4. Accumulate completed pets
   const finalCollection = completed.reduce(
     (acc, pet) => addCompletedPet(acc, pet),
     currentCollection,

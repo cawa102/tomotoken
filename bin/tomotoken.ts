@@ -6,7 +6,7 @@ import { render } from "ink";
 import { App } from "../src/ui/app.js";
 import { WatchApp } from "../src/ui/WatchApp.js";
 import { ZukanApp } from "../src/ui/ZukanApp.js";
-import { runFull, runCalibration, runIngestion, runProgression, runPersonality } from "../src/index.js";
+import { runFull, runIngestion, runProgression, runPersonality } from "../src/index.js";
 import { loadState, saveState, saveCollection, createInitialState, addCompletedPet, acquireLock, releaseLock } from "../src/store/index.js";
 import { loadConfig, ensureDataDir } from "../src/config/index.js";
 import { loadCollection } from "../src/store/index.js";
@@ -65,25 +65,12 @@ program
   });
 
 program
-  .command("recalibrate")
-  .description("Recompute T0 from current log data")
-  .action(() => {
-    const config = loadConfig();
-    ensureDataDir();
-    let state = loadState() ?? createInitialState(10_000);
-    const { state: postIngest } = runIngestion(config, state);
-    state = runCalibration(postIngest, config);
-    saveState(state);
-    console.log(`Recalibrated. T0=${state.calibration?.t0}, Monthly estimate=${state.calibration?.monthlyEstimate}`);
-  });
-
-program
   .command("rescan")
   .description("Force re-ingest all logs from scratch")
   .action(async () => {
     const config = loadConfig();
     ensureDataDir();
-    const state = createInitialState(10_000); // Reset all ingestion offsets
+    const state = createInitialState();
     saveState(state);
     const { state: result } = await runFull(config);
     console.log(`Rescan complete. ${result.globalStats.totalTokensAllTime.toLocaleString()} total tokens.`);
@@ -124,18 +111,15 @@ program
       process.exit(1);
     }
 
-    // Run full initial pipeline: ingest → calibrate → personality → progression
-    let state = loadState() ?? createInitialState(10_000);
+    // Run full initial pipeline: ingest → personality → progression
+    let state = loadState() ?? createInitialState();
     let collection = loadCollection();
 
     const { state: postIngest, sessionMetrics } = runIngestion(watchConfig, state);
     state = postIngest;
-    if (!state.calibration) {
-      state = runCalibration(state, watchConfig);
-    }
     state = runPersonality(state, sessionMetrics);
     const newTokens = sessionMetrics.reduce((sum, m) => sum + m.totalTokens, 0);
-    const { state: postProgress, completed } = runProgression(state, newTokens, watchConfig);
+    const { state: postProgress, completed } = runProgression(state, newTokens);
     state = postProgress;
     for (const pet of completed) {
       collection = addCompletedPet(collection, pet);

@@ -6,6 +6,7 @@
 export type EggStage = 0 | 1 | 2 | 3 | 4;
 
 export function computeEggStage(progress: number): EggStage {
+  if (!Number.isFinite(progress) || progress < 0) return 0;
   if (progress >= 1.0) return 4;
   if (progress >= 0.75) return 3;
   if (progress >= 0.50) return 2;

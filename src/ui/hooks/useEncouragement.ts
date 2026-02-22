@@ -10,7 +10,7 @@ import type { Config } from "../../config/schema.js";
 const DISPLAY_DURATION_MS = 30_000;
 const WINDOW_MINUTES = 60;
 
-export interface EncouragementState {
+interface EncouragementState {
   readonly message: string | null;
   readonly visible: boolean;
 }

@@ -5,8 +5,6 @@ import type { AppState } from "../../src/store/types.js";
 function makeState(consumedTokens: number, requiredTokens: number): AppState {
   return {
     version: 2,
-    calibration: { monthlyEstimate: 100000, t0: 50000, calibratedAt: "2026-02-01T00:00:00Z" },
-    spawnIndexCurrentMonth: 0,
     currentMonth: "2026-02",
     currentPet: {
       petId: "test-pet-id",

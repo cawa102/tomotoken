@@ -8,7 +8,6 @@ import {
   ENCOURAGEMENT_COOLDOWN_HOURS,
   ENCOURAGEMENT_THRESHOLD,
   FRAME_COUNT,
-  GROWTH_MULTIPLIER,
 } from "./constants.js";
 
 export const ConfigSchema = z.object({
@@ -31,12 +30,6 @@ export const ConfigSchema = z.object({
     .object({
       enabled: z.boolean().default(true),
       fps: z.number().min(1).max(10).default(DEFAULT_FPS),
-    })
-    .default({}),
-  growth: z
-    .object({
-      g: z.number().min(1.0).max(3.0).default(GROWTH_MULTIPLIER),
-      t0Rounding: z.enum(["ceil", "floor", "round"]).default("ceil"),
     })
     .default({}),
   encouragement: z

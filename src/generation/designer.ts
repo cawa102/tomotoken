@@ -3,7 +3,7 @@ import { creatureDesignSchema, type CreatureDesign } from "./schema.js";
 import { buildPrompt, type PromptInput } from "./prompt.js";
 import type { DepthMetrics, StyleMetrics } from "../store/types.js";
 
-export interface DesignRequest {
+interface DesignRequest {
   readonly archetype: string;
   readonly subtype: string;
   readonly traits: Record<string, number>;

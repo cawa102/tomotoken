@@ -9,12 +9,11 @@ import { applyCustomization } from "./templates/apply.js";
 import { humanoidTemplate } from "./templates/humanoid.js";
 
 const STAGE_DESCRIPTIONS: Record<number, string> = {
-  0: "卵: 単純な卵形。模様や色で個性を出す",
-  1: "幼体: 小さく丸い体。手足はまだ短い",
-  2: "子供: 両手両足が生え揃い、耳や尻尾が出始める",
-  3: "青年: 体が大きくなり、角や模様などの装飾が増える",
-  4: "完成: 全てのパーツが揃い、翼やアクセサリーも付く",
-  5: "マスター: 完成形に光り輝くエフェクトや特別な装飾が加わる",
+  0: "たまご: 卵の状態。まだ孵化していない",
+  1: "ヒビ入り: 卵にヒビが入り始めた",
+  2: "もうすぐ: ヒビが広がり、光が漏れ始める",
+  3: "孵化寸前: 卵が激しく動き、もうすぐ生まれる",
+  4: "誕生！: 孵化完了。キャラクターが姿を現す",
 };
 
 const CUSTOMIZATION_HINT = `Customization JSON format:

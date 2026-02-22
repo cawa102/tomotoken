@@ -6,7 +6,7 @@ export interface TabNavigationState {
   readonly galleryIndex: number;
 }
 
-export interface NavigationAction {
+interface NavigationAction {
   readonly input: string;
   readonly key: {
     readonly tab: boolean;

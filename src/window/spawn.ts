@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { detectTerminal } from "./detect.js";
 import type { TerminalInfo } from "./detect.js";
 
-export interface SpawnResult {
+interface SpawnResult {
   readonly success: boolean;
   readonly error?: string;
   readonly terminalUsed: string;

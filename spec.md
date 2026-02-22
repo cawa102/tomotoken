@@ -1,5 +1,5 @@
 # spec.md — Claude Code Usage Pet (Working Title)
-SOW / Specification (v1.1 — Traits Added)
+SOW / Specification (v1.1 — Traits Added, v2 Addendum at bottom)
 
 ## 1. Background
 This project is a lightweight local application for Claude Code users that visualizes their Claude Code usage as a “pet” (ASCII / dot-style character). As the user consumes tokens, the pet grows and eventually “completes,” then a new pet spawns. The primary goal is to make usage fun to look back on (collection / “encyclopedia” feel), **without requiring any AI processing or cloud services**.
@@ -107,8 +107,8 @@ The developer receiving this document has zero prior knowledge of the project.
 ## 6. Functional Requirements
 ### 6.1 Token Accounting
 Define `tokens_total` as:
-- `tokens_total = tokens_input + tokens_output` if separated fields exist
-- else `tokens_total = tokens` if only total exists
+- `tokens_total = tokens_input + tokens_output + cache_creation_input_tokens + cache_read_input_tokens`
+- All four components are API-billable and included in the total
 
 The app must:
 - compute per-session tokens
@@ -398,8 +398,11 @@ Store metadata:
 
 ## 10. Data Storage
 ### 10.1 Storage Options
-- SQLite recommended for reliability (preferred).
-- JSON store acceptable if simpler.
+- JSON store chosen for simplicity. Three files in `~/.tomotoken/`:
+  - `state.json` — current pet, calibration, ingestion offsets, global stats
+  - `collection.json` — completed pets (append-only)
+  - `config.json` — user configuration (Zod-validated)
+- Atomicity via temp file + rename. File locking via PID lockfile (5-min stale threshold).
 
 ### 10.2 Tables / Records (Minimum)
 - `settings`: log_path, canvas size, thresholds, cooldowns, T0, g, etc.
@@ -505,3 +508,83 @@ privacy:
 
 ## Appendix C — Trait IDs
 - builder, fixer, refiner, scholar, scribe, architect, operator, guardian
+
+---
+
+## 15. v2 Addendum — Extensions Beyond v1 Scope
+
+> Added 2026-02-21. These features extend the original v1 spec. The v1 core (§1–14) remains the foundation; this section documents implemented extensions.
+
+### 15.1 Scope Changes from v1
+
+The following v1 non-goals (§2.3) have been **relaxed** in v2:
+
+| v1 Non-Goal | v2 Status | Rationale |
+|-------------|-----------|-----------|
+| "No LLM-based analysis" | **Optional LLM** for creature design | Core domains remain local; LLM is opt-in via `ANTHROPIC_API_KEY` |
+| "No network calls" | **Optional network** for Hyper3D model generation | ASCII art pipeline remains fully offline |
+
+### 15.2 Determinism Constraint — Relaxed
+
+- **v1**: "Same logs + same config = identical pet sequence and art output" (§10.3)
+- **v2**: ASCII art remains deterministic (same seed → same output). LLM-generated 3D creature designs are intentionally non-deterministic — each generation produces a unique character. This was a deliberate design decision to make each pet feel unique.
+
+### 15.3 Generation Subsystem (`src/generation/`)
+
+LLM-based creature design using Claude API (`@anthropic-ai/sdk`):
+- Generates `CreatureDesign` (Zod-validated): part hierarchies, expressions, personality
+- Japanese-language prompts for token efficiency
+- Stage-aware (6 growth stages maintain visual coherence)
+- Designs stored in `state.json` → `currentPet.generatedDesigns[stage]`
+- **Optional**: Core CLI works without API key
+
+### 15.4 Art3D Subsystem (`src/art3d/`)
+
+Style guide and prompt engineering for Hyper3D text-to-3D generation:
+- `STYLE_SUFFIX`: Disney Pixar chibi style (huge head, tiny body, large eyes)
+- `buildModelPrompt()`: Character description first, style suffix second (order critical — reversed order loses character identity)
+- Post-processing pipeline via Blender:
+  1. Generate model via Hyper3D
+  2. Lattice deformation for eye enlargement (35% face width, 1.6x scale)
+  3. Decimate to ~5000 faces
+  4. Add idle animation
+  5. Export as GLB
+
+### 15.5 3D Viewer (`src/viewer/`)
+
+WebGL viewer for 3D pet rendering:
+- Express server on port 3456 with WebSocket push (5s poll)
+- Three.js client: toon shading, morph expressions, animation mixer
+- REST endpoint: `GET /api/pet` returns `PetRenderData` JSON
+- Client modules: model-loader, palette-apply, morph-expression, anim-mixer, outline, eye-highlight, emissive-accents, postprocess
+
+### 15.6 Sidecar (`src/sidecar/`)
+
+CLI orchestrator for viewer data:
+- Runs full ingestion/progression/personality pipeline
+- Builds `PetRenderData` from app state
+- Outputs JSON to stdout for viewer consumption
+
+### 15.7 Additional CLI Commands (v2)
+
+| Command | Description |
+|---------|-------------|
+| `tomotoken zukan` | Interactive encyclopedia with gallery, timeline, stats tabs |
+| `tomotoken watch` | Live mode with polling, animation, encouragement messages |
+| `tomotoken window` | Spawn new terminal window for watch mode |
+
+### 15.8 Encouragement Subsystem (`src/encouragement/`)
+
+Rate-based motivational messages (implemented per §6.8):
+- Rolling tokens/hour computation in sliding window
+- 20+ messages with mild tone
+- Cooldown-based (default 3h) to avoid spam
+- Integrated into watch mode via `useEncouragement` hook
+
+### 15.9 Art Pipeline — Parametric (Clarification)
+
+The v1 spec (§8) described "procedural ASCII art generation." The implementation uses a single parametric pipeline rather than 8 separate archetype generators:
+- `generateParametricBody()` produces unique creatures from continuous trait parameters
+- Pipeline: params → silhouette → rasterize → features → pattern → item
+- 6 growth stages: egg, sticks, joints, endpoints, complete, item
+- Archetype/subtype influence silhouette variation and motif, but via continuous parameterization

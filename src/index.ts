@@ -6,7 +6,7 @@ import {
   type AppState, type Collection, type CompletedPet,
 } from "./store/index.js";
 import { scanLogFiles, readIncremental, aggregateSessions, type SessionMetrics } from "./ingestion/index.js";
-import { computeCalibration, advancePet, detectMonthChange, handleMonthChange } from "./progression/index.js";
+import { advancePet, detectMonthChange, handleMonthChange } from "./progression/index.js";
 import { classifySession, computeDepthMetrics, computeStyleMetrics, computeTraits } from "./personality/index.js";
 import { generateSeed } from "./utils/seed.js";
 import { expandHome } from "./utils/index.js";
@@ -53,26 +53,8 @@ export function runIngestion(config: Config, state: AppState): { state: AppState
   return { state: current, sessionMetrics: allMetrics };
 }
 
-export function runCalibration(state: AppState, config: Config): AppState {
-  const gs = state.globalStats;
-  if (!gs.earliestTimestamp || !gs.latestTimestamp || gs.totalTokensAllTime === 0) {
-    return state;
-  }
-
-  const result = computeCalibration(
-    { totalTokensAllTime: gs.totalTokensAllTime, earliestTimestamp: gs.earliestTimestamp, latestTimestamp: gs.latestTimestamp },
-    config.growth.g,
-    config.growth.t0Rounding,
-  );
-
-  return {
-    ...state,
-    calibration: { t0: result.t0, monthlyEstimate: result.monthlyEstimate, calibratedAt: new Date().toISOString() },
-  };
-}
-
-export function runProgression(state: AppState, newTokens: number, config: Config): { state: AppState; completed: CompletedPet[] } {
-  if (!state.calibration || newTokens === 0) return { state, completed: [] };
+export function runProgression(state: AppState, newTokens: number): { state: AppState; completed: CompletedPet[] } {
+  if (newTokens === 0) return { state, completed: [] };
 
   let current = state;
 
@@ -80,7 +62,7 @@ export function runProgression(state: AppState, newTokens: number, config: Confi
     current = handleMonthChange(current);
   }
 
-  const result = advancePet(current.currentPet, newTokens, state.calibration.t0, config.growth.g, current.spawnIndexCurrentMonth);
+  const result = advancePet(current.currentPet, newTokens);
 
   const completedWithArt: CompletedPet[] = [];
   for (const pet of result.completedPets) {
@@ -96,7 +78,6 @@ export function runProgression(state: AppState, newTokens: number, config: Confi
   current = {
     ...current,
     currentPet: result.updatedPet,
-    spawnIndexCurrentMonth: result.newSpawnIndex,
   };
 
   return { state: current, completed: completedWithArt };
@@ -147,31 +128,22 @@ export async function runFull(config?: Config): Promise<RunResult> {
   }
 
   try {
-    let state = loadState() ?? createInitialState(10_000);
+    let state = loadState() ?? createInitialState();
     let collection = loadCollection();
 
     // 1. Ingest
     const { state: postIngest, sessionMetrics } = runIngestion(cfg, state);
     state = postIngest;
 
-    // 2. Calibrate if needed
-    if (!state.calibration) {
-      state = runCalibration(state, cfg);
-      if (state.calibration) {
-        const t0 = state.calibration.t0;
-        state = updatePetInState(state, { requiredTokens: Math.ceil(t0 * Math.pow(cfg.growth.g, state.spawnIndexCurrentMonth)) });
-      }
-    }
-
-    // 3. Personality
+    // 2. Personality
     state = runPersonality(state, sessionMetrics);
 
-    // 4. Progress
+    // 3. Progress
     const newTokens = sessionMetrics.reduce((sum, m) => sum + m.totalTokens, 0);
-    const { state: postProgress, completed } = runProgression(state, newTokens, cfg);
+    const { state: postProgress, completed } = runProgression(state, newTokens);
     state = postProgress;
 
-    // 5. Save completed pets
+    // 4. Save completed pets
     for (const pet of completed) {
       collection = addCompletedPet(collection, pet);
     }

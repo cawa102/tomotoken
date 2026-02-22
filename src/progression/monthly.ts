@@ -8,7 +8,6 @@ export function detectMonthChange(currentMonth: string, now: Date = new Date()):
 export function handleMonthChange(state: AppState, now: Date = new Date()): AppState {
   return {
     ...state,
-    spawnIndexCurrentMonth: 0,
     currentMonth: currentMonthString(now),
   };
 }

@@ -13,11 +13,9 @@ describe("detectMonthChange", () => {
 });
 
 describe("handleMonthChange", () => {
-  it("resets spawn index and updates month", () => {
+  it("updates month string", () => {
     const state: AppState = {
-      version: 1,
-      calibration: null,
-      spawnIndexCurrentMonth: 5,
+      version: 2,
       currentMonth: "2026-01",
       currentPet: {
         petId: "p1",
@@ -35,10 +33,10 @@ describe("handleMonthChange", () => {
         earliestTimestamp: "2026-01-01T00:00:00Z",
         latestTimestamp: "2026-01-31T00:00:00Z",
       },
+      lastEncouragementShownAt: null,
     };
 
     const updated = handleMonthChange(state, new Date("2026-02-01"));
-    expect(updated.spawnIndexCurrentMonth).toBe(0);
     expect(updated.currentMonth).toBe("2026-02");
     // Current pet unchanged
     expect(updated.currentPet.consumedTokens).toBe(3000);

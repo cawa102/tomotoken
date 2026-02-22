@@ -23,8 +23,6 @@ import { triggerGenerationIfNeeded } from "../../src/sidecar/generation-trigger.
 function createTestState(overrides: Partial<AppState["currentPet"]> = {}): AppState {
   return {
     version: 2,
-    calibration: { t0: 10000, monthlyEstimate: 50000, calibratedAt: "2026-01-01T00:00:00Z" },
-    spawnIndexCurrentMonth: 0,
     currentMonth: "2026-01",
     currentPet: {
       petId: "test-pet",

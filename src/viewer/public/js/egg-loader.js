@@ -9,7 +9,7 @@ const loader = new GLTFLoader();
  * Returns null for stage >= 4 (hatched) or on load failure.
  */
 export async function loadEggModel(stage) {
-  if (stage < 0 || stage > 3) return null;
+  if (!Number.isInteger(stage) || stage < 0 || stage > 3) return null;
 
   const url = `${EGG_MODEL_PATH}egg-stage-${stage}.glb`;
 

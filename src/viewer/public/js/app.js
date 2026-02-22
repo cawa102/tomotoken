@@ -4,10 +4,11 @@ import { buildFromDesign, buildFromModel, disposeCreature } from "./creature.js"
 import { applyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
 import { applyMorphExpression } from "./morph-expression.js";
-import { loadEggModel } from "./egg-loader.js";
+import { createProceduralEgg } from "./procedural-egg.js";
 import { EggWobbleController } from "./egg-wobble.js";
 import { showLoading, hideLoading, playFlash, bounceIn } from "./hatch-transition.js";
 import { renderRadarChart } from "./radar-chart.js";
+import * as THREE from "three";
 
 // --- DOM references ---
 const container = document.getElementById("canvas-container");
@@ -18,7 +19,7 @@ const expFill = document.getElementById("exp-fill");
 const radarCanvas = document.getElementById("radar-canvas");
 
 // --- Scene setup ---
-const { scene, camera, renderer } = createScene(container);
+const { scene, camera, renderer, controls } = createScene(container);
 const { composer, resize: resizeComposer } = createPostProcessing(renderer, scene, camera);
 
 window.addEventListener("resize", () => {
@@ -34,6 +35,15 @@ let currentDesign = null;
 let currentMixer = null;
 let currentProgress = 0;
 let currentWobble = null;
+
+/**
+ * Place a group so its bounding box bottom sits at y=0 (on the ground).
+ */
+function placeOnGround(group) {
+  group.position.y = 0;
+  const box = new THREE.Box3().setFromObject(group);
+  group.position.y = -box.min.y;
+}
 
 // --- WebSocket with exponential backoff ---
 let reconnectDelay = 1000;
@@ -112,6 +122,7 @@ async function updateCreature(data) {
       await playFlash(() => {
         disposeCreature(scene);
         scene.add(newResult.group);
+        placeOnGround(newResult.group);
         currentGroup = newResult.group;
         currentParts = newResult.parts;
         currentMixer = newResult.mixer || null;
@@ -136,14 +147,8 @@ async function updateCreature(data) {
     let result = null;
 
     if (stage < 4) {
-      // Egg stages 0-3: load egg model
-      const eggGltf = await loadEggModel(stage);
-      if (eggGltf) {
-        const group = eggGltf.scene;
-        group.name = "creature";
-        group.userData.isEgg = true;
-        result = { group, parts: {}, mixer: null };
-      }
+      const group = createProceduralEgg(stage, petId);
+      result = { group, parts: {}, mixer: null };
     } else {
       // Hatched (stage 4): load character model
       if (archetype) {
@@ -158,7 +163,7 @@ async function updateCreature(data) {
     if (result) {
       // Apply palette colors to egg or LLM-generated creature
       // (buildFromModel handles palette internally for glTF models)
-      if (palette && result.group && !result.group.userData?.isGltfModel) {
+      if (palette && result.group && !result.group.userData?.isGltfModel && !result.group.userData?.isEgg) {
         const { applyPalette } = await import("./palette-apply.js");
         applyPalette(result.group, palette);
       }
@@ -169,6 +174,7 @@ async function updateCreature(data) {
       }
 
       scene.add(result.group);
+      placeOnGround(result.group);
       currentGroup = result.group;
       currentParts = result.parts;
       currentMixer = result.mixer || null;
@@ -236,6 +242,7 @@ function animate() {
     }
   }
 
+  controls.update();
   composer.render();
 }
 

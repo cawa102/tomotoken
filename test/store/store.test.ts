@@ -8,6 +8,7 @@ import {
   updateEncouragementTimestamp,
   acquireLock, releaseLock,
 } from "../../src/store/store.js";
+import { TOKENS_PER_PET } from "../../src/config/constants.js";
 
 const TMP = join(__dirname, "../tmp-store");
 
@@ -17,7 +18,7 @@ afterEach(() => rmSync(TMP, { recursive: true, force: true }));
 describe("state persistence", () => {
   it("round-trips state through save/load", () => {
     const path = join(TMP, "state.json");
-    const state = createInitialState(5000);
+    const state = createInitialState();
     saveState(state, path);
     const loaded = loadState(path);
     expect(loaded).toEqual(state);
@@ -39,7 +40,7 @@ describe("collection persistence", () => {
 
 describe("immutable updates", () => {
   it("updateGlobalStats creates new state", () => {
-    const state = createInitialState(5000);
+    const state = createInitialState();
     const updated = updateGlobalStats(state, 1000, 1, "2026-01-01T00:00:00Z");
     expect(updated).not.toBe(state);
     expect(updated.globalStats.totalTokensAllTime).toBe(1000);
@@ -47,19 +48,24 @@ describe("immutable updates", () => {
   });
 
   it("updatePetInState creates new state", () => {
-    const state = createInitialState(5000);
+    const state = createInitialState();
     const updated = updatePetInState(state, { consumedTokens: 2500 });
     expect(updated.currentPet.consumedTokens).toBe(2500);
     expect(state.currentPet.consumedTokens).toBe(0);
   });
 
   it("createInitialState includes lastEncouragementShownAt", () => {
-    const state = createInitialState(5000);
+    const state = createInitialState();
     expect(state.lastEncouragementShownAt).toBeNull();
   });
 
+  it("createInitialState uses TOKENS_PER_PET", () => {
+    const state = createInitialState();
+    expect(state.currentPet.requiredTokens).toBe(TOKENS_PER_PET);
+  });
+
   it("updateEncouragementTimestamp creates new state", () => {
-    const state = createInitialState(5000);
+    const state = createInitialState();
     const ts = "2026-02-15T12:00:00.000Z";
     const updated = updateEncouragementTimestamp(state, ts);
     expect(updated).not.toBe(state);
@@ -68,7 +74,7 @@ describe("immutable updates", () => {
   });
 
   it("updateIngestionFile creates new state with file entry", () => {
-    const state = createInitialState(5000);
+    const state = createInitialState();
     const updated = updateIngestionFile(state, "/path/to/file.jsonl", 1024, "2026-01-01T00:00:00Z");
     expect(updated.ingestionState.files["/path/to/file.jsonl"]).toEqual({
       byteOffset: 1024,
@@ -108,8 +114,44 @@ describe("version migration", () => {
     expect(loaded!.version).toBe(2);
     expect(loaded!.currentPet.personalitySnapshot).toBeNull();
     expect(loaded!.currentPet.spawnIndex).toBe(0);
-    expect(loaded!.calibration).toEqual(v1State.calibration);
+    expect(loaded!.currentPet.requiredTokens).toBe(TOKENS_PER_PET);
     expect(loaded!.ingestionState).toEqual(v1State.ingestionState);
+    // calibration and spawnIndexCurrentMonth should not exist
+    expect("calibration" in loaded!).toBe(false);
+    expect("spawnIndexCurrentMonth" in loaded!).toBe(false);
+  });
+
+  it("strips legacy calibration fields from v2 state", () => {
+    const v2StateWithLegacy = {
+      version: 2,
+      calibration: { t0: 10000, monthlyEstimate: 50000, calibratedAt: "2026-01-01T00:00:00Z" },
+      spawnIndexCurrentMonth: 2,
+      currentMonth: "2026-02",
+      currentPet: {
+        petId: "pet-1",
+        spawnedAt: "2026-02-01T00:00:00Z",
+        requiredTokens: 1_000_000_000,
+        consumedTokens: 500,
+        spawnIndex: 0,
+        personalitySnapshot: null,
+        generatedDesigns: null,
+      },
+      ingestionState: { files: {} },
+      globalStats: {
+        totalTokensAllTime: 500,
+        totalSessionsIngested: 1,
+        earliestTimestamp: "2026-01-01T00:00:00Z",
+        latestTimestamp: "2026-02-01T00:00:00Z",
+      },
+      lastEncouragementShownAt: null,
+    };
+    const path = join(TMP, "v2legacy.json");
+    writeFileSync(path, JSON.stringify(v2StateWithLegacy));
+    const loaded = loadState(path);
+    expect(loaded).not.toBeNull();
+    expect("calibration" in loaded!).toBe(false);
+    expect("spawnIndexCurrentMonth" in loaded!).toBe(false);
+    expect(loaded!.currentPet.consumedTokens).toBe(500);
   });
 
   it("migrates v1 collection to empty v2", () => {

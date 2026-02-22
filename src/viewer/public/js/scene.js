@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createGradientMap } from "./toon-utils.js";
 
 /**
@@ -12,8 +13,8 @@ export function createScene(container) {
   const bgGeo = new THREE.PlaneGeometry(2, 2);
   const bgMat = new THREE.ShaderMaterial({
     uniforms: {
-      topColor: { value: new THREE.Color(0x1a1a3e) },
-      bottomColor: { value: new THREE.Color(0x0a0a1a) },
+      topColor: { value: new THREE.Color(0x2dd4a8) },
+      bottomColor: { value: new THREE.Color(0xd0faf0) },
     },
     vertexShader: `
       varying vec2 vUv;
@@ -54,13 +55,13 @@ export function createScene(container) {
   renderer.toneMappingExposure = 1.2;
   container.appendChild(renderer.domElement);
 
-  // Hemisphere light (replaces ambient for natural sky/ground fill)
-  const hemiLight = new THREE.HemisphereLight(0xffeeff, 0x8888cc, 0.8);
+  // Hemisphere light (bright sky / soft ground fill)
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0xb0c4de, 1.0);
   hemiLight.position.set(0, 10, 0);
   scene.add(hemiLight);
 
   // Key light (warm, from upper-right-front)
-  const keyLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+  const keyLight = new THREE.DirectionalLight(0xfff5e6, 1.0);
   keyLight.position.set(3, 5, 4);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.set(2048, 2048);
@@ -74,27 +75,38 @@ export function createScene(container) {
   keyLight.shadow.camera.bottom = -1;
   scene.add(keyLight);
 
-  // Fill light (cool, from left)
-  const fillLight = new THREE.DirectionalLight(0x8888cc, 0.4);
+  // Fill light (soft blue, from left)
+  const fillLight = new THREE.DirectionalLight(0xc8d8f0, 0.5);
   fillLight.position.set(-3, 2, 2);
   scene.add(fillLight);
 
-  // Rim light (back)
-  const rimLight = new THREE.DirectionalLight(0xaaccff, 0.5);
+  // Rim light (back, subtle highlight)
+  const rimLight = new THREE.DirectionalLight(0xe0e8ff, 0.4);
   rimLight.position.set(0, 3, -4);
   scene.add(rimLight);
 
-  // Ground plane
-  const groundGeo = new THREE.CircleGeometry(3, 32);
-  const groundMat = new THREE.MeshToonMaterial({
-    color: 0x252540,
-    gradientMap: createGradientMap(2),
+  // Ground disc (solid pastel platform)
+  const groundGeo = new THREE.CircleGeometry(2.5, 48);
+  const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x8ecfb0,
+    roughness: 0.8,
+    metalness: 0,
   });
   const ground = new THREE.Mesh(groundGeo, groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.01;
   ground.receiveShadow = true;
   scene.add(ground);
+
+  // Orbit controls (drag to rotate, scroll to zoom)
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0.8, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.1;
+  controls.minDistance = 2;
+  controls.maxDistance = 10;
+  controls.maxPolarAngle = Math.PI * 0.85;
+  controls.update();
 
   // Handle resize
   const onResize = () => {
@@ -106,5 +118,5 @@ export function createScene(container) {
   };
   window.addEventListener("resize", onResize);
 
-  return { scene, camera, renderer };
+  return { scene, camera, renderer, controls };
 }

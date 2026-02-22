@@ -15,14 +15,6 @@ export function StatsPanel({ state }: Props) {
       <Text>Sessions ingested: {gs.totalSessionsIngested}</Text>
       <Text>First log: {gs.earliestTimestamp ?? "none"}</Text>
       <Text>Latest log: {gs.latestTimestamp ?? "none"}</Text>
-      {state.calibration && (
-        <>
-          <Text> </Text>
-          <Text bold>Calibration</Text>
-          <Text>T0: {state.calibration.t0.toLocaleString()}</Text>
-          <Text>Monthly estimate: {state.calibration.monthlyEstimate.toLocaleString()}</Text>
-        </>
-      )}
     </Box>
   );
 }

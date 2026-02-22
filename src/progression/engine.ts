@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import type { PetRecord, CompletedPet, PersonalitySnapshot } from "../store/types.js";
 import type { AdvanceResult } from "./types.js";
+import { TOKENS_PER_PET } from "../config/constants.js";
 
 const EMPTY_PERSONALITY: PersonalitySnapshot = {
   usageMix: {},
@@ -12,13 +13,9 @@ const EMPTY_PERSONALITY: PersonalitySnapshot = {
 export function advancePet(
   currentPet: PetRecord,
   deltaTokens: number,
-  t0: number,
-  g: number,
-  spawnIndex: number,
 ): AdvanceResult {
   let remaining = deltaTokens;
   let pet = currentPet;
-  let idx = spawnIndex;
   const completed: CompletedPet[] = [];
 
   while (remaining > 0) {
@@ -44,14 +41,12 @@ export function advancePet(
       };
       completed.push(completedPet);
 
-      idx += 1;
-      const newRequired = Math.ceil(t0 * Math.pow(g, idx));
       pet = {
         petId: uuidv4(),
         spawnedAt: new Date().toISOString(),
-        requiredTokens: newRequired,
+        requiredTokens: TOKENS_PER_PET,
         consumedTokens: 0,
-        spawnIndex: idx,
+        spawnIndex: pet.spawnIndex + 1,
         personalitySnapshot: null,
         generatedDesigns: null,
       };
@@ -61,7 +56,6 @@ export function advancePet(
   return {
     updatedPet: pet,
     completedPets: completed,
-    newSpawnIndex: idx,
     remainingTokens: remaining,
   };
 }

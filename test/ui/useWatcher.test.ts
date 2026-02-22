@@ -12,7 +12,6 @@ vi.mock("../../src/ingestion/watcher.js", async () => {
 
 vi.mock("../../src/index.js", () => ({
   runIngestion: vi.fn(),
-  runCalibration: vi.fn((s: unknown) => s),
   runProgression: vi.fn(),
   runPersonality: vi.fn((s: unknown) => s),
 }));
@@ -40,13 +39,11 @@ import { createDefaultConfig } from "../../src/config/schema.js";
 function createTestState(): AppState {
   return {
     version: 2,
-    calibration: { t0: 10_000, monthlyEstimate: 50_000, calibratedAt: "2026-01-01T00:00:00.000Z" },
-    spawnIndexCurrentMonth: 0,
     currentMonth: "2026-02",
     currentPet: {
       petId: "test-pet-id",
       spawnedAt: "2026-02-01T00:00:00.000Z",
-      requiredTokens: 10_000,
+      requiredTokens: 1_000_000_000,
       consumedTokens: 3_000,
       spawnIndex: 0,
       personalitySnapshot: null,
@@ -119,7 +116,7 @@ describe("executeCycle", () => {
     expect(result!.collection).toEqual(collection);
     expect(result!.completed).toEqual([]);
     expect(runPersonality).toHaveBeenCalledWith(state, metrics);
-    expect(runProgression).toHaveBeenCalledWith(state, 500, config);
+    expect(runProgression).toHaveBeenCalledWith(state, 500);
   });
 
   it("accumulates tokens from multiple session metrics", async () => {
@@ -134,7 +131,7 @@ describe("executeCycle", () => {
 
     await executeCycle(config, state, collection);
 
-    expect(runProgression).toHaveBeenCalledWith(state, 500, config);
+    expect(runProgression).toHaveBeenCalledWith(state, 500);
   });
 
   it("returns completed pets in result", async () => {
