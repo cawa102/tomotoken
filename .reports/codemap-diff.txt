@@ -1,0 +1,31 @@
+Codemap Diff Report — 2026-02-22
+==================================
+
+Status: UPDATE (egg hatching system integration)
+Diff: ~45% changed (major restructure of all 4 files)
+
+Changes summary:
+  codemaps/architecture.md  — Fixed file/test counts (82 src, 312 tests), added EggStage/Palette domains, 3D pipeline pattern
+  codemaps/backend.md       — Added stages.ts, Palette module, Utils section, updated Art/Parametric (2D removed)
+  codemaps/frontend.md      — Reorganized viewer into 4 subsections (Scene, Creature, Egg, Animation), added routing diagram
+  codemaps/data.md          — Added EggStage type, marked legacy frames fields, removed obsolete ArtOutput type
+
+Key additions:
+  - EggStage (0-4) progression type documented across all codemaps
+  - Egg System subsection: egg-loader, egg-wobble, hatch-transition
+  - Animation Loop Routing conditional dispatch diagram
+  - Palette standalone module documentation
+  - Utils module documentation (hash, seed, path, time, clamp)
+
+Removals:
+  - ArtOutput type (ASCII art removed)
+  - Inflated file/test counts corrected
+  - "Deterministic art" design pattern removed
+
+Source stats:
+  Source files: 80 (.ts/.tsx)
+  Test files:   49
+  Tests:        312 passing
+  Domains:      14
+
+Previous report: 2026-02-21 (initial generation)

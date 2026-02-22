@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitsune Architect - Final Form</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e0e0e0;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      overflow: hidden;
+      height: 100vh;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    canvas { display: block; }
+    #info-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(20, 20, 40, 0.9);
+      border: 1px solid rgba(100, 100, 160, 0.4);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 13px;
+      line-height: 1.8;
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+      max-width: 320px;
+    }
+    .label { color: #888; }
+    .value { color: #ddd; font-weight: 600; }
+    .archetype { color: #7ecfff; text-transform: uppercase; font-weight: 700; }
+    .title { font-size: 18px; color: #ffcc66; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { font-style: italic; color: #aaa; font-size: 11px; margin-bottom: 8px; }
+    .trait-bar {
+      display: flex; align-items: center; gap: 8px; margin: 2px 0;
+    }
+    .trait-bar .bar-bg {
+      flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;
+    }
+    .trait-bar .bar-fill {
+      height: 100%; border-radius: 2px; transition: width 1s ease;
+    }
+    .trait-bar .trait-name { width: 70px; font-size: 11px; color: #888; }
+    .trait-bar .trait-val { width: 30px; font-size: 11px; color: #aaa; text-align: right; }
+  </style>
+</head>
+<body>
+  <div id="canvas-container">
+    <div id="info-panel">
+      <div class="title">Kitsune Architect</div>
+      <div class="subtitle">Strategic fox sage born from your code</div>
+      <div><span class="label">Type: </span><span class="archetype">ARCHITECT</span></div>
+      <div><span class="label">Stage: </span><span class="value">Final Form</span></div>
+      <div style="margin-top: 8px;">
+        <div class="trait-bar">
+          <span class="trait-name">Architect</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:60%;background:#7ecfff;"></div></div>
+          <span class="trait-val">60</span>
+        </div>
+        <div class="trait-bar">
+          <span class="trait-name">Builder</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:25%;background:#ffcc66;"></div></div>
+          <span class="trait-val">25</span>
+        </div>
+        <div class="trait-bar">
+          <span class="trait-name">Refiner</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:15%;background:#b388ff;"></div></div>
+          <span class="trait-val">15</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const container = document.getElementById("canvas-container");
+    const scene = new THREE.Scene();
+
+    // Gradient background
+    const canvas = document.createElement("canvas");
+    canvas.width = 2; canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    const grad = ctx.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, "#0f0c29");
+    grad.addColorStop(0.5, "#302b63");
+    grad.addColorStop(1, "#24243e");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 2, 256);
+    const bgTex = new THREE.CanvasTexture(canvas);
+    bgTex.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = bgTex;
+
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0.3, 2.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
+
+    // Orbit controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 0.15, 0);
+    controls.minDistance = 1;
+    controls.maxDistance = 5;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.5;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.8);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    keyLight.position.set(2, 3, 2);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0x8888ff, 1.0);
+    fillLight.position.set(-2, 1, -1);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xffcc66, 0.8);
+    rimLight.position.set(0, 2, -3);
+    scene.add(rimLight);
+
+    // Load model
+    let mixer = null;
+    const loader = new GLTFLoader();
+    loader.load(
+      "./models/kitsune-architect.glb",
+      (gltf) => {
+        const model = gltf.scene;
+        // Center and scale the model
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 1.2 / maxDim;
+        model.scale.setScalar(scale);
+        model.position.sub(center.multiplyScalar(scale));
+        model.position.y += 0.1;
+
+        scene.add(model);
+
+        // Set up animation mixer
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(model);
+          gltf.animations.forEach((clip) => {
+            mixer.clipAction(clip).play();
+          });
+        }
+      },
+      undefined,
+      (err) => console.error("Model load error:", err)
+    );
+
+    // Particle effect (ambient sparkles)
+    const particleCount = 50;
+    const particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * 4;
+    }
+    particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: 0x7ecfff, size: 0.015, transparent: true, opacity: 0.4
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // Animation loop
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      if (mixer) mixer.update(delta);
+      controls.update();
+
+      // Gentle particle drift
+      const posArr = particleGeo.attributes.position.array;
+      for (let i = 1; i < posArr.length; i += 3) {
+        posArr[i] += Math.sin(elapsed + i) * 0.0005;
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

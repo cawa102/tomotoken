@@ -1,0 +1,5 @@
+2026-02-21-01:24 | cleanup-and-docs | 4138940 | tests=421/421 | typecheck=2-preexisting-errors | modified=16-files
+2026-02-22-01:00 | kitsune-character-gen | 4138940 | style-guide updated, 20k-poly rule set, kitsune-architect.glb exported
+2026-02-22-02:35 | lattice-vertex-group-fix | 4138940
+2026-02-22-02:49 | remove-idle-animation | 4138940 | typecheck:PASS tests:372/372 files:10-failed(missing-three-dep)
+2026-02-22-05:09 | egg-hatching-complete | 7a1e4a2 | tests=312/312 | typecheck=PASS | modified=24-files
