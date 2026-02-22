@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
 import { join } from "node:path";
+import { existsSync } from "node:fs";
 import { hostname } from "node:os";
 import { runFull } from "../index.js";
 import { generateSeed } from "../utils/seed.js";
@@ -24,15 +25,15 @@ async function fetchRenderData(): Promise<string> {
 }
 
 export function startServer(): void {
-  // Validate environment
+  // Validate environment (warnings only — core app works without LLM/Blender)
   const config = loadConfig();
   const validation = validateStartup(config.llm);
   if (!validation.ok) {
-    process.stderr.write("\n⚠ Setup incomplete:\n\n");
+    process.stderr.write("\n⚠ Optional setup incomplete:\n\n");
     for (const error of validation.errors) {
       process.stderr.write(`  [${error.component}] ${error.message}\n`);
     }
-    process.exit(1);
+    process.stderr.write("\n  Core features will work. LLM creature generation disabled.\n\n");
   }
 
   const rawPort = parseInt(process.env.VIEWER_PORT ?? "3456", 10);
@@ -45,6 +46,21 @@ export function startServer(): void {
   const wss = new WebSocketServer({ server });
 
   const publicDir = join(process.cwd(), "src", "viewer", "public");
+  if (!existsSync(join(publicDir, "index.html"))) {
+    process.stderr.write(
+      `\n✗ Cannot find public directory at ${publicDir}\n` +
+      `  Run "npm start" from the project root directory.\n\n`,
+    );
+    process.exit(1);
+  }
+
+  // Security headers (defense-in-depth, even for localhost)
+  app.use((_req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    next();
+  });
+
   app.use(express.static(publicDir));
 
   // REST: current pet
@@ -153,6 +169,21 @@ export function startServer(): void {
       }
     } catch {} finally { polling = false; }
   }, POLL_INTERVAL_MS);
+
+  // Centralized error handler — must be last middleware
+  app.use(
+    (
+      err: Error,
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction,
+    ) => {
+      process.stderr.write(`Unhandled error: ${err.message}\n`);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    },
+  );
 
   server.listen(rawPort, "127.0.0.1", () => {
     process.stdout.write(`Tomotoken running at http://localhost:${rawPort}\n`);

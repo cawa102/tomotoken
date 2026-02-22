@@ -136,7 +136,7 @@ export async function buildFromModel(archetype, palette) {
 }
 
 /**
- * Remove existing creature from scene and dispose of geometries/materials.
+ * Remove existing creature from scene and dispose of geometries/materials/textures.
  */
 export function disposeCreature(scene) {
   const existing = scene.getObjectByName("creature");
@@ -144,10 +144,18 @@ export function disposeCreature(scene) {
     existing.traverse((child) => {
       if (child.isMesh) {
         child.geometry?.dispose();
-        if (Array.isArray(child.material)) {
-          child.material.forEach((m) => m.dispose());
-        } else {
-          child.material?.dispose();
+        const materials = Array.isArray(child.material)
+          ? child.material
+          : [child.material];
+        for (const mat of materials) {
+          if (!mat) continue;
+          // Dispose textures referenced by material properties
+          for (const value of Object.values(mat)) {
+            if (value && value.isTexture) {
+              value.dispose();
+            }
+          }
+          mat.dispose();
         }
       }
     });

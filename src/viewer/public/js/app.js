@@ -23,7 +23,11 @@ const { scene, camera, renderer, controls } = createScene(container);
 const { composer, resize: resizeComposer } = createPostProcessing(renderer, scene, camera);
 
 window.addEventListener("resize", () => {
-  resizeComposer(container.clientWidth, container.clientHeight);
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  resizeComposer(w, h);
 });
 
 // --- State ---

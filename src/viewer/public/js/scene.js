@@ -108,15 +108,5 @@ export function createScene(container) {
   controls.maxPolarAngle = Math.PI * 0.85;
   controls.update();
 
-  // Handle resize
-  const onResize = () => {
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  };
-  window.addEventListener("resize", onResize);
-
   return { scene, camera, renderer, controls };
 }

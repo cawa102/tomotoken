@@ -46,6 +46,8 @@ export async function createPetViewer(container, renderData) {
     const w = container.clientWidth;
     const h = container.clientHeight;
     if (w > 0 && h > 0) {
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
       resizeComposer(w, h);
     }
   };
