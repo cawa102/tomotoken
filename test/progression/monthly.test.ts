@@ -34,6 +34,7 @@ describe("handleMonthChange", () => {
         latestTimestamp: "2026-01-31T00:00:00Z",
       },
       lastEncouragementShownAt: null,
+      firstRunCompleted: true,
     };
 
     const updated = handleMonthChange(state, new Date("2026-02-01"));

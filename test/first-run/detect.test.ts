@@ -30,8 +30,35 @@ describe("isFirstRun", () => {
         latestTimestamp: null,
       },
       lastEncouragementShownAt: null,
+      firstRunCompleted: false,
     };
     expect(isFirstRun(state, emptyCollection)).toBe(true);
+  });
+
+  it("returns false when firstRunCompleted is true", () => {
+    const state: AppState = {
+      version: 2,
+      currentMonth: "2026-02",
+      currentPet: {
+        petId: "p1",
+        spawnedAt: "2026-01-01T00:00:00Z",
+        requiredTokens: 1_000_000_000,
+        consumedTokens: 0,
+        spawnIndex: 0,
+        personalitySnapshot: null,
+        generatedDesigns: null,
+      },
+      ingestionState: { files: {} },
+      globalStats: {
+        totalTokensAllTime: 0,
+        totalSessionsIngested: 0,
+        earliestTimestamp: null,
+        latestTimestamp: null,
+      },
+      lastEncouragementShownAt: null,
+      firstRunCompleted: true,
+    };
+    expect(isFirstRun(state, emptyCollection)).toBe(false);
   });
 
   it("returns false when collection has pets", () => {
@@ -55,6 +82,7 @@ describe("isFirstRun", () => {
         latestTimestamp: "2026-02-01T00:00:00Z",
       },
       lastEncouragementShownAt: null,
+      firstRunCompleted: false,
     };
     const collection: Collection = {
       version: 2,
@@ -112,6 +140,7 @@ describe("isFirstRun", () => {
         latestTimestamp: "2026-02-01T00:00:00Z",
       },
       lastEncouragementShownAt: null,
+      firstRunCompleted: false,
     };
     expect(isFirstRun(state, emptyCollection)).toBe(false);
   });

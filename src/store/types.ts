@@ -54,6 +54,7 @@ export interface AppState {
   };
   readonly globalStats: GlobalStats;
   readonly lastEncouragementShownAt: string | null;
+  readonly firstRunCompleted: boolean;
 }
 
 export interface CompletedPet {

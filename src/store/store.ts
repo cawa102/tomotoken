@@ -109,6 +109,7 @@ export function createInitialState(): AppState {
       latestTimestamp: null,
     },
     lastEncouragementShownAt: null,
+    firstRunCompleted: false,
   };
 }
 
@@ -135,6 +136,7 @@ export function loadState(path: string = STATE_PATH): AppState | null {
       ingestionState: v1.ingestionState as AppState["ingestionState"],
       globalStats: v1.globalStats as AppState["globalStats"],
       lastEncouragementShownAt: null,
+      firstRunCompleted: false,
     };
   }
 
@@ -147,6 +149,10 @@ export function loadState(path: string = STATE_PATH): AppState | null {
   const pet = raw.currentPet as Record<string, unknown> | undefined;
   if (pet && !("generatedDesigns" in pet)) {
     state = { ...state, currentPet: { ...state.currentPet, generatedDesigns: null } };
+  }
+  // Backfill firstRunCompleted for pre-first-run-guard states
+  if (!("firstRunCompleted" in raw)) {
+    state = { ...state, firstRunCompleted: false };
   }
   // Strip removed fields (calibration, spawnIndexCurrentMonth) from legacy data
   const { calibration: _c, spawnIndexCurrentMonth: _s, ...cleaned } = state as AppState & {

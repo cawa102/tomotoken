@@ -18,6 +18,7 @@ function makeState(consumedTokens: number, requiredTokens: number): AppState {
     ingestionState: { files: {} },
     globalStats: { totalTokensAllTime: 100000, totalSessionsIngested: 0, earliestTimestamp: "2026-01-01", latestTimestamp: "2026-02-01" },
     lastEncouragementShownAt: null,
+    firstRunCompleted: true,
   };
 }
 

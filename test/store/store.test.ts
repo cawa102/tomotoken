@@ -152,6 +152,7 @@ describe("version migration", () => {
     expect("calibration" in loaded!).toBe(false);
     expect("spawnIndexCurrentMonth" in loaded!).toBe(false);
     expect(loaded!.currentPet.consumedTokens).toBe(500);
+    expect(loaded!.firstRunCompleted).toBe(false);
   });
 
   it("migrates v1 collection to empty v2", () => {

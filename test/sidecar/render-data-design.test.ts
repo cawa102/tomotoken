@@ -38,6 +38,7 @@ describe("buildRenderData with generatedDesigns", () => {
       ingestionState: { files: {} },
       globalStats: { totalTokensAllTime: 50000, totalSessionsIngested: 10, earliestTimestamp: "2026-01-01", latestTimestamp: "2026-01-20" },
       lastEncouragementShownAt: null,
+      firstRunCompleted: true,
     };
 
     const seed = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
@@ -61,6 +62,7 @@ describe("buildRenderData with generatedDesigns", () => {
       ingestionState: { files: {} },
       globalStats: { totalTokensAllTime: 50000, totalSessionsIngested: 10, earliestTimestamp: "2026-01-01", latestTimestamp: "2026-01-20" },
       lastEncouragementShownAt: null,
+      firstRunCompleted: true,
     };
 
     const seed = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";

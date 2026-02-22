@@ -42,6 +42,7 @@ describe("PRNG parity: buildRenderData vs generateParametricBody", () => {
     ingestionState: { files: {} },
     globalStats: { totalTokensAllTime: 50000, totalSessionsIngested: 10, earliestTimestamp: "2026-01-01", latestTimestamp: "2026-01-20" },
     lastEncouragementShownAt: null,
+    firstRunCompleted: true,
   };
 
   it("produces identical creatureParams as the parametric pipeline", () => {

@@ -11,6 +11,7 @@ import { classifySession, computeDepthMetrics, computeStyleMetrics, computeTrait
 import { generateSeed } from "./utils/seed.js";
 import { expandHome } from "./utils/index.js";
 import { hostname } from "node:os";
+import { TOKENS_PER_PET } from "./config/constants.js";
 import { isFirstRun } from "./first-run/detect.js";
 import { buildFirstRunState } from "./first-run/orchestrate.js";
 
@@ -131,22 +132,41 @@ export async function runFull(config?: Config): Promise<RunResult> {
     let state = loadState() ?? createInitialState();
     let collection = loadCollection();
 
-    // First-run: generate initial pet from recent history
+    // First-run: seed the first egg from existing Claude Code history
     if (isFirstRun(state, collection)) {
       const { state: postIngest, sessionMetrics } = runIngestion(cfg, state);
       state = postIngest;
       if (sessionMetrics.length > 0) {
-        const firstRun = buildFirstRunState(sessionMetrics);
-        collection = addCompletedPet(collection, firstRun.completedPet);
-        state = {
-          ...firstRun.nextPetState,
-          ingestionState: state.ingestionState,  // Preserve byte offsets
-        };
+        const totalTokens = sessionMetrics.reduce((sum, m) => sum + m.totalTokens, 0);
+
+        if (totalTokens >= TOKENS_PER_PET) {
+          // Enough history to complete at least one pet
+          const firstRun = buildFirstRunState(sessionMetrics);
+          collection = addCompletedPet(collection, firstRun.completedPet);
+          state = {
+            ...firstRun.nextPetState,
+            ingestionState: state.ingestionState,
+            firstRunCompleted: true,
+          };
+          saveState(state);
+          saveCollection(collection);
+          return { state, collection, newlyCompleted: [firstRun.completedPet] };
+        }
+
+        // Not enough for completion — apply tokens to the first egg
+        state = { ...state, firstRunCompleted: true };
+        state = runPersonality(state, sessionMetrics);
+        const { state: postProgress, completed } = runProgression(state, totalTokens);
+        state = postProgress;
+        for (const pet of completed) {
+          collection = addCompletedPet(collection, pet);
+        }
         saveState(state);
         saveCollection(collection);
-        return { state, collection, newlyCompleted: [firstRun.completedPet] };
+        return { state, collection, newlyCompleted: completed };
       }
-      // No logs found on first run — save state to avoid re-entering first-run check
+      // No logs found on first run — mark first-run complete to prevent re-entry
+      state = { ...state, firstRunCompleted: true };
       saveState(state);
       saveCollection(collection);
       return { state, collection, newlyCompleted: [] };

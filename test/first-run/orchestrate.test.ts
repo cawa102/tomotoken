@@ -41,13 +41,17 @@ describe("buildFirstRunState", () => {
     expect(result.nextPetState.currentPet.spawnIndex).toBe(1);
   });
 
-  it("handles < 1B tokens — still creates a completed pet", () => {
+  it("caps recent sessions to TOKENS_PER_PET via extractRecentTokens", () => {
     const sessions = [
-      makeSession("s1", 300_000_000, "2026-01-01T00:00:00Z"),
+      makeSession("s1", 600_000_000, "2026-01-15T00:00:00Z"),
+      makeSession("s2", 600_000_000, "2026-02-01T00:00:00Z"),
     ];
     const result = buildFirstRunState(sessions);
 
-    expect(result.completedPet).toBeDefined();
-    expect(result.completedPet.personality).toBeDefined();
+    // extractRecentTokens takes only the most recent session (600M)
+    // Math.max(600M, 1B) = 1B
+    expect(result.completedPet.requiredTokens).toBe(1_000_000_000);
+    expect(result.completedPet.consumedTokens).toBe(1_000_000_000);
+    expect(result.nextPetState.globalStats.totalTokensAllTime).toBe(600_000_000);
   });
 });
