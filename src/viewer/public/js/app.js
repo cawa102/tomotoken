@@ -4,6 +4,7 @@ import { buildFromDesign, buildFromModel, buildLegacyCreature, disposeCreature }
 import { applyAnimations, applyLegacyAnimations } from "./animation.js";
 import { applyExpression, selectExpression } from "./expression.js";
 import { applyMorphExpression } from "./morph-expression.js";
+import { loadEggModel } from "./egg-loader.js";
 
 // --- DOM references ---
 const container = document.getElementById("canvas-container");
@@ -15,7 +16,7 @@ const progressFill = document.getElementById("progress-fill");
 const petNameEl = document.getElementById("pet-name");
 const petQuirkEl = document.getElementById("pet-quirk");
 
-const STAGE_NAMES = ["Egg", "Infant", "Child", "Youth", "Complete", "Mastered"];
+const STAGE_NAMES = ["Egg", "Cracking", "Hatching Soon", "Almost There", "Hatched!"];
 
 // --- Scene setup ---
 const { scene, camera, renderer } = createScene(container);
@@ -73,42 +74,53 @@ function connectWebSocket() {
 /**
  * Update or rebuild the 3D creature from PetRenderData.
  * Rebuilds when pet ID changes or growth stage advances.
- * Priority: glTF model → LLM design → PRNG legacy builder.
+ * Stages 0-3: load egg model. Stage 4 (hatched): load character model.
  */
 async function updateCreature(data) {
-  const { archetype, creatureDesign, creatureParams, palette, stage, petId, progress } = data;
+  const { archetype, creatureDesign, palette, stage, petId, progress } = data;
 
   currentProgress = progress || 0;
 
   if (petId !== currentPetId || stage !== currentStage) {
     disposeCreature(scene);
     currentDesign = null;
+    currentMixer = null;
 
     let result = null;
 
-    // 1. Try glTF model first
-    if (archetype) {
-      result = await buildFromModel(archetype, palette);
+    if (stage < 4) {
+      // Egg stages 0-3: load egg model
+      const eggGltf = await loadEggModel(stage);
+      if (eggGltf) {
+        const group = eggGltf.scene;
+        group.userData.isEgg = true;
+        result = { group, parts: {}, mixer: null };
+      }
+    } else {
+      // Hatched (stage 4): load character model
+      if (archetype) {
+        result = await buildFromModel(archetype, palette);
+      }
+      if (!result && creatureDesign) {
+        result = buildFromDesign(creatureDesign);
+        currentDesign = creatureDesign;
+      }
     }
 
-    // 2. Fall back to LLM design
-    if (!result && creatureDesign) {
-      result = buildFromDesign(creatureDesign);
-      currentDesign = creatureDesign;
-    }
+    if (result) {
+      // Apply palette colors to egg or character
+      if (palette && result.group) {
+        const { applyPalette } = await import("./palette-apply.js");
+        applyPalette(result.group, palette);
+      }
 
-    // 3. Fall back to PRNG legacy builder
-    if (!result) {
-      result = buildLegacyCreature(creatureParams, palette, stage);
-      currentDesign = null;
+      scene.add(result.group);
+      currentGroup = result.group;
+      currentParts = result.parts;
+      currentMixer = result.mixer || null;
+      currentPetId = petId;
+      currentStage = stage;
     }
-
-    scene.add(result.group);
-    currentGroup = result.group;
-    currentParts = result.parts;
-    currentMixer = result.mixer || null;
-    currentPetId = petId;
-    currentStage = stage;
   }
 }
 
