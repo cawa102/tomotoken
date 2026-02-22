@@ -2,7 +2,7 @@ import { loadState, saveState, updatePetInState } from "../store/store.js";
 import { runFull } from "../index.js";
 import { buildPrompt } from "./prompt.js";
 import { creatureDesignSchema, type CreatureDesign, type Part } from "./schema.js";
-import { computeLimbStage } from "../art/parametric/progress.js";
+import { computeEggStage } from "../progression/stages.js";
 import { TRAIT_IDS } from "../config/constants.js";
 import { customizationSchema } from "./templates/types.js";
 import { applyCustomization } from "./templates/apply.js";
@@ -36,7 +36,7 @@ const CUSTOMIZATION_HINT = `Customization JSON format:
 eye shapes: round | happy | sleepy | sparkle
 mouth shapes: smile | open | flat | pout`;
 
-export interface DesignContext {
+interface DesignContext {
   readonly stage: number;
   readonly stageDescription: string;
   readonly prompt: string;
@@ -67,7 +67,7 @@ export async function getDesignContext(): Promise<DesignContext> {
   const progress = pet.requiredTokens > 0
     ? Math.min(1.0, pet.consumedTokens / pet.requiredTokens)
     : 0;
-  const stage = computeLimbStage(progress);
+  const stage = computeEggStage(progress);
 
   const { archetype, subtype } = deriveArchetypeAndSubtype(snapshot.traits);
 
@@ -128,7 +128,7 @@ export async function saveDesign(jsonInput: string): Promise<CreatureDesign> {
   const progress = pet.requiredTokens > 0
     ? Math.min(1.0, pet.consumedTokens / pet.requiredTokens)
     : 0;
-  const stage = computeLimbStage(progress);
+  const stage = computeEggStage(progress);
 
   const updatedDesigns = { ...(pet.generatedDesigns ?? {}), [stage]: design };
   const updatedState = updatePetInState(state, { generatedDesigns: updatedDesigns });

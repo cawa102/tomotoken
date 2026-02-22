@@ -1,5 +1,8 @@
-import type { Palette } from "../pixel/types.js";
 import type { DepthMetrics, StyleMetrics } from "../../store/types.js";
+
+export interface Palette {
+  readonly colors: readonly number[];
+}
 import { clamp } from "../../utils/clamp.js";
 
 /** Hue anchor per trait (degrees). */
@@ -166,4 +169,45 @@ export function generatePalette(
   ];
 
   return { colors };
+}
+
+/** Standard ANSI 16 colors (indices 0-15). */
+const ANSI_STANDARD: readonly string[] = [
+  "#000000", "#800000", "#008000", "#808000",
+  "#000080", "#800080", "#008080", "#c0c0c0",
+  "#808080", "#ff0000", "#00ff00", "#ffff00",
+  "#0000ff", "#ff00ff", "#00ffff", "#ffffff",
+];
+
+/** 6x6x6 color cube component values. */
+const CUBE_LEVELS: readonly number[] = [0, 95, 135, 175, 215, 255];
+
+/**
+ * Convert an ANSI 256 color index to a hex string (#rrggbb).
+ */
+export function ansi256ToHex(index: number): string {
+  if (index < 16) {
+    return ANSI_STANDARD[index];
+  }
+  if (index < 232) {
+    const ci = index - 16;
+    const ri = Math.floor(ci / 36);
+    const gi = Math.floor((ci % 36) / 6);
+    const bi = ci % 6;
+    const r = CUBE_LEVELS[ri];
+    const g = CUBE_LEVELS[gi];
+    const b = CUBE_LEVELS[bi];
+    return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+  }
+  // Grayscale 232-255
+  const gray = 8 + (index - 232) * 10;
+  const h = gray.toString(16).padStart(2, "0");
+  return `#${h}${h}${h}`;
+}
+
+/**
+ * Convert a Palette to an array of hex color strings.
+ */
+export function paletteToHexArray(palette: Palette): string[] {
+  return palette.colors.map(ansi256ToHex);
 }

@@ -86,14 +86,14 @@ describe("triggerGenerationIfNeeded", () => {
 
     expect(mockGenerate).toHaveBeenCalledOnce();
     expect(result.currentPet.generatedDesigns).toBeDefined();
-    expect(result.currentPet.generatedDesigns?.[3]).toEqual(mockDesign);
+    expect(result.currentPet.generatedDesigns?.[2]).toEqual(mockDesign);
     expect(mockSaveState).toHaveBeenCalledOnce();
   });
 
   it("does not trigger generation when design already exists for stage", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
 
-    const state = createTestState({ generatedDesigns: { 3: mockDesign } });
+    const state = createTestState({ generatedDesigns: { 2: mockDesign } });
     const result = await triggerGenerationIfNeeded(state);
 
     expect(mockGenerate).not.toHaveBeenCalled();

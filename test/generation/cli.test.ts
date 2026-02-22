@@ -66,7 +66,7 @@ function createTestState(overrides: Partial<AppState["currentPet"]> = {}): AppSt
       petId: "test-pet-abc",
       spawnedAt: "2026-01-15T00:00:00Z",
       requiredTokens: 10000,
-      consumedTokens: 5000,   // progress = 0.5 → stage 3
+      consumedTokens: 5000,   // progress = 0.5 → egg stage 2
       spawnIndex: 0,
       personalitySnapshot: {
         usageMix: { impl: 40, debug: 20, refactor: 10, research: 15, docs: 5, planning: 5, ops: 3, security: 2 },
@@ -96,12 +96,12 @@ describe("getDesignContext", () => {
 
     const ctx = await getDesignContext();
 
-    expect(ctx.stage).toBe(3);
+    expect(ctx.stage).toBe(2);
     expect(ctx.petId).toBe("test-pet-abc");
     expect(ctx.templateId).toBe("humanoid");
     expect(ctx.prompt).toContain("アーキタイプ: architect");
     expect(ctx.prompt).toContain("builder寄り");
-    expect(ctx.stageDescription).toContain("3");
+    expect(ctx.stageDescription).toContain("2");
     expect(ctx.existingStages).toEqual([]);
     expect(ctx.previousParts).toBeNull();
     expect(ctx.customizationHint).toContain("bodyColor");
@@ -115,7 +115,7 @@ describe("getDesignContext", () => {
     const ctx = await getDesignContext();
 
     expect(mockRunFull).toHaveBeenCalledOnce();
-    expect(ctx.stage).toBe(3);
+    expect(ctx.stage).toBe(2);
   });
 
   it("throws when personalitySnapshot is null", async () => {
@@ -127,13 +127,13 @@ describe("getDesignContext", () => {
 
   it("includes previousParts from prior stage design", async () => {
     const state = createTestState({
-      generatedDesigns: { 2: validDesign },
+      generatedDesigns: { 1: validDesign },
     });
     mockLoadState.mockReturnValue(state);
 
     const ctx = await getDesignContext();
 
-    // stage is 3 (progress=0.5), so previousParts from stage 2
+    // stage is 2 (progress=0.5), so previousParts from stage 1
     expect(ctx.previousParts).toEqual(validDesign.parts);
   });
 
@@ -158,13 +158,13 @@ describe("getDesignContext", () => {
     expect(ctx.previousParts).toBeNull();
   });
 
-  it("computes stage 5 for completed pet", async () => {
-    const state = createTestState({ consumedTokens: 10000 }); // 10000/10000 = 1.0 → stage 5
+  it("computes stage 4 for completed pet", async () => {
+    const state = createTestState({ consumedTokens: 10000 }); // 10000/10000 = 1.0 → egg stage 4
     mockLoadState.mockReturnValue(state);
 
     const ctx = await getDesignContext();
 
-    expect(ctx.stage).toBe(5);
+    expect(ctx.stage).toBe(4);
   });
 });
 
@@ -188,7 +188,7 @@ describe("saveDesign", () => {
     expect(mockSaveState).toHaveBeenCalledOnce();
 
     const savedState = mockSaveState.mock.calls[0][0] as AppState;
-    expect(savedState.currentPet.generatedDesigns?.[3]).toEqual(result);
+    expect(savedState.currentPet.generatedDesigns?.[2]).toEqual(result);
   });
 
   it("throws on invalid JSON", async () => {
@@ -221,8 +221,8 @@ describe("saveDesign", () => {
     const result = await saveDesign(JSON.stringify(validCustomization));
 
     const savedState = mockSaveState.mock.calls[0][0] as AppState;
-    // Should keep stage 0 and add stage 3
+    // Should keep stage 0 and add stage 2
     expect(savedState.currentPet.generatedDesigns?.[0]).toEqual(existingDesign);
-    expect(savedState.currentPet.generatedDesigns?.[3]).toEqual(result);
+    expect(savedState.currentPet.generatedDesigns?.[2]).toEqual(result);
   });
 });

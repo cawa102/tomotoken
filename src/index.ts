@@ -8,7 +8,7 @@ import {
 import { scanLogFiles, readIncremental, aggregateSessions, type SessionMetrics } from "./ingestion/index.js";
 import { computeCalibration, advancePet, detectMonthChange, handleMonthChange } from "./progression/index.js";
 import { classifySession, computeDepthMetrics, computeStyleMetrics, computeTraits } from "./personality/index.js";
-import { renderArt, generateSeed } from "./art/index.js";
+import { generateSeed } from "./utils/seed.js";
 import { expandHome } from "./utils/index.js";
 import { hostname } from "node:os";
 
@@ -85,24 +85,10 @@ export function runProgression(state: AppState, newTokens: number, config: Confi
   const completedWithArt: CompletedPet[] = [];
   for (const pet of result.completedPets) {
     const seed = generateSeed(hostname(), pet.petId);
-    const personality = pet.personality;
-
-    const tokenRatio = state.calibration ? pet.consumedTokens / state.calibration.t0 : 1.0;
-    const art = renderArt({
-      seed,
-      progress: 1.0,
-      traits: personality.traits,
-      depthMetrics: personality.depthMetrics,
-      styleMetrics: personality.styleMetrics,
-      canvasWidth: config.canvas.width,
-      canvasHeight: config.canvas.height,
-      usageMix: personality.usageMix,
-      tokenRatio,
-    });
     completedWithArt.push({
       ...pet,
-      frames: art.frames,
-      colorFrames: art.colorFrames,
+      frames: [],
+      colorFrames: [],
       seed,
     });
   }

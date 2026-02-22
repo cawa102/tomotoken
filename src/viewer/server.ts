@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { hostname } from "node:os";
 import { runFull } from "../index.js";
-import { generateSeed } from "../art/seed.js";
+import { generateSeed } from "../utils/seed.js";
 import { buildRenderData } from "../sidecar/render-data.js";
 import { triggerGenerationIfNeeded } from "../sidecar/generation-trigger.js";
 

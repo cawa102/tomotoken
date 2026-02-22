@@ -1,7 +1,7 @@
 import type { AppState } from "../store/types.js";
 import { saveState, updatePetInState } from "../store/store.js";
 import { generateCreatureDesign } from "../generation/designer.js";
-import { computeLimbStage } from "../art/parametric/progress.js";
+import { computeEggStage } from "../progression/stages.js";
 import { TRAIT_IDS } from "../config/constants.js";
 
 function deriveArchetypeAndSubtype(traits: Record<string, number>): { archetype: string; subtype: string } {
@@ -27,7 +27,7 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
   const progress = pet.requiredTokens > 0
     ? Math.min(1.0, pet.consumedTokens / pet.requiredTokens)
     : 0;
-  const stage = computeLimbStage(progress);
+  const stage = computeEggStage(progress);
 
   if (pet.generatedDesigns?.[stage]) return state;
 
