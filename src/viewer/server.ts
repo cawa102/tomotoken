@@ -185,6 +185,17 @@ export function startServer(): void {
     },
   );
 
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      process.stderr.write(
+        `Error: Port ${rawPort} is already in use.\n` +
+          `Run: kill $(lsof -t -i :${rawPort}) to stop the existing process, then retry.\n`,
+      );
+      process.exit(1);
+    }
+    throw err;
+  });
+
   server.listen(rawPort, "127.0.0.1", () => {
     process.stdout.write(`Tomotoken running at http://localhost:${rawPort}\n`);
   });
