@@ -21,13 +21,22 @@ Every billion tokens produces one pet.
 ## Install
 
 ```bash
-git clone https://github.com/anthropics/tomotoken.git
+git clone https://github.com/cawa102/tomotoken.git
 cd tomotoken
 npm install
 npm run build
 ```
 
 ## Setup
+
+### Getting an API key
+
+Tomotoken uses an LLM to generate creature designs. You need an API key from one of these providers:
+
+- **Anthropic** (default): Go to [console.anthropic.com](https://console.anthropic.com) → **API Keys** → **Create Key**
+- **OpenAI**: Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) → **Create new secret key**
+
+### Configuring your key
 
 Set your API key as an environment variable:
 
