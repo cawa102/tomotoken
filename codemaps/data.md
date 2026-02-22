@@ -1,6 +1,6 @@
 # Data Models Codemap
 
-> Freshness: 2026-02-22
+> Freshness: 2026-02-22 18:03
 
 ## Storage Files (`~/.tomotoken/`)
 
@@ -9,8 +9,6 @@
 ```typescript
 {
   version: 2,
-  calibration: { t0, monthlyEstimate, calibratedAt } | null,
-  spawnIndexCurrentMonth: number,
   currentMonth: "2026-02",
   currentPet: PetRecord,
   ingestionState: { files: Record<path, { byteOffset, lastLineTimestamp }> },
@@ -33,13 +31,16 @@
 ```typescript
 {
   logPath?: string,
-  canvas: { width: 16-80, height: 8-40, frames: 2-8 },
   animation: { enabled: bool, fps: 1-10 },
-  growth: { g: 1.0-3.0, t0Rounding: "ceil"|"floor"|"round" },
   encouragement: { enabled: bool, tokensPerHourThreshold: int, cooldownHours: float },
-  privacy: { storeRawMessages: bool }
+  privacy: { storeRawMessages: bool },
+  llm: { provider: "anthropic"|"openai", model: string, apiKey?: string }
 }
 ```
+
+### snapshots/ — PNG files
+
+`~/.tomotoken/snapshots/{petId}.png` — client-captured screenshots of completed pets.
 
 ## Core Types
 
@@ -60,14 +61,19 @@
 ### CompletedPet (`src/store/types.ts`)
 
 ```typescript
-PetRecord + {
+{
+  petId: string,
+  spawnedAt: string,
   completedAt: string,
+  requiredTokens: number,
+  consumedTokens: number,
+  spawnIndex: number,
   personality: PersonalitySnapshot,
-  frames: string[][],        // 4 ASCII frames (legacy, may be empty)
-  colorFrames: string[][],   // 4 ANSI-colored frames (legacy, may be empty)
   seed: string
 }
 ```
+
+Note: `frames` and `colorFrames` fields removed (ASCII art pipeline deleted).
 
 ### PersonalitySnapshot
 
@@ -104,9 +110,11 @@ EggStage = 0 | 1 | 2 | 3 | 4
 // 3=large fractures (75%), 4=hatched (100%)
 ```
 
-## Art Types
+TOKENS_PER_PET = 1,000,000,000 (fixed constant).
 
-### Palette (`src/art/parametric/palette.ts`)
+## Creature Types (`src/creature/types.ts`)
+
+### Palette (`src/creature/palette.ts`)
 
 ```typescript
 { colors: number[] }  // 10 ANSI 256 indices
@@ -114,7 +122,7 @@ EggStage = 0 | 1 | 2 | 3 | 4
 //        5=eye white, 6=pupil, 7=mouth, 8=accent1, 9=accent2
 ```
 
-### CreatureParams (`src/art/parametric/types.ts`)
+### CreatureParams (`src/creature/types.ts`)
 
 20+ fields: headRatio, bodyRoundness, topHeavy, eyeSize, eyeSpacing, earPresence, hornPresence,
 tailPresence, wingPresence, limbStage(0-5), patternType, neckWidth, leg/arm/tail/wing sizes, etc.
@@ -144,6 +152,20 @@ Expression = { eyes?: { scaleY, offsetY, shape }, mouth?: { scaleX, scaleY, shap
 { creatureParams, palette: string[], progress, petId, seed, archetype, subtype,
   stage: EggStage,  // 0-4 egg stage (0=pristine, 4=hatched)
   traits, creatureDesign: CreatureDesign | null }
+```
+
+## API Response Types (`src/viewer/api-collection.ts`)
+
+### CollectionPetSummary
+
+```typescript
+{ petId, archetype, subtype, traits, consumedTokens, spawnedAt, completedAt, hasSnapshot }
+```
+
+### CollectionResponse
+
+```typescript
+{ pets: CollectionPetSummary[] }
 ```
 
 ## Input Format

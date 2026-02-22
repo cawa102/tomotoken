@@ -1,6 +1,6 @@
 # Backend Codemap
 
-> Freshness: 2026-02-22
+> Freshness: 2026-02-22 18:03
 
 ## Ingestion (`src/ingestion/`)
 
@@ -22,14 +22,11 @@ scanner.ts ──→ incremental.ts ──→ parser.ts ──→ aggregator.ts
 
 | File | Exports | Deps |
 |------|---------|------|
-| `engine.ts` | `advancePet(pet, delta, t0, g, idx): AdvanceResult` | uuid, store/types |
-| `calibration.ts` | `computeCalibration(input, g, rounding): CalibrationResult` | (none) |
+| `engine.ts` | `advancePet(pet, delta, idx): AdvanceResult` | uuid, store/types |
 | `monthly.ts` | `detectMonthChange(month): bool`, `handleMonthChange(state): AppState` | store/types |
 | `stages.ts` | `computeEggStage(progress): EggStage`, `type EggStage` | (none) |
 
-Key formulas:
-- T0: `ceil(M / 4.75)`, required[n]: `ceil(T0 * g^n)`
-- EggStage: 0→0%, 1→25%, 2→50%, 3→75%, 4→100%
+Key: TOKENS_PER_PET = 1 billion. EggStage: 0→0%, 1→25%, 2→50%, 3→75%, 4→100%.
 
 ## Personality (`src/personality/`)
 
@@ -43,23 +40,22 @@ Key formulas:
 8 categories: impl, debug, refactor, research, docs, planning, ops, security
 8 traits: builder, fixer, refiner, scholar, scribe, architect, operator, guardian
 
-## Art/Parametric (`src/art/parametric/`)
+## Creature (`src/creature/`)
 
 | File | Exports | Deps |
 |------|---------|------|
-| `params.ts` | `deriveCreatureParams`, `adjustParamsForProgress` | types, config/constants |
-| `palette.ts` | `generatePalette`, `paletteToHexArray`, `ansi256ToHex` | (none) |
+| `params.ts` | `deriveCreatureParams`, `adjustParamsForProgress` | store/types, config/constants |
+| `palette.ts` | `generatePalette`, `paletteToHexArray`, `ansi256ToHex` | utils/clamp |
 | `types.ts` | `CreatureParams`, `LimbStage`, `PatternType`, `Palette` | — |
+| `index.ts` | barrel re-exports | params, palette, types |
 
-Note: 2D ASCII art rendering removed. Only parametric derivation + palette remain.
+Relocated from `src/art/parametric/` during web migration. Only parametric derivation + palette remain.
 
 ## Palette (`src/palette/`)
 
 | File | Exports | Deps |
 |------|---------|------|
-| `index.ts` | re-exports `generatePalette`, `paletteToHexArray`, `ansi256ToHex` | art/parametric/palette |
-
-Standalone re-export module for consumers outside the art domain.
+| `index.ts` | re-exports `generatePalette`, `paletteToHexArray`, `ansi256ToHex` | creature/palette |
 
 ## Store (`src/store/`)
 
@@ -74,21 +70,53 @@ Storage: `~/.tomotoken/{state,collection,config}.json` + lock file
 
 | File | Exports |
 |------|---------|
-| `schema.ts` | Zod schema for Config (canvas, animation, growth, encouragement, privacy) |
+| `schema.ts` | Zod schema for Config (animation, encouragement, privacy, llm) |
 | `loader.ts` | `loadConfig(path?): Config` |
-| `constants.ts` | `CLAUDE_PROJECTS_DIR`, category/trait IDs, defaults |
+| `constants.ts` | `CLAUDE_PROJECTS_DIR`, `TOKENS_PER_PET`, category/trait IDs, defaults |
+
+## Validation (`src/validation/`)
+
+| File | Exports |
+|------|---------|
+| `startup.ts` | `validateStartup(llmConfig): ValidationResult` — checks API key + Blender |
+
+## First-Run (`src/first-run/`)
+
+| File | Exports |
+|------|---------|
+| `detect.ts` | `isFirstRun(state): boolean` |
+| `recent-ingestion.ts` | `extractRecentTokens(state, limit): number` |
+| `orchestrate.ts` | `buildFirstRunState(state): AppState` — computes initial personality |
 
 ## Sidecar (`src/sidecar/`)
 
 | File | Purpose |
 |------|---------|
-| `main.ts` | CLI entry: `runFull()` → build `PetRenderData` → stdout JSON |
 | `render-data.ts` | `buildRenderData(state, seed): PetRenderData` — uses `computeEggStage` |
-| `generation-trigger.ts` | Check stage via `computeEggStage`, call Claude API if needed, save design |
+| `generation-trigger.ts` | Check stage via `computeEggStage`, call LLM if needed, save design |
 
 ## Viewer Server (`src/viewer/server.ts`)
 
-Express on :3456, binds to `127.0.0.1`, serves `viewer/public/`, REST `/api/pet`, WebSocket push (5s poll)
+Express on :3456 (VIEWER_PORT env), binds `127.0.0.1`.
+
+`startServer()`: validateStartup → Express setup → 7 REST routes + WebSocket push (5s poll)
+
+| Route | Handler Module |
+|-------|---------------|
+| `GET /api/pet` | inline (fetchRenderData) |
+| `GET /api/collection` | `api-collection.ts` → `buildCollectionResponse` |
+| `GET /api/collection/:petId` | `api-collection.ts` → `findPetById` |
+| `GET /api/collection/:petId/render` | `api-collection.ts` → `buildCompletedPetRenderData` |
+| `POST /api/snapshot/:petId` | `snapshot.ts` → `saveSnapshot` |
+| `GET /api/snapshot/:petId` | `snapshot.ts` → `getSnapshotPath` |
+| `GET /zukan` | static file (zukan.html) |
+
+## Viewer API Modules
+
+| File | Exports |
+|------|---------|
+| `api-collection.ts` | `buildCollectionResponse`, `findPetById`, `buildCompletedPetRenderData`, types |
+| `snapshot.ts` | `saveSnapshot`, `getSnapshotPath`, `listSnapshotPetIds` |
 
 ## Generation (`src/generation/`)
 
@@ -96,7 +124,8 @@ Express on :3456, binds to `127.0.0.1`, serves `viewer/public/`, REST `/api/pet`
 |------|---------|
 | `schema.ts` | Zod: `CreatureDesign { parts[], expressions{}, personality{} }` |
 | `prompt.ts` | Japanese prompt builder — egg-based stage descriptions (0-4) |
-| `designer.ts` | Call Claude, parse JSON, validate schema |
+| `designer.ts` | Call LLM provider, parse JSON, validate schema |
+| `llm-provider.ts` | `createLLMProvider(config)` — Anthropic or OpenAI abstraction |
 | `cli.ts` | Design context management — egg stage descriptions |
 | `templates/humanoid.ts` | Base geometry template |
 | `templates/apply.ts` | Apply customization to template |
