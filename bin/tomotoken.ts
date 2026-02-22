@@ -9,8 +9,22 @@ import { ZukanApp } from "../src/ui/ZukanApp.js";
 import { runFull, runIngestion, runProgression, runPersonality } from "../src/index.js";
 import { loadState, saveState, saveCollection, createInitialState, addCompletedPet, acquireLock, releaseLock } from "../src/store/index.js";
 import { loadConfig, ensureDataDir } from "../src/config/index.js";
+import { validateStartup } from "../src/validation/startup.js";
 import { loadCollection } from "../src/store/index.js";
 import { spawnWindow } from "../src/window/index.js";
+
+function checkEnvironment(): void {
+  const config = loadConfig();
+  const result = validateStartup(config.llm);
+  if (!result.ok) {
+    console.error("\n⚠ Setup incomplete:\n");
+    for (const error of result.errors) {
+      console.error(`  [${error.component}] ${error.message}`);
+      console.error(`  → See README: ${error.helpSection}\n`);
+    }
+    process.exit(1);
+  }
+}
 
 const program = new Command();
 
@@ -23,6 +37,7 @@ program
   .command("show", { isDefault: true })
   .description("Show current pet with progress and traits")
   .action(async () => {
+    checkEnvironment();
     const { state, collection } = await runFull();
     const config = loadConfig();
     render(React.createElement(App, { command: "show", state, config, collection }));
@@ -32,6 +47,7 @@ program
   .command("stats")
   .description("Show token usage statistics")
   .action(async () => {
+    checkEnvironment();
     const { state, collection } = await runFull();
     const config = loadConfig();
     render(React.createElement(App, { command: "stats", state, config, collection }));
@@ -41,6 +57,7 @@ program
   .command("collection")
   .description("List completed pets")
   .action(async () => {
+    checkEnvironment();
     const { state, collection } = await runFull();
     const config = loadConfig();
     render(React.createElement(App, { command: "collection", state, config, collection }));
@@ -50,6 +67,7 @@ program
   .command("view <petId>")
   .description("View a completed pet in detail")
   .action(async (petId: string) => {
+    checkEnvironment();
     const { state, collection } = await runFull();
     const config = loadConfig();
     render(React.createElement(App, { command: "view", state, config, collection, viewPetId: petId }));
@@ -68,6 +86,7 @@ program
   .command("rescan")
   .description("Force re-ingest all logs from scratch")
   .action(async () => {
+    checkEnvironment();
     const config = loadConfig();
     ensureDataDir();
     const state = createInitialState();
@@ -80,6 +99,7 @@ program
   .command("zukan")
   .description("Interactive encyclopedia of completed pets")
   .action(async () => {
+    checkEnvironment();
     const { state: _state, collection } = await runFull();
     const config = loadConfig();
     const { unmount } = render(
@@ -99,6 +119,7 @@ program
   .description("Live mode: watch for log changes and update pet")
   .option("--no-animate", "Disable animation")
   .action(async (opts: { animate: boolean }) => {
+    checkEnvironment();
     const config = loadConfig();
     const watchConfig = opts.animate === false
       ? { ...config, animation: { ...config.animation, enabled: false } }

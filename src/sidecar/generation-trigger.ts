@@ -1,6 +1,7 @@
 import type { AppState } from "../store/types.js";
 import { saveState, updatePetInState } from "../store/store.js";
 import { generateCreatureDesign } from "../generation/designer.js";
+import { createLLMProvider } from "../generation/llm-provider.js";
 import { computeEggStage } from "../progression/stages.js";
 import { TRAIT_IDS } from "../config/constants.js";
 
@@ -12,7 +13,7 @@ function deriveArchetypeAndSubtype(traits: Record<string, number>): { archetype:
 /**
  * Check if LLM generation should be triggered for the current stage.
  * If ANTHROPIC_API_KEY is set and no design exists for the current stage,
- * call the Claude API to generate a design and save it to state.
+ * call the LLM provider to generate a design and save it to state.
  *
  * Returns the (possibly updated) state. On failure, returns original state (PRNG fallback).
  */
@@ -38,6 +39,12 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
     ? (pet.generatedDesigns?.[previousStage]?.parts ?? null)
     : null;
 
+  const provider = createLLMProvider({
+    provider: "anthropic",
+    model: "claude-sonnet-4-6",
+    apiKey,
+  });
+
   try {
     const design = await generateCreatureDesign({
       archetype,
@@ -47,7 +54,7 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
       style: snapshot.styleMetrics,
       stage,
       previousParts,
-      apiKey,
+      provider,
     });
 
     const updatedDesigns = { ...(pet.generatedDesigns ?? {}), [stage]: design };

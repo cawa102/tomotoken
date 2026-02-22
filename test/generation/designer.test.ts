@@ -1,17 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { generateCreatureDesign } from "../../src/generation/designer.js";
+import type { LLMProvider } from "../../src/generation/llm-provider.js";
 import type { DepthMetrics, StyleMetrics } from "../../src/store/types.js";
-
-// Mock the Anthropic SDK
-vi.mock("@anthropic-ai/sdk", () => {
-  const mockCreate = vi.fn();
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      messages: { create: mockCreate },
-    })),
-    __mockCreate: mockCreate,
-  };
-});
 
 describe("generateCreatureDesign", () => {
   const traits: Record<string, number> = {
@@ -43,23 +33,24 @@ describe("generateCreatureDesign", () => {
     personality: { name: "Patches", quirk: "always curious" },
   };
 
-  let mockCreate: ReturnType<typeof vi.fn>;
+  let mockProvider: LLMProvider;
 
-  beforeEach(async () => {
-    const mod = await import("@anthropic-ai/sdk");
-    mockCreate = (mod as any).__mockCreate;
-    mockCreate.mockReset();
+  beforeEach(() => {
+    mockProvider = {
+      providerName: "mock",
+      generateText: vi.fn(),
+    };
   });
 
   it("returns parsed CreatureDesign on valid API response", async () => {
-    mockCreate.mockResolvedValue({
-      content: [{ type: "text", text: JSON.stringify(validResponse) }],
-    });
+    (mockProvider.generateText as ReturnType<typeof vi.fn>).mockResolvedValue(
+      JSON.stringify(validResponse),
+    );
 
     const result = await generateCreatureDesign({
       archetype: "architect", subtype: "builder",
       traits, depth, style, stage: 2, previousParts: null,
-      apiKey: "test-key",
+      provider: mockProvider,
     });
 
     expect(result.parts).toHaveLength(1);
@@ -68,55 +59,52 @@ describe("generateCreatureDesign", () => {
   });
 
   it("throws on invalid JSON from API", async () => {
-    mockCreate.mockResolvedValue({
-      content: [{ type: "text", text: "not valid json" }],
-    });
+    (mockProvider.generateText as ReturnType<typeof vi.fn>).mockResolvedValue(
+      "not valid json",
+    );
 
     await expect(generateCreatureDesign({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 1, previousParts: null,
-      apiKey: "test-key",
+      provider: mockProvider,
     })).rejects.toThrow();
   });
 
   it("throws on schema validation failure", async () => {
-    mockCreate.mockResolvedValue({
-      content: [{ type: "text", text: JSON.stringify({ parts: [], expressions: {} }) }],
-    });
+    (mockProvider.generateText as ReturnType<typeof vi.fn>).mockResolvedValue(
+      JSON.stringify({ parts: [], expressions: {} }),
+    );
 
     await expect(generateCreatureDesign({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 1, previousParts: null,
-      apiKey: "test-key",
+      provider: mockProvider,
     })).rejects.toThrow();
   });
 
-  it("uses claude-sonnet-4-6 model", async () => {
-    mockCreate.mockResolvedValue({
-      content: [{ type: "text", text: JSON.stringify(validResponse) }],
-    });
+  it("calls provider.generateText with prompt", async () => {
+    (mockProvider.generateText as ReturnType<typeof vi.fn>).mockResolvedValue(
+      JSON.stringify(validResponse),
+    );
 
     await generateCreatureDesign({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 1, previousParts: null,
-      apiKey: "test-key",
+      provider: mockProvider,
     });
 
-    expect(mockCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ model: "claude-sonnet-4-6" }),
-    );
+    expect(mockProvider.generateText).toHaveBeenCalledOnce();
+    expect(mockProvider.generateText).toHaveBeenCalledWith(expect.any(String));
   });
 
   it("extracts JSON from markdown code block if present", async () => {
     const wrapped = "```json\n" + JSON.stringify(validResponse) + "\n```";
-    mockCreate.mockResolvedValue({
-      content: [{ type: "text", text: wrapped }],
-    });
+    (mockProvider.generateText as ReturnType<typeof vi.fn>).mockResolvedValue(wrapped);
 
     const result = await generateCreatureDesign({
       archetype: "builder", subtype: "fixer",
       traits, depth, style, stage: 1, previousParts: null,
-      apiKey: "test-key",
+      provider: mockProvider,
     });
 
     expect(result.parts).toHaveLength(1);

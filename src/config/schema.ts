@@ -51,6 +51,19 @@ export const ConfigSchema = z.object({
       storeRawMessages: z.boolean().default(false),
     })
     .default({}),
+  llm: z
+    .object({
+      provider: z.enum(["anthropic", "openai"]).default("anthropic"),
+      model: z.string().optional(),
+      apiKey: z.string().min(1).optional(),
+    })
+    .default({})
+    .transform((llm) => ({
+      ...llm,
+      model:
+        llm.model ??
+        (llm.provider === "openai" ? "gpt-4o" : "claude-sonnet-4-20250514"),
+    })),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;

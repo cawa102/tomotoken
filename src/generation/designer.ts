@@ -1,6 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { creatureDesignSchema, type CreatureDesign } from "./schema.js";
 import { buildPrompt, type PromptInput } from "./prompt.js";
+import type { LLMProvider } from "./llm-provider.js";
 import type { DepthMetrics, StyleMetrics } from "../store/types.js";
 
 interface DesignRequest {
@@ -11,7 +11,7 @@ interface DesignRequest {
   readonly style: StyleMetrics;
   readonly stage: number;
   readonly previousParts: readonly unknown[] | null;
-  readonly apiKey: string;
+  readonly provider: LLMProvider;
 }
 
 function extractJson(text: string): string {
@@ -21,8 +21,6 @@ function extractJson(text: string): string {
 }
 
 export async function generateCreatureDesign(request: DesignRequest): Promise<CreatureDesign> {
-  const client = new Anthropic({ apiKey: request.apiKey });
-
   const promptInput: PromptInput = {
     archetype: request.archetype,
     subtype: request.subtype,
@@ -33,18 +31,21 @@ export async function generateCreatureDesign(request: DesignRequest): Promise<Cr
     previousParts: request.previousParts,
   };
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    messages: [{ role: "user", content: buildPrompt(promptInput) }],
-  });
+  const text = await request.provider.generateText(buildPrompt(promptInput));
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text content in Claude response");
+  const jsonStr = extractJson(text);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    throw new Error(
+      `LLM returned non-JSON response (provider: ${request.provider.providerName}). ` +
+      `Raw (first 200 chars): ${text.slice(0, 200)}`,
+    );
   }
-
-  const jsonStr = extractJson(textBlock.text);
-  const parsed = JSON.parse(jsonStr);
-  return creatureDesignSchema.parse(parsed);
+  const result = creatureDesignSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new Error(`LLM response failed schema validation: ${result.error.message}`);
+  }
+  return result.data;
 }
