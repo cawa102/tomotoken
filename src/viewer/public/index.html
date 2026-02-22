@@ -78,6 +78,27 @@
     }
     #connection-status.connected { color: #4caf50; }
     #connection-status.disconnected { color: #f44336; }
+    .floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 24px;
+      z-index: 1000;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .floating-btn:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
   </style>
 </head>
 <body>
@@ -104,6 +125,8 @@
     </div>
   </div>
   <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+  <a href="/zukan" id="nav-btn" class="floating-btn" title="Zukan">&#x1F4D6;</a>
 
   <script type="importmap">
   {

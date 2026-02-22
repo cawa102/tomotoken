@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tomotoken - Zukan</title>
+  <link rel="stylesheet" href="css/zukan.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>Zukan</h1>
+    <p class="subtitle" id="pet-count"></p>
+  </header>
+  <div id="empty-state" class="empty-state hidden">
+    <p>No completed pets yet.</p>
+    <p>Keep using Claude Code to grow your first pet!</p>
+  </div>
+  <div id="grid"></div>
+  <div id="modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div id="modal-viewer"></div>
+      <div id="modal-info"></div>
+    </div>
+  </div>
+  <a href="/" id="nav-btn" class="floating-btn" title="Back to pet">&#x1F3E0;</a>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/zukan.js"></script>
+</body>
+</html>
