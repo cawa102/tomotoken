@@ -19,16 +19,16 @@
 
 ---
 
-Tomotoken reads your local session logs, counts the tokens, and grows a creature that hatches from an egg, develops a personality from your coding habits, and eventually completes. Then you get a new egg. Every billion tokens produces one pet.
-
-Characters are generated based on how your Claude Code perceives the way you use it. -- Yes, it's absolutely on a whim😆
-
 <p align="center">
   <img src="example/fire-fox-spirit-preview.png" alt="Fire Fox Spirit" width="180">
   <img src="example/crystal-dragon-preview.png" alt="Crystal Dragon" width="180">
   <img src="example/mushroom-guardian-preview.png" alt="Mushroom Guardian" width="180">
 </p>
 <p align="center"><i>Example pets generated from real coding sessions</i></p>
+
+Tomotoken reads your local session logs, counts the tokens, and grows a creature that hatches from an egg, develops a personality from your coding habits, and eventually completes. Then you get a new egg. Every billion tokens produces one pet.
+
+Characters are generated based on how your Claude Code perceives the way you use it. -- Yes, it's absolutely on a whim😆
 
 <details>
 <summary><strong>Demo: Generating Character Demo-1</strong></summary>
