@@ -4,9 +4,13 @@
 
 # tomotoken
 
-Your Claude Code token usage, visualized as a growing pet.
+How you use Claude Code is visualized as a pet🦖🎉
+
+Your Claude Code token usage would be EXP, growing your unique pet.
 
 Tomotoken reads your local session logs, counts the tokens, and grows a creature that hatches from an egg, develops a personality from your coding habits, and eventually completes. Then you get a new egg. Every billion tokens produces one pet.
+
+Characters are generated based on how your Claude Code perceives the way you use it. -- Yes, it's absolutely on a whim😆
 
 <p align="center">
   <img src="example/fire-fox-spirit-preview.png" alt="Fire Fox Spirit" width="180">
@@ -16,7 +20,7 @@ Tomotoken reads your local session logs, counts the tokens, and grows a creature
 <p align="center"><i>Example pets generated from real coding sessions</i></p>
 
 <details>
-<summary><strong>Demo: Egg viewer & personality radar</strong></summary>
+<summary><strong>Demo: Generating Character Demo-1</strong></summary>
 <br>
 
 https://github.com/user-attachments/assets/e891dd20-e8b3-4df6-b376-e20e3f8bdf78
@@ -24,14 +28,14 @@ https://github.com/user-attachments/assets/e891dd20-e8b3-4df6-b376-e20e3f8bdf78
 </details>
 
 <details>
-<summary><strong>Demo: Collection gallery</strong></summary>
+<summary><strong>Demo: Generating Character Demo-2</strong></summary>
 <br>
 
 https://github.com/user-attachments/assets/38f66f13-f25d-433c-b37b-ad5b66298ade
 
 </details>
 
-## Quick start
+## 🚀Quick start
 
 ```bash
 git clone https://github.com/cawa102/tomotoken.git
@@ -42,16 +46,15 @@ export ANTHROPIC_API_KEY=sk-ant-...   # or set in ~/.tomotoken/config.json
 npm start
 ```
 
-Opens at `http://localhost:3456`. On first launch, tomotoken scans your recent Claude Code sessions and creates your first pet instantly -- no blank egg.
+Opens at `http://localhost:3456`. On first launch, tomotoken scans your recent Claude Code sessions and creates your first pet instantly.
 
 ## What you get
 
 - 3D character in the browser via Three.js, designed by an LLM, optionally post-processed with Blender
 - Personality traits computed from how you actually use Claude Code (file types, tools, bash habits, session depth)
 - A collection of completed pets you can browse in the collection gallery with card grid and detail modals
-- Automatic PNG snapshots captured when a pet completes
 
-## Requirements
+## ⚙️Requirements
 
 - Node.js 18+
 - Claude Code installed and used (reads `~/.claude/projects/` logs)
