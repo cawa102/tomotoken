@@ -2,11 +2,22 @@
   <img src="example/WebViewer.png" alt="Tomotoken - Your coding habits, hatched" width="720">
 </p>
 
-# tomotoken
+<h1 align="center">tomotoken</h1>
 
-How you use Claude Code is visualized as a pet🦖🎉
+<p align="center">
+  <img src="https://img.shields.io/badge/Claude_Code-powered-F97316?logo=anthropic&logoColor=white" alt="Claude Code">
+  <img src="https://img.shields.io/badge/Three.js-3D_Viewer-000000?logo=threedotjs&logoColor=white" alt="Three.js">
+  <img src="https://img.shields.io/badge/Blender-MCP-E87D0D?logo=blender&logoColor=white" alt="Blender">
+  <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+</p>
 
-Your Claude Code token usage would be EXP, growing your unique pet.
+<p align="center">
+  Your Claude Code token usage, visualized as a growing 3D pet.<br>
+  Powered by <b>Claude Code</b> log analysis, <b>LLM</b>-driven character design, and <b>Blender MCP</b> post-processing.
+</p>
+
+---
 
 Tomotoken reads your local session logs, counts the tokens, and grows a creature that hatches from an egg, develops a personality from your coding habits, and eventually completes. Then you get a new egg. Every billion tokens produces one pet.
 
