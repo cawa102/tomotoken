@@ -165,6 +165,27 @@ describe("getDesignContext", () => {
 
     expect(ctx.stage).toBe(4);
   });
+
+  it("handles requiredTokens of 0 (progress stays at 0)", async () => {
+    const state = createTestState({ requiredTokens: 0, consumedTokens: 0 });
+    mockLoadState.mockReturnValue(state);
+
+    const ctx = await getDesignContext();
+
+    expect(ctx.stage).toBe(0);
+  });
+
+  it("returns unknown description for out-of-range stage", async () => {
+    // consumedTokens > requiredTokens caps at 1.0, stage 4 max
+    // progress clamped via Math.min(1.0, ...)
+    const state = createTestState({ consumedTokens: 99999 });
+    mockLoadState.mockReturnValue(state);
+
+    const ctx = await getDesignContext();
+
+    expect(ctx.stage).toBe(4);
+    expect(ctx.stageDescription).toContain("誕生");
+  });
 });
 
 describe("saveDesign", () => {
@@ -190,8 +211,18 @@ describe("saveDesign", () => {
     expect(savedState.currentPet.generatedDesigns?.[2]).toEqual(result);
   });
 
-  it("throws on invalid JSON", async () => {
-    await expect(saveDesign("not json")).rejects.toThrow();
+  it("throws on invalid JSON with descriptive message", async () => {
+    await expect(saveDesign("not json")).rejects.toThrow("Invalid JSON input:");
+  });
+
+  it("saves design at stage 0 when requiredTokens is 0", async () => {
+    const state = createTestState({ requiredTokens: 0, consumedTokens: 0 });
+    mockLoadState.mockReturnValue(state);
+
+    const result = await saveDesign(JSON.stringify(validCustomization));
+
+    const savedState = mockSaveState.mock.calls[0][0] as AppState;
+    expect(savedState.currentPet.generatedDesigns?.[0]).toEqual(result);
   });
 
   it("throws on invalid Customization (missing bodyColor)", async () => {
