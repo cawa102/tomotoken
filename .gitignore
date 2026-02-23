@@ -32,3 +32,6 @@ src/viewer/public/kitsune-preview.html
 
 # Large source video files (mp4 versions are committed)
 example/*.mov
+
+# Medium article drafts
+medium/
