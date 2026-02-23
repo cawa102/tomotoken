@@ -59,7 +59,7 @@ Opens at `http://localhost:3456`. On first launch, tomotoken scans your recent C
 - Node.js 18+
 - Claude Code installed and used (reads `~/.claude/projects/` logs)
 - API key: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (for creature design generation)
-- Blender 4.x in your PATH (optional, for 3D model post-processing)
+- [Blender](https://www.blender.org/download/) 4.x in your PATH (optional, for 3D model post-processing)
 
 ## API key setup
 
