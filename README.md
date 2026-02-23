@@ -15,11 +15,12 @@ Tomotoken reads your local session logs, counts the tokens, and grows a creature
 </p>
 <p align="center"><i>Example pets generated from real coding sessions</i></p>
 
+<!-- TODO: Replace with user-attachments URLs after uploading via GitHub UI -->
 <details>
 <summary><strong>Demo: Egg viewer & personality radar</strong></summary>
 <br>
 
-https://github.com/cawa102/tomotoken/raw/main/example/tomotoken1.mp4
+https://github.com/cawa102/tomotoken/raw/refs/heads/main/example/tomotoken1.mp4
 
 </details>
 
@@ -27,7 +28,7 @@ https://github.com/cawa102/tomotoken/raw/main/example/tomotoken1.mp4
 <summary><strong>Demo: Collection gallery</strong></summary>
 <br>
 
-https://github.com/cawa102/tomotoken/raw/main/example/tomotoken2.mp4
+https://github.com/cawa102/tomotoken/raw/refs/heads/main/example/tomotoken2.mp4
 
 </details>
 
