@@ -4,9 +4,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // Mock GLTFLoader before importing the module
 const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
 vi.mock("three/addons/loaders/GLTFLoader.js", () => ({
-  GLTFLoader: vi.fn().mockImplementation(() => ({
-    load: mockLoad,
-  })),
+  GLTFLoader: class {
+    load = mockLoad;
+  },
 }));
 
 import { MODEL_BASE_PATH, loadModel } from "../../src/viewer/public/js/model-loader.js";

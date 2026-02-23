@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
 vi.mock("three/addons/loaders/GLTFLoader.js", () => ({
-  GLTFLoader: vi.fn().mockImplementation(() => ({
-    load: mockLoad,
-  })),
+  GLTFLoader: class {
+    load = mockLoad;
+  },
 }));
 
 import { loadEggModel, EGG_MODEL_PATH } from "../../src/viewer/public/js/egg-loader.js";
