@@ -1,8 +1,48 @@
+<p align="center">
+  <img src="example/WebViewer.png" alt="Tomotoken - Your coding habits, hatched" width="720">
+</p>
+
 # tomotoken
 
-Tomotoken turns your Claude Code token usage into a pet. It reads your local session logs, counts the tokens, and grows a creature that hatches from an egg, develops a personality from your coding habits, and eventually completes. Then you get a new egg.
+Your Claude Code token usage, visualized as a growing pet.
 
-Every billion tokens produces one pet.
+Tomotoken reads your local session logs, counts the tokens, and grows a creature that hatches from an egg, develops a personality from your coding habits, and eventually completes. Then you get a new egg. Every billion tokens produces one pet.
+
+<p align="center">
+  <img src="example/fire-fox-spirit-preview.png" alt="Fire Fox Spirit" width="180">
+  <img src="example/crystal-dragon-preview.png" alt="Crystal Dragon" width="180">
+  <img src="example/mushroom-guardian-preview.png" alt="Mushroom Guardian" width="180">
+</p>
+<p align="center"><i>Example pets generated from real coding sessions</i></p>
+
+<details>
+<summary><strong>Demo: Egg viewer & personality radar</strong></summary>
+<br>
+
+https://github.com/cawa102/tomotoken/raw/main/example/tomotoken1.mp4
+
+</details>
+
+<details>
+<summary><strong>Demo: Collection gallery</strong></summary>
+<br>
+
+https://github.com/cawa102/tomotoken/raw/main/example/tomotoken2.mp4
+
+</details>
+
+## Quick start
+
+```bash
+git clone https://github.com/cawa102/tomotoken.git
+cd tomotoken
+npm install
+npm run build
+export ANTHROPIC_API_KEY=sk-ant-...   # or set in ~/.tomotoken/config.json
+npm start
+```
+
+Opens at `http://localhost:3456`. On first launch, tomotoken scans your recent Claude Code sessions and creates your first pet instantly -- no blank egg.
 
 ## What you get
 
@@ -14,31 +54,18 @@ Every billion tokens produces one pet.
 ## Requirements
 
 - Node.js 18+
-- Blender 4.x in your PATH
-- API key: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
 - Claude Code installed and used (reads `~/.claude/projects/` logs)
+- API key: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (for creature design generation)
+- Blender 4.x in your PATH (optional, for 3D model post-processing)
 
-## Install
-
-```bash
-git clone https://github.com/cawa102/tomotoken.git
-cd tomotoken
-npm install
-npm run build
-```
-
-## Setup
-
-### Getting an API key
+## API key setup
 
 Tomotoken uses an LLM to generate creature designs. You need an API key from one of these providers:
 
-- **Anthropic** (default): Go to [console.anthropic.com](https://console.anthropic.com) → **API Keys** → **Create Key**
-- **OpenAI**: Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) → **Create new secret key**
+- **Anthropic** (default): [console.anthropic.com](https://console.anthropic.com) -> API Keys -> Create Key
+- **OpenAI**: [platform.openai.com/api-keys](https://platform.openai.com/api-keys) -> Create new secret key
 
-### Configuring your key
-
-Set your API key as an environment variable:
+Set it as an environment variable:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -55,7 +82,8 @@ Or put it in `~/.tomotoken/config.json`:
 }
 ```
 
-OpenAI works too:
+<details>
+<summary>OpenAI configuration</summary>
 
 ```json
 {
@@ -67,7 +95,9 @@ OpenAI works too:
 }
 ```
 
-The default provider is Anthropic with `claude-sonnet-4-6-20250620`. The default OpenAI model is `gpt-5.2`.
+The default Anthropic model is `claude-sonnet-4-6-20250620`. The default OpenAI model is `gpt-5.2`.
+
+</details>
 
 ## Usage
 
@@ -75,7 +105,7 @@ The default provider is Anthropic with `claude-sonnet-4-6-20250620`. The default
 npm start
 ```
 
-Opens the web app at `http://localhost:3456`. The main page shows your current pet in 3D with a personality radar chart and progress bar. Click the book button to browse your completed pets in the collection.
+The main page shows your current pet in 3D with a personality radar chart and progress bar. Click the book button to browse your completed pets in the collection.
 
 To change the port:
 
@@ -95,10 +125,6 @@ Four stages run on each poll cycle:
 4. **Viewer** serves the 3D pet via Express + WebSocket at localhost:3456, pushing updates every 5 seconds.
 
 The 3D pipeline runs alongside. An LLM writes a creature description from the pet's personality. Hyper3D generates a 3D model from that description. Blender post-processes it (lattice deformation for eye enlargement, decimation to 20K faces, smooth shading at 60 degrees). Three.js renders the result in the browser.
-
-## First run
-
-On first launch, tomotoken looks at your recent Claude Code sessions and creates your first pet from that activity. So you don't start from a blank egg -- you get a pet based on what you've already been doing.
 
 ## Pages
 

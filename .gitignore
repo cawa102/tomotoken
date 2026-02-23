@@ -29,3 +29,6 @@ security-review/
 generate-*.mjs
 preview-*.mjs
 src/viewer/public/kitsune-preview.html
+
+# Large source video files (mp4 versions are committed)
+example/*.mov
