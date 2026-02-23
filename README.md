@@ -48,7 +48,7 @@ npm start
 
 Opens at `http://localhost:3456`. On first launch, tomotoken scans your recent Claude Code sessions and creates your first pet instantly.
 
-## What you get
+## 🎁What you get
 
 - 3D character in the browser via Three.js, designed by an LLM, optionally post-processed with Blender
 - Personality traits computed from how you actually use Claude Code (file types, tools, bash habits, session depth)
