@@ -221,6 +221,17 @@ src/
   config/        Zod-validated configuration
 ```
 
+## Contributing
+
+Contributions are welcome! Whether it's:
+
+- Bug reports
+- Feature suggestions
+- Documentation improvements
+- Code contributions
+
+---
+
 ## License
 
 MIT
