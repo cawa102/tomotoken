@@ -61,6 +61,16 @@ Opens at `http://localhost:3456`. On first launch, tomotoken scans your recent C
 - API key: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (for creature design generation)
 - [Blender](https://www.blender.org/download/) 4.x in your PATH (optional, for 3D model post-processing)
 
+### Blender MCP setup
+
+This repository includes `.mcp.json` which configures the [Blender MCP](https://github.com/ahujasid/blender-mcp) server for Claude Code. The MCP config is installed automatically with `npm install`, but you need to set up the Blender side:
+
+1. Open Blender
+2. Install the **Blender MCP** addon -- see [ahujasid/blender-mcp](https://github.com/ahujasid/blender-mcp) for instructions
+3. Start the MCP server from the addon panel in Blender
+
+Once connected, Claude Code can generate and post-process 3D models directly in Blender.
+
 ## API key setup
 
 Tomotoken uses an LLM to generate creature designs. You need an API key from one of these providers:
