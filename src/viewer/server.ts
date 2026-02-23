@@ -15,6 +15,7 @@ import { loadCollection } from "../store/index.js";
 import { buildCollectionResponse, findPetById, buildCompletedPetRenderData } from "./api-collection.js";
 
 const POLL_INTERVAL_MS = 5_000;
+const MAX_WS_CLIENTS = 10;
 
 async function fetchRenderData(): Promise<string> {
   const result = await runFull();
@@ -43,7 +44,18 @@ export function startServer(): void {
 
   const app = express();
   const server = createServer(app);
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({
+    server,
+    verifyClient: ({ origin }: { origin?: string }) => {
+      if (!origin) return true; // Allow non-browser connections (e.g., CLI tools)
+      try {
+        const host = new URL(origin).hostname;
+        return host === "localhost" || host === "127.0.0.1";
+      } catch {
+        return false;
+      }
+    },
+  });
 
   const publicDir = join(process.cwd(), "src", "viewer", "public");
   if (!existsSync(join(publicDir, "index.html"))) {
@@ -58,6 +70,28 @@ export function startServer(): void {
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("Content-Security-Policy",
+      "default-src 'self'; " +
+      "script-src 'self' https://cdn.jsdelivr.net; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "connect-src 'self' ws://localhost:* ws://127.0.0.1:*; " +
+      "img-src 'self' data: blob:;"
+    );
+    res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    next();
+  });
+
+  // Cross-origin protection (block requests from external websites)
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin) {
+      const host = new URL(origin).hostname;
+      if (host !== "localhost" && host !== "127.0.0.1") {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+    }
     next();
   });
 
@@ -150,6 +184,10 @@ export function startServer(): void {
   // WebSocket: push updates
   const clients = new Set<WebSocket>();
   wss.on("connection", (ws) => {
+    if (clients.size >= MAX_WS_CLIENTS) {
+      ws.close(1013, "Too many connections");
+      return;
+    }
     clients.add(ws);
     ws.on("close", () => clients.delete(ws));
     ws.on("error", () => clients.delete(ws));

@@ -24,7 +24,7 @@ describe("snapshot", () => {
   });
 
   it("lists petIds that have snapshots", () => {
-    const pngData = Buffer.from([0x89, 0x50, 0x4E, 0x47]);
+    const pngData = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     saveSnapshot("pet-a", pngData, TEST_DIR);
     saveSnapshot("pet-b", pngData, TEST_DIR);
 
@@ -33,24 +33,34 @@ describe("snapshot", () => {
   });
 
   it("rejects petId with path traversal", () => {
-    const pngData = Buffer.from([0x89, 0x50]);
-    expect(() => saveSnapshot("../evil", pngData, TEST_DIR)).toThrow();
-    expect(() => saveSnapshot("foo/bar", pngData, TEST_DIR)).toThrow();
+    const pngData = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    expect(() => saveSnapshot("../evil", pngData, TEST_DIR)).toThrow("Invalid petId");
+    expect(() => saveSnapshot("foo/bar", pngData, TEST_DIR)).toThrow("Invalid petId");
   });
 
   it("rejects petId with dot prefix", () => {
-    const pngData = Buffer.from([0x89, 0x50]);
-    expect(() => saveSnapshot(".hidden", pngData, TEST_DIR)).toThrow();
+    const pngData = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    expect(() => saveSnapshot(".hidden", pngData, TEST_DIR)).toThrow("Invalid petId");
   });
 
   it("overwrites existing snapshot", () => {
-    const data1 = Buffer.from([0x89, 0x50, 0x01]);
-    const data2 = Buffer.from([0x89, 0x50, 0x02]);
+    const data1 = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x01]);
+    const data2 = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x02]);
     saveSnapshot("pet-x", data1, TEST_DIR);
     saveSnapshot("pet-x", data2, TEST_DIR);
 
     const path = getSnapshotPath("pet-x", TEST_DIR);
     expect(readFileSync(path!)).toEqual(data2);
+  });
+
+  it("rejects non-PNG data", () => {
+    const notPng = Buffer.from("not a png file");
+    expect(() => saveSnapshot("pet-valid", notPng, TEST_DIR)).toThrow("Invalid PNG data");
+  });
+
+  it("rejects truncated PNG header", () => {
+    const truncated = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    expect(() => saveSnapshot("pet-valid", truncated, TEST_DIR)).toThrow("Invalid PNG data");
   });
 
   it("returns empty set for nonexistent directory", () => {

@@ -5,6 +5,10 @@ import {
   mkdirSync,
   renameSync,
   unlinkSync,
+  openSync,
+  writeSync,
+  closeSync,
+  constants,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -22,24 +26,50 @@ const LOCK_STALE_MS = 5 * 60 * 1000; // 5 minutes
 
 export function acquireLock(lockPath: string = LOCK_PATH): boolean {
   ensureDir(lockPath);
-  if (existsSync(lockPath)) {
+
+  // Try atomic create — O_EXCL fails if file already exists
+  try {
+    const data = JSON.stringify({ pid: process.pid, timestamp: Date.now() });
+    const fd = openSync(lockPath, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
     try {
-      const raw = readFileSync(lockPath, "utf-8");
-      const { pid, timestamp } = JSON.parse(raw) as { pid: number; timestamp: number };
-      const age = Date.now() - timestamp;
-      // Check if lock is stale (process dead or too old)
-      try {
-        process.kill(pid, 0); // Test if process exists
-        if (age < LOCK_STALE_MS) return false; // Process alive and lock is fresh
-      } catch {
-        // Process doesn't exist — stale lock, take over
-      }
-    } catch {
-      // Corrupted lock file — take over
+      writeSync(fd, data);
+    } finally {
+      closeSync(fd);
     }
+    return true;
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
   }
-  writeFileSync(lockPath, JSON.stringify({ pid: process.pid, timestamp: Date.now() }), { encoding: "utf-8", mode: 0o600 });
-  return true;
+
+  // Lock file exists — check if stale
+  try {
+    const raw = readFileSync(lockPath, "utf-8");
+    const { pid, timestamp } = JSON.parse(raw) as { pid: number; timestamp: number };
+    const age = Date.now() - timestamp;
+    try {
+      process.kill(pid, 0); // Test if process exists
+      if (age < LOCK_STALE_MS) return false; // Process alive and lock is fresh
+    } catch {
+      // Process doesn't exist — stale lock, take over
+    }
+  } catch {
+    // Corrupted lock file — take over
+  }
+
+  // Take over stale/corrupted lock — remove and retry atomically
+  try { unlinkSync(lockPath); } catch { /* ignore */ }
+  try {
+    const data = JSON.stringify({ pid: process.pid, timestamp: Date.now() });
+    const fd = openSync(lockPath, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
+    try {
+      writeSync(fd, data);
+    } finally {
+      closeSync(fd);
+    }
+    return true;
+  } catch {
+    return false; // Another process won the race
+  }
 }
 
 export function releaseLock(lockPath: string = LOCK_PATH): void {

@@ -56,7 +56,7 @@ function renderGrid(data) {
   const emptyState = document.getElementById("empty-state");
   const petCount = document.getElementById("pet-count");
 
-  grid.innerHTML = "";
+  grid.replaceChildren();
 
   if (data.pets.length === 0) {
     emptyState.classList.remove("hidden");
@@ -87,37 +87,44 @@ function closeModal() {
     activeViewer.dispose();
     activeViewer = null;
   }
-  document.getElementById("modal-info").innerHTML = "";
+  document.getElementById("modal-info").replaceChildren();
 }
 
 function renderModalContent(pet) {
   const info = document.getElementById("modal-info");
+  info.replaceChildren();
+
   const archetype = deriveArchetype(pet.personality.traits);
 
+  const h2 = document.createElement("h2");
+  h2.textContent = archetype;
+
+  const dates = document.createElement("div");
+  dates.className = "modal-dates";
+  dates.textContent = new Date(pet.spawnedAt).toLocaleDateString() + " \u2014 " + new Date(pet.completedAt).toLocaleDateString();
+
+  const tokens = document.createElement("div");
+  tokens.className = "modal-tokens";
+  tokens.textContent = pet.consumedTokens.toLocaleString() + " tokens";
+
+  const traitsDiv = document.createElement("div");
+  traitsDiv.className = "modal-traits";
   const traitEntries = Object.entries(pet.personality.traits)
     .sort((a, b) => b[1] - a[1]);
+  traitEntries.forEach(([name, score], i) => {
+    const span = document.createElement("span");
+    span.className = i === 0 ? "trait-badge primary" : "trait-badge";
+    span.textContent = name + " " + score;
+    traitsDiv.appendChild(span);
+  });
 
-  const traitBadges = traitEntries
-    .map(([name, score], i) => {
-      const cls = i === 0 ? "trait-badge primary" : "trait-badge";
-      return `<span class="${cls}">${name} ${score}</span>`;
-    })
-    .join("");
-
-  info.innerHTML = `
-    <h2>${archetype}</h2>
-    <div class="modal-dates">${new Date(pet.spawnedAt).toLocaleDateString()} &mdash; ${new Date(pet.completedAt).toLocaleDateString()}</div>
-    <div class="modal-tokens">${pet.consumedTokens.toLocaleString()} tokens</div>
-    <div class="modal-traits">${traitBadges}</div>
-  `;
-
-  // Initialize Three.js viewer in modal
+  info.append(h2, dates, tokens, traitsDiv);
   initModalViewer(pet.petId);
 }
 
 async function initModalViewer(petId) {
   const container = document.getElementById("modal-viewer");
-  container.innerHTML = "";
+  container.replaceChildren();
 
   try {
     const res = await fetch(`/api/collection/${encodeURIComponent(petId)}/render`);

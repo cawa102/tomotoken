@@ -18,6 +18,8 @@ function deriveArchetypeAndSubtype(traits: Record<string, number>): { archetype:
  *
  * Returns the (possibly updated) state. On failure, returns original state (PRNG fallback).
  */
+let generationInFlight: Promise<AppState> | null = null;
+
 export async function triggerGenerationIfNeeded(state: AppState): Promise<AppState> {
   const config = loadConfig();
   const apiKey = resolveApiKey(config.llm);
@@ -37,6 +39,9 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
 
   if (pet.generatedDesigns?.[stage]) return state;
 
+  // Deduplicate concurrent generation requests
+  if (generationInFlight) return generationInFlight;
+
   const { archetype, subtype } = deriveArchetypeAndSubtype(snapshot.traits);
 
   const previousStage = stage > 0 ? stage - 1 : null;
@@ -50,25 +55,33 @@ export async function triggerGenerationIfNeeded(state: AppState): Promise<AppSta
     apiKey,
   });
 
-  try {
-    const design = await generateCreatureDesign({
-      archetype,
-      subtype,
-      traits: snapshot.traits,
-      depth: snapshot.depthMetrics,
-      style: snapshot.styleMetrics,
-      stage,
-      previousParts,
-      provider,
-    });
+  generationInFlight = (async () => {
+    try {
+      const design = await generateCreatureDesign({
+        archetype,
+        subtype,
+        traits: snapshot.traits,
+        depth: snapshot.depthMetrics,
+        style: snapshot.styleMetrics,
+        stage,
+        previousParts,
+        provider,
+      });
 
-    const updatedDesigns = { ...(pet.generatedDesigns ?? {}), [stage]: design };
-    const updatedState = updatePetInState(state, { generatedDesigns: updatedDesigns });
-    saveState(updatedState);
-    return updatedState;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`[tomotoken] LLM generation failed (falling back to PRNG): ${message}\n`);
-    return state;
+      const updatedDesigns = { ...(pet.generatedDesigns ?? {}), [stage]: design };
+      const updatedState = updatePetInState(state, { generatedDesigns: updatedDesigns });
+      saveState(updatedState);
+      return updatedState;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`[tomotoken] LLM generation failed (falling back to PRNG): ${message}\n`);
+      return state;
+    }
+  })();
+
+  try {
+    return await generationInFlight;
+  } finally {
+    generationInFlight = null;
   }
 }
